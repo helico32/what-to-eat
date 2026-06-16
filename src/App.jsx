@@ -1,19 +1,19 @@
 import { useState, useCallback } from 'react'
-import { useSortable } from './hooks/useSortable'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { useSortable }   from './hooks/useSortable'
 import { useStore }      from './hooks/useStore'
 import { useRecipes }    from './hooks/useRecipes'
 import { sortByUrgency } from './utils/badges'
-import Header       from './components/Header'
-import MenuDrawer   from './components/MenuDrawer'
-import TabBar       from './components/TabBar'
-import RecipeCard   from './components/RecipeCard'
-import ProductRow   from './components/ProductRow'
-import ListePage    from './components/ListePage'
-import RecipesPage  from './components/RecipesPage'
-import AddModal     from './components/AddModal'
-import RecipeModal  from './components/RecipeModal'
-
-const NO_PAGE = null
+import Header          from './components/Header'
+import MenuDrawer      from './components/MenuDrawer'
+import TabBar          from './components/TabBar'
+import RecipeCard      from './components/RecipeCard'
+import ProductRow      from './components/ProductRow'
+import ListePage       from './components/ListePage'
+import RecipesPage     from './components/RecipesPage'
+import AddModal        from './components/AddModal'
+import AddRecipeModal  from './components/AddRecipeModal'
+import RecipeModal     from './components/RecipeModal'
 
 function SortIcon() {
   return (
@@ -76,22 +76,25 @@ const getSectionLabel = (tab) => ({
 }[tab])
 
 export default function App() {
-  const store = useStore()
+  const store   = useStore()
   const { recipes, addRecipe, deleteRecipe, editRecipe, toggleFavorite, reorderRecipes } = useRecipes()
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const [tab,        setTab]        = useState('urgent')
-  const [page,       setPage]       = useState(NO_PAGE)
-  const [showAdd,    setShowAdd]    = useState(false)
-  const [showMenu,   setShowMenu]   = useState(false)
-  const [showRecipe, setShowRecipe] = useState(false)
-  const [recipe,     setRecipe]     = useState(null)
-  const [sorting,      setSorting]    = useState(false)
+  const [tab,      setTab]      = useState('urgent')
+  const [showAdd,  setShowAdd]  = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
+  const [sorting,  setSorting]  = useState(false)
 
-  const viewProducts   = getView(tab, store.products)
   const uncheckedCount = store.shoppingList.filter(i => !i.checked).length
+  const viewProducts   = getView(tab, store.products)
   const canDrag        = tab !== 'urgent' && sorting
 
-  const goHome = () => { setPage(NO_PAGE); setTab('urgent'); setSorting(false) }
+  const activePage = location.pathname === '/liste'
+    ? 'liste'
+    : location.pathname.startsWith('/recettes')
+    ? 'recettes'
+    : null
 
   const onReorderProducts = useCallback((reorderedView) => {
     const ids = new Set(reorderedView.map(p => p.id))
@@ -135,117 +138,136 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-canvas max-w-[430px] mx-auto font-body text-ink-primary">
+      <Routes>
 
-      {page === 'liste' && (
-        <ListePage
-          items={store.shoppingList}
-          onToggle={store.toggleShoppingItem}
-          onRemove={store.removeFromShoppingList}
-          onClearChecked={store.clearCheckedItems}
-          onReorder={store.reorderShoppingList}
-          onAddItem={(name) => store.addToShoppingList({ id: Date.now(), name, emoji: '🛒' })}
-          onAddCheckedToStock={handleAddCheckedToStock}
-          onClose={() => setPage(NO_PAGE)}
-          onMenu={() => setShowMenu(true)}
-          onCart={() => setPage('liste')}
-          cartCount={uncheckedCount}
-        />
-      )}
-      {page === 'recettes' && (
-        <RecipesPage
-          recipes={recipes}
-          products={store.products}
-          onAddRecipe={addRecipe}
-          onDeleteRecipe={deleteRecipe}
-          onEditRecipe={editRecipe}
-          onToggleFavorite={toggleFavorite}
-          onReorderRecipes={reorderRecipes}
-          onClose={() => setPage(NO_PAGE)}
-          onMenu={() => setShowMenu(true)}
-          onCart={() => setPage('liste')}
-          cartCount={uncheckedCount}
-        />
-      )}
-
-      <Header
-        onTitleClick={goHome}
-        onAdd={() => setShowAdd(true)}
-        onMenu={() => setShowMenu(true)}
-        onCart={() => setPage('liste')}
-        cartCount={uncheckedCount}
-      />
-      <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false) }} />
-
-      <main className="px-4 pt-4 pb-16">
-        <SectionLabel
-          label={getSectionLabel(tab)}
-          count={viewProducts.length}
-          onSort={tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
-          sorting={sorting}
-        />
-
-        {viewProducts.length === 0 ? (
-          <EmptyState
-            icon={tab === 'congel' ? '❄️' : tab === 'placard' ? '📦' : '🧊'}
-            title="Rien ici"
-            desc="Appuie sur + pour commencer."
-          />
-        ) : (
-          <div className="bg-canvas-surface rounded-xl border border-canvas-border divide-y divide-canvas-border px-4">
-            {viewProducts.map((p, index) => (
-              <ProductRow
-                key={p.id}
-                product={p}
-                onDelete={() => store.decrementProduct(p.id)}
-                onAddToCart={() => store.addToShoppingList(p)}
-                canDrag={canDrag}
-                isDragging={activeIndex === index}
-                rowProps={canDrag ? rowProps(index) : {}}
-                handleProps={canDrag ? handleProps(index) : {}}
-                sortIndex={index}
-                sortTotal={viewProducts.length}
-                onMoveTo={(toIndex) => handleMoveProductTo(index, toIndex)}
-              />
-            ))}
-          </div>
-        )}
-
-        {tab === 'urgent' && (
-          <div className="mt-4">
-            <SectionLabel label="Proposition de repas" />
-            <RecipeCard
-              recipes={recipes}
-              products={store.products}
-              onViewRecipe={(r) => { setRecipe(r); setShowRecipe(true) }}
+        {/* ── Homepage ── */}
+        <Route path="/" element={
+          <>
+            <Header
+              onTitleClick={() => { setTab('urgent'); setSorting(false) }}
+              onAdd={() => setShowAdd(true)}
+              onMenu={() => setShowMenu(true)}
+              onCart={() => navigate('/liste')}
+              cartCount={uncheckedCount}
             />
-          </div>
-        )}
-      </main>
+            <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false) }} />
+
+            <main className="px-4 pt-4 pb-16">
+              <SectionLabel
+                label={getSectionLabel(tab)}
+                count={viewProducts.length}
+                onSort={tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
+                sorting={sorting}
+              />
+
+              {viewProducts.length === 0 ? (
+                <EmptyState
+                  icon={tab === 'congel' ? '❄️' : tab === 'placard' ? '📦' : '🧊'}
+                  title="Rien ici"
+                  desc="Appuie sur + pour commencer."
+                />
+              ) : (
+                <div className="bg-canvas-surface rounded-xl border border-canvas-border divide-y divide-canvas-border px-4">
+                  {viewProducts.map((p, index) => (
+                    <ProductRow
+                      key={p.id}
+                      product={p}
+                      onDelete={() => store.decrementProduct(p.id)}
+                      onAddToCart={() => store.addToShoppingList(p)}
+                      canDrag={canDrag}
+                      isDragging={activeIndex === index}
+                      rowProps={canDrag ? rowProps(index) : {}}
+                      handleProps={canDrag ? handleProps(index) : {}}
+                      sortIndex={index}
+                      sortTotal={viewProducts.length}
+                      onMoveTo={(toIndex) => handleMoveProductTo(index, toIndex)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {tab === 'urgent' && (
+                <div className="mt-4">
+                  <SectionLabel label="Proposition de repas" />
+                  <RecipeCard
+                    recipes={recipes}
+                    products={store.products}
+                    onViewRecipe={(r) => navigate(`/recettes/${r.id}`)}
+                  />
+                </div>
+              )}
+            </main>
+
+            {showAdd && (
+              <AddModal
+                onClose={() => setShowAdd(false)}
+                onAdd={(p) => { store.addProduct(p); setShowAdd(false) }}
+              />
+            )}
+          </>
+        } />
+
+        {/* ── Liste de courses ── */}
+        <Route path="/liste" element={
+          <ListePage
+            items={store.shoppingList}
+            onToggle={store.toggleShoppingItem}
+            onRemove={store.removeFromShoppingList}
+            onClearChecked={store.clearCheckedItems}
+            onReorder={store.reorderShoppingList}
+            onAddItem={(name) => store.addToShoppingList({ id: Date.now(), name, emoji: '🛒' })}
+            onAddCheckedToStock={handleAddCheckedToStock}
+            onClose={() => navigate('/')}
+            onMenu={() => setShowMenu(true)}
+            onCart={() => navigate('/liste')}
+            cartCount={uncheckedCount}
+          />
+        } />
+
+        {/* ── Recettes ── */}
+        <Route path="/recettes" element={
+          <RecipesPage
+            recipes={recipes}
+            products={store.products}
+            onAddRecipe={addRecipe}
+            onDeleteRecipe={deleteRecipe}
+            onEditRecipe={editRecipe}
+            onToggleFavorite={toggleFavorite}
+            onReorderRecipes={reorderRecipes}
+            onClose={() => navigate('/')}
+            onMenu={() => setShowMenu(true)}
+            onCart={() => navigate('/liste')}
+            cartCount={uncheckedCount}
+          />
+        } />
+
+        {/* ── Ajouter une recette ── */}
+        <Route path="/recettes/new" element={
+          <AddRecipeModal
+            onClose={() => navigate('/recettes')}
+            onAdd={(r) => { addRecipe(r); navigate('/recettes') }}
+          />
+        } />
+
+        {/* ── Détail recette ── */}
+        <Route path="/recettes/:id" element={
+          <RecipeModal
+            recipes={recipes}
+            products={store.products}
+            onEdit={editRecipe}
+          />
+        } />
+
+      </Routes>
 
       {showMenu && (
         <MenuDrawer
           activeTab={tab}
-          activePage={page}
+          activePage={activePage}
           shoppingCount={uncheckedCount}
-          onSelectTab={(t) => { setTab(t); setPage(NO_PAGE) }}
-          onSelectPage={(p) => setPage(p)}
+          onSelectTab={(t) => { setTab(t); setSorting(false); navigate('/') }}
+          onSelectPage={(p) => navigate(`/${p}`)}
           onClose={() => setShowMenu(false)}
-        />
-      )}
-
-      {showAdd && (
-        <AddModal
-          onClose={() => setShowAdd(false)}
-          onAdd={(p) => { store.addProduct(p); setShowAdd(false) }}
-        />
-      )}
-
-      {showRecipe && recipe && (
-        <RecipeModal
-          recipe={recipes.find(r => r.id === recipe.id) ?? recipe}
-          products={store.products}
-          onClose={() => setShowRecipe(false)}
-          onEdit={editRecipe}
         />
       )}
     </div>

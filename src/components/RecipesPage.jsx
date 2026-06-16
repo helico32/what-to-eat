@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getIngredientChipBg } from '../utils/badges'
 import { useSortable } from '../hooks/useSortable'
-import AddRecipeModal from './AddRecipeModal'
-import RecipeModal    from './RecipeModal'
 
 function CartIcon() {
   return (
@@ -186,9 +185,8 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
 }
 
 export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRecipe, onEditRecipe, onToggleFavorite, onReorderRecipes, onClose, onMenu, onCart, cartCount }) {
-  const [showAdd,    setShowAdd]    = useState(false)
-  const [viewRecipe, setViewRecipe] = useState(null)
-  const [sorting,    setSorting]    = useState(false)
+  const navigate = useNavigate()
+  const [sorting, setSorting] = useState(false)
 
   const sortedRecipes = [
     ...recipes.filter(r => r.favorite),
@@ -225,7 +223,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
                 </button>
               )}
               <button
-                onClick={() => setShowAdd(true)}
+                onClick={() => navigate('/recettes/new')}
                 className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light hover:opacity-90 active:scale-95 transition-all shadow-sm"
               >
                 +
@@ -254,7 +252,6 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
             </span>
           </div>
 
-          {/* Display favorites first, then others — stable relative order within each group */}
           {recipes.length === 0 ? (
             <div className="text-center py-20">
               <span className="text-4xl block mb-3">🍳</span>
@@ -271,7 +268,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
                   recipe={r}
                   products={products}
                   onDelete={onDeleteRecipe}
-                  onView={setViewRecipe}
+                  onView={(r) => navigate(`/recettes/${r.id}`)}
                   onToggleFavorite={onToggleFavorite}
                   canSort={sorting}
                   isDragging={activeIndex === index}
@@ -288,21 +285,6 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
 
       </div>
 
-      {showAdd && (
-        <AddRecipeModal
-          onClose={() => setShowAdd(false)}
-          onAdd={(r) => { onAddRecipe(r); setShowAdd(false) }}
-        />
-      )}
-
-      {viewRecipe && (
-        <RecipeModal
-          recipe={recipes.find(r => r.id === viewRecipe.id) ?? viewRecipe}
-          products={products}
-          onClose={() => setViewRecipe(null)}
-          onEdit={onEditRecipe}
-        />
-      )}
     </div>
   )
 }

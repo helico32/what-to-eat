@@ -33,22 +33,20 @@ export default function AddRecipeModal({ onClose, onAdd }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-ink-primary/40 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="w-full max-w-[430px] mx-auto bg-canvas-surface rounded-t-[20px] pb-10 max-h-[92dvh] overflow-y-auto shadow-lg"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mt-3 mb-2" />
+    <div className="fixed inset-0 z-50 bg-canvas overflow-y-auto">
+      <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
 
-        <div className="flex items-center px-5 py-3 border-b border-canvas-border">
-          <button onClick={onClose} className="mr-3 text-ink-secondary text-lg">←</button>
-          <h2 className="flex-1 text-center font-display font-bold text-[16px] text-ink-primary">
-            Ajouter une recette
-          </h2>
-          <div className="w-8" />
-        </div>
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
+          <div className="flex items-center py-3">
+            <button onClick={onClose} className="text-ink-secondary text-lg w-10">←</button>
+            <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
+              Ajouter une recette
+            </h1>
+            <div className="w-10" />
+          </div>
+        </header>
 
-        <div className="px-5 pt-5">
+        <div className="flex-1 px-5 pt-5 pb-10">
 
           {/* Emoji */}
           <div className="mb-5">
@@ -181,3 +179,4 @@ export default function AddRecipeModal({ onClose, onAdd }) {
     </div>
   )
 }
+
