@@ -80,7 +80,7 @@ export default function AddModal({ onClose, onAdd }) {
   const [step,   setStep]   = useState(1)
   const [name,   setName]   = useState('')
   const [qty,    setQty]    = useState(1)
-  const [emoji,  setEmoji]  = useState('📦')
+  const [emoji,  setEmoji]  = useState(null)
   const [image,  setImage]  = useState(null)
   const [expiry, setExpiry] = useState(dateInDays(3))
   const [loc,    setLoc]    = useState('frigo')
@@ -88,7 +88,20 @@ export default function AddModal({ onClose, onAdd }) {
 
   const handleImage = (e) => {
     const file = e.target.files?.[0]
-    if (file) setImage(URL.createObjectURL(file))
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const MAX = 480
+      const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
+      const canvas = document.createElement('canvas')
+      canvas.width  = Math.round(img.width  * ratio)
+      canvas.height = Math.round(img.height * ratio)
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+      setImage(canvas.toDataURL('image/jpeg', 0.72))
+      URL.revokeObjectURL(url)
+    }
+    img.src = url
   }
 
   const handleConfirm = () => {
@@ -130,7 +143,7 @@ export default function AddModal({ onClose, onAdd }) {
                 {image
                   ? <img src={image} alt="preview" className="w-full h-full object-cover" />
                   : <div className="flex flex-col items-center gap-2 text-ink-secondary">
-                      <span className="text-4xl">{emoji}</span>
+                      {emoji && <span className="text-4xl">{emoji}</span>}
                       <span className="font-body text-[12px]">Ajouter une photo</span>
                     </div>
                 }
@@ -158,9 +171,9 @@ export default function AddModal({ onClose, onAdd }) {
                 <label className="font-body font-semibold text-[12px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Quantité</label>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-canvas-surface border border-canvas-border rounded-xl overflow-hidden">
-                    <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">−</button>
+                    <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">−</button>
                     <span className="w-10 text-center font-body font-bold text-[14px] border-x border-canvas-border">{qty}</span>
-                    <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">＋</button>
+                    <button onClick={() => setQty(q => Math.round((q + 0.5) * 10) / 10)} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">＋</button>
                   </div>
                   <span className="font-body text-[14px] text-ink-secondary">restant{qty > 1 ? 's' : ''}</span>
                 </div>

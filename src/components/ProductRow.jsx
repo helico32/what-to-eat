@@ -81,7 +81,9 @@ export default function ProductRow({ product, onDelete, onAddToCart }) {
         {/* Thumbnail */}
         {product.image
           ? <img src={product.image} alt={product.name} className="w-[75px] h-[60px] rounded-lg object-cover flex-shrink-0" />
-          : <div className="w-[75px] h-[60px] bg-canvas rounded-lg flex items-center justify-center text-2xl flex-shrink-0">{product.emoji}</div>
+          : <div className="w-[75px] h-[60px] bg-canvas rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
+              {product.emoji ?? '📦'}
+            </div>
         }
 
         {/* Name + subtitle */}

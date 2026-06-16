@@ -1,20 +1,54 @@
 import { useState, useCallback } from 'react'
 import { initialProducts } from '../data/products'
 
+const KEYS = {
+  products:     'wte-products',
+  shoppingList: 'wte-shopping',
+}
+
+function load(key, fallback) {
+  try {
+    const stored = localStorage.getItem(key)
+    return stored ? JSON.parse(stored) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function persist(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)) } catch {}
+}
+
 export function useStore() {
-  const [products, setProducts]         = useState(initialProducts)
-  const [shoppingList, setShoppingList] = useState([])
+  const [products,     setProducts]     = useState(() => load(KEYS.products,     initialProducts))
+  const [shoppingList, setShoppingList] = useState(() => load(KEYS.shoppingList, []))
+
+  const setAndPersistProducts = (updater) => {
+    setProducts(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      persist(KEYS.products, next)
+      return next
+    })
+  }
+
+  const setAndPersistShopping = (updater) => {
+    setShoppingList(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      persist(KEYS.shoppingList, next)
+      return next
+    })
+  }
 
   const addProduct = useCallback((product) => {
-    setProducts(prev => [...prev, { ...product, id: Date.now() }])
+    setAndPersistProducts(prev => [...prev, { ...product, id: Date.now() }])
   }, [])
 
   const deleteProduct = useCallback((id) => {
-    setProducts(prev => prev.filter(p => p.id !== id))
+    setAndPersistProducts(prev => prev.filter(p => p.id !== id))
   }, [])
 
   const addToShoppingList = useCallback((product) => {
-    setShoppingList(prev =>
+    setAndPersistShopping(prev =>
       prev.find(p => p.id === product.id)
         ? prev
         : [...prev, { ...product, checked: false }]
@@ -22,21 +56,21 @@ export function useStore() {
   }, [])
 
   const toggleShoppingItem = useCallback((id) => {
-    setShoppingList(prev =>
+    setAndPersistShopping(prev =>
       prev.map(p => p.id === id ? { ...p, checked: !p.checked } : p)
     )
   }, [])
 
   const removeFromShoppingList = useCallback((id) => {
-    setShoppingList(prev => prev.filter(p => p.id !== id))
+    setAndPersistShopping(prev => prev.filter(p => p.id !== id))
   }, [])
 
   const clearCheckedItems = useCallback(() => {
-    setShoppingList(prev => prev.filter(p => !p.checked))
+    setAndPersistShopping(prev => prev.filter(p => !p.checked))
   }, [])
 
   const reorderShoppingList = useCallback((newList) => {
-    setShoppingList(newList)
+    setAndPersistShopping(() => newList)
   }, [])
 
   return {
