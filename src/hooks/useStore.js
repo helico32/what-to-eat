@@ -73,6 +73,10 @@ export function useStore() {
     setAndPersistShopping(() => newList)
   }, [])
 
+  const reorderProducts = useCallback((newList) => {
+    setAndPersistProducts(() => newList)
+  }, [])
+
   return {
     products,
     shoppingList,
@@ -83,5 +87,6 @@ export function useStore() {
     removeFromShoppingList,
     clearCheckedItems,
     reorderShoppingList,
+    reorderProducts,
   }
 }

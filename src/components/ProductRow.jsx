@@ -10,6 +10,16 @@ function CartIcon() {
   )
 }
 
+function DragHandle() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="4" y1="7"  x2="20" y2="7"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="17" x2="20" y2="17"/>
+    </svg>
+  )
+}
+
 function XIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -69,15 +79,20 @@ function ConfirmPage({ product, type, onConfirm, onCancel }) {
   )
 }
 
-export default function ProductRow({ product, onDelete, onAddToCart }) {
+export default function ProductRow({ product, onDelete, onAddToCart, draggable: isDraggable, isDragging, onDragStart, onDragOver, onDrop, onDragEnd }) {
   const badge = getBadge(product.daysLeft, product.location)
   const [confirm, setConfirm] = useState(null)
 
-  const subtitle = `${product.qty} restant${product.qty > 1 ? 's' : ''}`
-
   return (
     <>
-      <div className="flex items-center gap-3 py-3">
+      <div
+        draggable={isDraggable}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+        onDragEnd={onDragEnd}
+        className={`flex items-center gap-3 py-3 transition-opacity ${isDragging ? 'opacity-40' : ''}`}
+      >
         {/* Thumbnail */}
         {product.image
           ? <img src={product.image} alt={product.name} className="w-[75px] h-[60px] rounded-lg object-cover flex-shrink-0" />
@@ -89,7 +104,7 @@ export default function ProductRow({ product, onDelete, onAddToCart }) {
         {/* Name + subtitle */}
         <div className="flex-1 min-w-0">
           <p className="font-body font-semibold text-[14px] text-ink-primary truncate">{product.name}</p>
-          <p className="font-body text-[12px] text-ink-secondary mt-0.5">{subtitle}</p>
+          <p className="font-body text-[12px] text-ink-secondary mt-0.5">x{product.qty}</p>
         </div>
 
         {/* Badge */}
@@ -114,6 +129,13 @@ export default function ProductRow({ product, onDelete, onAddToCart }) {
         >
           <XIcon />
         </button>
+
+        {/* Drag handle */}
+        {isDraggable && (
+          <div className="text-ink-secondary/40 flex-shrink-0 cursor-grab active:cursor-grabbing">
+            <DragHandle />
+          </div>
+        )}
       </div>
 
       {confirm && (

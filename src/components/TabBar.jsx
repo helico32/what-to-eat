@@ -15,7 +15,7 @@ const TABS = [
 
 export default function TabBar({ active, onChange }) {
   return (
-    <div className="sticky top-[68px] z-10 bg-canvas/90 backdrop-blur-md">
+    <div>
       <div className="flex gap-2 px-4 py-2.5 overflow-x-auto scrollbar-none">
         {TABS.map(({ id, label, Icon }) => (
           <button

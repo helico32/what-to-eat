@@ -21,18 +21,18 @@ export default function BottomNav({ shoppingCount, onShowListe, onShowRecettes, 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-center pointer-events-none">
       <div className="max-w-[430px] w-full px-4 pb-6 pointer-events-auto">
-        <div className="flex bg-canvas-surface border border-canvas-border rounded-xl shadow-md overflow-hidden">
+        <div className="flex bg-brand rounded-xl shadow-md overflow-hidden">
 
           <button
             onClick={onShowListe}
             className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[14px] transition-all ${
-              activePage === 'liste' ? 'bg-forest text-white' : 'text-ink-secondary'
+              activePage === 'liste' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70 hover:text-ink-primary'
             }`}
           >
             <div className="relative">
               <CartIcon />
               {shoppingCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-brand text-ink-primary text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 w-4 h-4 bg-canvas text-ink-primary text-[9px] font-bold rounded-full flex items-center justify-center">
                   {shoppingCount}
                 </span>
               )}
@@ -40,12 +40,12 @@ export default function BottomNav({ shoppingCount, onShowListe, onShowRecettes, 
             Liste de courses
           </button>
 
-          <div className="w-px bg-canvas-border my-3" />
+          <div className="w-px bg-ink-primary/15 my-3" />
 
           <button
             onClick={onShowRecettes}
             className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[14px] transition-all ${
-              activePage === 'recettes' ? 'bg-forest text-white' : 'text-ink-secondary'
+              activePage === 'recettes' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70 hover:text-ink-primary'
             }`}
           >
             <BowlIcon />
