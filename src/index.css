@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #2A1E17;
+    background-color: #FDF8F0;
+  }
+  /* Prevent any element from falling back to browser black */
+  *, *::before, *::after {
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+}
