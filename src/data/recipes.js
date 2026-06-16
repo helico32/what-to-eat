@@ -18,13 +18,27 @@ export const recipes = [
     name: 'Omelette courgettes-chèvre',
     emoji: '🍳',
     time: '12 min',
-    ingredients: ['Œufs', 'Courgettes', 'Fromage de chèvre'],
+    ingredients: ['Oeufs', 'Courgette', 'Fromage de chèvre'],
     steps: [
       'Râper les courgettes, les presser dans un torchon pour enlever l\'eau.',
       'Battre les œufs avec sel et poivre.',
       'Faire revenir les courgettes 3 min à feu vif.',
       'Verser les œufs, baisser le feu, cuire sans remuer.',
       'Émietter le chèvre, plier l\'omelette et servir.',
+    ],
+  },
+  {
+    id: 3,
+    name: 'Maki saumon-concombre',
+    emoji: '🍳',
+    time: '12 min',
+    ingredients: ['Concombre', 'Saumon', 'Riz', 'Nori'],
+    steps: [
+      'Cuire le riz à sushi selon les instructions du paquet.',
+      'Couper le concombre et le saumon en fines lamelles.',
+      'Étaler le riz sur une feuille de nori, ajouter concombre et saumon.',
+      'Rouler fermement avec un tapis à sushi, puis couper en morceaux.',
+      'Servir avec sauce soja et wasabi.',
     ],
   },
 ]

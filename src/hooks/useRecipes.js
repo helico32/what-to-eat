@@ -19,17 +19,27 @@ function persist(data) {
 export function useRecipes() {
   const [recipes, setRecipes] = useState(load)
 
+  const update = (next) => { setRecipes(next); persist(next) }
+
   const addRecipe = (recipe) => {
-    const next = [...recipes, { ...recipe, id: Date.now() }]
-    setRecipes(next)
-    persist(next)
+    update([...recipes, { ...recipe, id: Date.now(), favorite: false }])
   }
 
   const deleteRecipe = (id) => {
-    const next = recipes.filter(r => r.id !== id)
-    setRecipes(next)
-    persist(next)
+    update(recipes.filter(r => r.id !== id))
   }
 
-  return { recipes, addRecipe, deleteRecipe }
+  const editRecipe = (id, changes) => {
+    update(recipes.map(r => r.id === id ? { ...r, ...changes } : r))
+  }
+
+  const toggleFavorite = (id) => {
+    update(recipes.map(r => r.id === id ? { ...r, favorite: !r.favorite } : r))
+  }
+
+  const reorderRecipes = (newList) => {
+    update(newList)
+  }
+
+  return { recipes, addRecipe, deleteRecipe, editRecipe, toggleFavorite, reorderRecipes }
 }

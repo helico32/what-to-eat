@@ -1,5 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getBadge } from '../utils/badges'
+
+function PositionInput({ position, total, onMoveTo }) {
+  const [val, setVal] = useState(String(position))
+  useEffect(() => setVal(String(position)), [position])
+
+  const commit = () => {
+    const n = parseInt(val)
+    if (!isNaN(n) && n >= 1 && n <= total) onMoveTo(n - 1)
+    else setVal(String(position))
+  }
+
+  return (
+    <input
+      type="number"
+      min="1"
+      max={total}
+      value={val}
+      onChange={e => setVal(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[13px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+    />
+  )
+}
 
 function CartIcon() {
   return (
@@ -20,79 +44,24 @@ function DragHandle() {
   )
 }
 
-function XIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
-  )
-}
-
-function ConfirmPage({ product, type, onConfirm, onCancel }) {
-  const isCart = type === 'cart'
-  return (
-    <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto">
-      <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
-
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
-          <div className="flex items-center py-3">
-            <button onClick={onCancel} className="text-ink-secondary text-lg w-10">←</button>
-            <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
-              {isCart ? 'Ajouter à la liste' : 'Supprimer'}
-            </h1>
-            <div className="w-10" />
-          </div>
-        </header>
-
-        <div className="flex-1 px-4 pt-10 pb-10 flex flex-col items-center gap-6">
-          <div className="w-24 h-24 bg-canvas-surface rounded-xl border border-canvas-border flex items-center justify-center text-5xl">
-            {product.emoji}
-          </div>
-
-          <p className="font-body text-[16px] text-ink-primary text-center leading-relaxed">
-            {isCart
-              ? <>Ajouter <span className="font-semibold">{product.name}</span> à la liste de courses ?</>
-              : <>Supprimer <span className="font-semibold">{product.name}</span> de ton frigo ?</>
-            }
-          </p>
-
-          <div className="w-full flex flex-col gap-3 mt-4">
-            <button
-              onClick={onConfirm}
-              className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] hover:opacity-90 active:scale-[.98] transition-all ${
-                isCart ? 'bg-forest text-white' : 'bg-urgent/20 text-urgent'
-              }`}
-            >
-              {isCart ? 'Ajouter' : 'Supprimer'}
-            </button>
-            <button
-              onClick={onCancel}
-              className="w-full py-3.5 border border-canvas-border rounded-xl font-body font-semibold text-[16px] text-ink-secondary hover:bg-canvas-surface transition-colors"
-            >
-              Annuler
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  )
-}
-
-export default function ProductRow({ product, onDelete, onAddToCart, draggable: isDraggable, isDragging, onDragStart, onDragOver, onDrop, onDragEnd }) {
+export default function ProductRow({ product, onDelete, onAddToCart, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
   const badge = getBadge(product.daysLeft, product.location)
-  const [confirm, setConfirm] = useState(null)
+  const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete'
+  const [done,    setDone]    = useState(null) // null | 'cart' | 'delete'
+  const timerRef = useRef()
+
+  const handleConfirm = (type) => {
+    type === 'cart' ? onAddToCart() : onDelete()
+    setConfirm(null)
+    setDone(type)
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setDone(null), 1500)
+  }
 
   return (
-    <>
-      <div
-        draggable={isDraggable}
-        onDragStart={onDragStart}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-        onDragEnd={onDragEnd}
-        className={`flex items-center gap-3 py-3 transition-opacity ${isDragging ? 'opacity-40' : ''}`}
-      >
+    <div {...rowProps} className={`transition-opacity ${isDragging ? 'opacity-40' : ''}`}>
+      {/* Ligne principale */}
+      <div className="flex items-center gap-3 py-3">
         {/* Thumbnail */}
         {product.image
           ? <img src={product.image} alt={product.name} className="w-[75px] h-[60px] rounded-lg object-cover flex-shrink-0" />
@@ -108,44 +77,76 @@ export default function ProductRow({ product, onDelete, onAddToCart, draggable: 
         </div>
 
         {/* Badge */}
-        <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[12px] ${badge.cls}`}>
-          {badge.label}
-        </span>
+        {badge.label && (
+          <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[12px] ${badge.cls}`}>
+            {badge.label}
+          </span>
+        )}
 
-        {/* Cart button */}
-        <button
-          onClick={() => setConfirm('cart')}
-          className="w-8 h-8 flex-shrink-0 flex items-center justify-center border border-canvas-border rounded-lg text-ink-secondary hover:text-brand hover:border-brand transition-colors"
-          title="Ajouter à la liste"
-        >
-          <CartIcon />
-        </button>
-
-        {/* Delete button */}
-        <button
-          onClick={() => setConfirm('delete')}
-          className="w-8 h-8 flex-shrink-0 flex items-center justify-center border border-canvas-border rounded-lg text-ink-secondary hover:text-urgent hover:border-urgent/40 transition-colors"
-          title="Supprimer"
-        >
-          <XIcon />
-        </button>
-
-        {/* Drag handle */}
-        {isDraggable && (
-          <div className="text-ink-secondary/40 flex-shrink-0 cursor-grab active:cursor-grabbing">
-            <DragHandle />
-          </div>
+        {canDrag ? (
+          <>
+            <div
+              {...handleProps}
+              className="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center text-ink-secondary/40 cursor-grab active:cursor-grabbing touch-none"
+            >
+              <DragHandle />
+            </div>
+            <div className="hidden md:flex flex-shrink-0">
+              <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setConfirm(confirm === 'cart' ? null : 'cart')}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] text-ink-secondary hover:opacity-80 transition-all ${confirm === 'cart' ? 'bg-forest text-white' : 'bg-[#F9EDDC]'}`}
+              title="Ajouter à la liste"
+            >
+              <CartIcon />
+            </button>
+            <button
+              onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] text-ink-secondary hover:opacity-80 transition-all font-body font-thin text-[22px] leading-none ${confirm === 'delete' ? 'bg-urgent/20 text-urgent' : 'bg-[#F9EDDC]'}`}
+              title="Supprimer"
+            >
+              ×
+            </button>
+          </>
         )}
       </div>
 
-      {confirm && (
-        <ConfirmPage
-          product={product}
-          type={confirm}
-          onConfirm={() => { confirm === 'cart' ? onAddToCart() : onDelete(); setConfirm(null) }}
-          onCancel={() => setConfirm(null)}
-        />
+      {/* Done feedback */}
+      {done && (
+        <div className="pb-3 flex items-center gap-2">
+          <p className="font-body text-[13px] text-forest font-semibold">
+            {done === 'cart' ? `✓ Ajouté au panier` : `✓ Supprimé`}
+          </p>
+        </div>
       )}
-    </>
+
+      {/* Confirmation inline */}
+      {confirm && (
+        <div className="pb-3 flex items-center gap-2">
+          <p className="flex-1 font-body text-[13px] text-ink-secondary truncate">
+            {confirm === 'cart'
+              ? `Ajouter "${product.name}" x${product.qty === 0.5 ? '0.5' : '1'} ?`
+              : `Supprimer "${product.name}" x${product.qty === 0.5 ? '0.5' : '1'} ?`
+            }
+          </p>
+          <button
+            onClick={() => handleConfirm(confirm)}
+            className="px-3 py-1.5 bg-forest text-white rounded-[10px] font-body font-semibold text-[13px] hover:opacity-90"
+          >
+            Oui
+          </button>
+          <button
+            onClick={() => setConfirm(null)}
+            className="px-3 py-1.5 bg-[#F9EDDC] text-ink-secondary rounded-[10px] font-body font-semibold text-[13px] hover:opacity-80"
+          >
+            Non
+          </button>
+        </div>
+      )}
+    </div>
   )
 }

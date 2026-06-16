@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getIngredientBadgeCls } from '../utils/badges'
+import { getIngredientChipBg } from '../utils/badges'
 
 function ClockIcon() {
   return (
@@ -31,7 +31,13 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
     )
   }
 
-  const recipe = recipes[idx % recipes.length]
+  const productNames = new Set(products.map(p => p.name))
+
+  // Only propose recipes that have at least one ingredient in stock
+  const eligible = recipes.filter(r => r.ingredients.some(ing => productNames.has(ing)))
+  const pool = eligible.length > 0 ? eligible : recipes
+  const recipe = pool[idx % pool.length]
+  const canShuffle = pool.length > 1
 
   const getDays = (name) => {
     const p = products.find(x => x.name === name)
@@ -48,11 +54,6 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
 
         {/* Right: content */}
         <div className="flex-1 p-4 min-w-0">
-          {/* CE SOIR label */}
-          <p className="font-display font-semibold text-[12px] leading-[20px] text-brand uppercase tracking-wider mb-1">
-            Ce soir
-          </p>
-
           {/* Recipe name */}
           <h2 className="font-display font-bold text-[18px] leading-[24px] text-ink-primary mb-1.5">
             {recipe.name}
@@ -68,18 +69,13 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
             <div className="flex flex-wrap gap-1.5 mb-3">
               {recipe.ingredients.map(name => {
                 const days = getDays(name)
-                const badgeCls = getIngredientBadgeCls(days)
+                const chipBg = getIngredientChipBg(days)
                 return (
                   <span
                     key={name}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-canvas rounded-pill font-body text-[11px] text-ink-secondary"
+                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[11px] text-ink-secondary ${chipBg}`}
                   >
                     {name}
-                    {badgeCls && days !== null && (
-                      <span className={`px-1.5 py-0.5 rounded-pill font-medium text-[10px] ${badgeCls}`}>
-                        {days <= 1 ? '1 jour' : `${days} j`}
-                      </span>
-                    )}
                   </span>
                 )
               })}
@@ -94,13 +90,15 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
             >
               Voir la recette
             </button>
-            <button
-              onClick={() => setIdx(i => i + 1)}
-              title="Recette aléatoire"
-              className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg flex items-center justify-center hover:opacity-90 active:scale-[.98] transition-all"
-            >
-              <ShuffleIcon />
-            </button>
+            {canShuffle && (
+              <button
+                onClick={() => setIdx(i => i + 1)}
+                title="Recette aléatoire"
+                className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg flex items-center justify-center hover:opacity-90 active:scale-[.98] transition-all"
+              >
+                <ShuffleIcon />
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -27,9 +27,7 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
         className="w-[300px] max-w-[80vw] h-full bg-canvas flex flex-col pt-14 pb-10 shadow-lg"
         onClick={e => e.stopPropagation()}
       >
-<p className="font-body font-semibold text-[11px] uppercase tracking-wider text-ink-secondary px-5 mb-3">
-          Mon frigo
-        </p>
+        <p className="font-display font-bold text-[18px] text-ink-primary px-5 mb-5">What to eat</p>
 
         <nav className="flex flex-col gap-1 px-3">
           {TABS.map(({ id, label, Icon, color, bg }) => {

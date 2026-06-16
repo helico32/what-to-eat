@@ -8,6 +8,18 @@ export default function AddRecipeModal({ onClose, onAdd }) {
   const [time,        setTime]        = useState('')
   const [ingredients, setIngredients] = useState([])
   const [steps,       setSteps]       = useState([])
+  const [newIng,      setNewIng]      = useState('')
+  const [newStep,     setNewStep]     = useState('')
+
+  const addIngredient = () => {
+    const v = newIng.trim()
+    if (v) { setIngredients(p => [...p, v]); setNewIng('') }
+  }
+
+  const addStep = () => {
+    const v = newStep.trim()
+    if (v) { setSteps(p => [...p, v]); setNewStep('') }
+  }
 
   const handleSubmit = () => {
     if (!name.trim()) return
@@ -97,19 +109,25 @@ export default function AddRecipeModal({ onClose, onAdd }) {
               {ingredients.map((ing, i) => (
                 <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-canvas-border text-ink-primary rounded-pill font-body text-[13px]">
                   {ing}
-                  <button
-                    onClick={() => setIngredients(p => p.filter((_, j) => j !== i))}
-                    className="text-ink-secondary hover:text-red-400 text-sm"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-secondary hover:text-urgent text-sm leading-none">×</button>
                 </span>
               ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newIng}
+                onChange={e => setNewIng(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addIngredient()}
+                placeholder="Ajouter un ingrédient"
+                className="flex-1 px-3 py-2 bg-canvas border border-canvas-border rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              />
               <button
-                onClick={() => { const v = window.prompt('Ajouter un ingrédient :'); if (v?.trim()) setIngredients(p => [...p, v.trim()]) }}
-                className="px-3 py-1.5 border border-dashed border-canvas-border text-ink-secondary rounded-pill font-body text-[13px] hover:border-forest hover:text-forest transition-colors"
+                onClick={addIngredient}
+                disabled={!newIng.trim()}
+                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] hover:opacity-80 disabled:opacity-40 transition-all"
               >
-                + Ajouter
+                +
               </button>
             </div>
           </div>
@@ -122,23 +140,27 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             <div className="flex flex-col gap-2 mb-2">
               {steps.map((s, i) => (
                 <div key={i} className="flex items-start gap-2 p-3 bg-canvas rounded-xl">
-                  <span className="w-5 h-5 bg-canvas-border rounded-full font-display font-bold text-[11px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
-                    {i + 1}
-                  </span>
+                  <span className="w-5 h-5 bg-canvas-border rounded-full font-display font-bold text-[11px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
                   <p className="flex-1 font-body text-[13px] text-ink-primary leading-relaxed">{s}</p>
-                  <button
-                    onClick={() => setSteps(p => p.filter((_, j) => j !== i))}
-                    className="text-ink-secondary hover:text-red-400 text-sm"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-secondary hover:text-urgent text-sm leading-none">×</button>
                 </div>
               ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newStep}
+                onChange={e => setNewStep(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addStep()}
+                placeholder="Ajouter une étape"
+                className="flex-1 px-3 py-2 bg-canvas border border-canvas-border rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              />
               <button
-                onClick={() => { const v = window.prompt('Ajouter une étape :'); if (v?.trim()) setSteps(p => [...p, v.trim()]) }}
-                className="font-body text-[14px] text-ink-secondary hover:text-forest text-left transition-colors"
+                onClick={addStep}
+                disabled={!newStep.trim()}
+                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] hover:opacity-80 disabled:opacity-40 transition-all"
               >
-                + Ajouter une étape
+                +
               </button>
             </div>
           </div>

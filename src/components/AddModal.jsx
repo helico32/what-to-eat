@@ -1,10 +1,9 @@
 import { useState, useRef } from 'react'
 
 const PRESETS = [
-  { label: 'Demain',  days: 1  },
-  { label: '3 jours', days: 3  },
-  { label: '1 sem.',  days: 7  },
-  { label: '1 mois',  days: 30 },
+  { label: 'Demain', days: 1  },
+  { label: '1 sem.', days: 7  },
+  { label: '1 mois', days: 30 },
 ]
 
 function FridgeIcon() {
@@ -82,7 +81,7 @@ export default function AddModal({ onClose, onAdd }) {
   const [qty,    setQty]    = useState(1)
   const [emoji,  setEmoji]  = useState(null)
   const [image,  setImage]  = useState(null)
-  const [expiry, setExpiry] = useState(dateInDays(3))
+  const [expiry, setExpiry] = useState('')
   const [loc,    setLoc]    = useState('frigo')
   const fileRef = useRef()
 
@@ -172,7 +171,17 @@ export default function AddModal({ onClose, onAdd }) {
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-canvas-surface border border-canvas-border rounded-xl overflow-hidden">
                     <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">−</button>
-                    <span className="w-10 text-center font-body font-bold text-[14px] border-x border-canvas-border">{qty}</span>
+                    <input
+                      type="number"
+                      min="0.5"
+                      step="0.5"
+                      value={qty}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value)
+                        if (!isNaN(v) && v >= 0.5) setQty(Math.round(v * 10) / 10)
+                      }}
+                      className="w-12 text-center font-body font-bold text-[14px] border-x border-canvas-border bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
                     <button onClick={() => setQty(q => Math.round((q + 0.5) * 10) / 10)} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">＋</button>
                   </div>
                   <span className="font-body text-[14px] text-ink-secondary">restant{qty > 1 ? 's' : ''}</span>
@@ -182,14 +191,14 @@ export default function AddModal({ onClose, onAdd }) {
               {/* Date de péremption */}
               <div className="mb-8">
                 <label className="font-body font-semibold text-[12px] text-ink-secondary mb-2 block uppercase tracking-wider">Date de péremption</label>
-                <div className="flex gap-2 flex-wrap mb-3">
+                <div className="flex gap-2 mb-3">
                   {PRESETS.map(p => {
                     const val = dateInDays(p.days)
                     return (
                       <button
                         key={p.label}
                         onClick={() => setExpiry(val)}
-                        className={`px-3 py-1.5 rounded-pill font-body font-semibold text-[13px] border transition-all ${
+                        className={`flex-1 py-2 rounded-pill font-body font-semibold text-[13px] border transition-all ${
                           expiry === val
                             ? 'bg-brand text-ink-primary border-brand'
                             : 'bg-canvas-surface text-ink-secondary border-canvas-border hover:border-ink-secondary/40'
@@ -211,7 +220,7 @@ export default function AddModal({ onClose, onAdd }) {
                     value={expiry}
                     min={todayStr()}
                     onChange={e => setExpiry(e.target.value)}
-                    className="w-full pl-11 pr-4 py-4 bg-canvas-surface border-2 border-canvas-border rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                    className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-canvas-border rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
                   />
                 </div>
               </div>

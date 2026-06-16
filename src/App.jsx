@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useSortable } from './hooks/useSortable'
 import { useStore }      from './hooks/useStore'
 import { useRecipes }    from './hooks/useRecipes'
 import { sortByUrgency } from './utils/badges'
@@ -14,10 +15,31 @@ import RecipeModal  from './components/RecipeModal'
 
 const NO_PAGE = null
 
-function SectionLabel({ label, count }) {
+function SortIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+      <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+    </svg>
+  )
+}
+
+function SectionLabel({ label, count, onSort, sorting }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <p className="font-display font-semibold text-[15px] text-ink-primary">{label}</p>
+      <div className="flex items-center gap-2">
+        <p className="font-display font-semibold text-[15px] text-ink-primary">{label}</p>
+        {onSort && (
+          <button
+            onClick={onSort}
+            className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
+              sorting ? 'text-ink-primary bg-brand' : 'text-ink-secondary/50 hover:text-ink-secondary'
+            }`}
+          >
+            <SortIcon />
+          </button>
+        )}
+      </div>
       {count !== undefined && (
         <span className="font-body text-[13px] text-ink-secondary">
           {count} article{count > 1 ? 's' : ''}
@@ -47,7 +69,7 @@ const getView = (tab, products) => {
 
 const getSectionLabel = (tab) => ({
   urgent:  'À utiliser en priorité',
-  frigo:   'Mon frigo',
+  frigo:   'Frigo',
   congel:  'Congélateur',
   placard: 'Placards',
   tout:    'Tout',
@@ -55,7 +77,7 @@ const getSectionLabel = (tab) => ({
 
 export default function App() {
   const store = useStore()
-  const { recipes, addRecipe, deleteRecipe } = useRecipes()
+  const { recipes, addRecipe, deleteRecipe, editRecipe, toggleFavorite, reorderRecipes } = useRecipes()
 
   const [tab,        setTab]        = useState('urgent')
   const [page,       setPage]       = useState(NO_PAGE)
@@ -63,26 +85,53 @@ export default function App() {
   const [showMenu,   setShowMenu]   = useState(false)
   const [showRecipe, setShowRecipe] = useState(false)
   const [recipe,     setRecipe]     = useState(null)
-  const [dragFrom,   setDragFrom]   = useState(null)
+  const [sorting,      setSorting]    = useState(false)
 
   const viewProducts   = getView(tab, store.products)
   const uncheckedCount = store.shoppingList.filter(i => !i.checked).length
-  const canDrag        = tab !== 'urgent'
+  const canDrag        = tab !== 'urgent' && sorting
 
-  const goHome = () => { setPage(NO_PAGE); setTab('urgent') }
+  const goHome = () => { setPage(NO_PAGE); setTab('urgent'); setSorting(false) }
 
-  const handleProductDrop = useCallback((toIndex) => {
-    if (dragFrom === null || dragFrom === toIndex) return
+  const onReorderProducts = useCallback((reorderedView) => {
+    const ids = new Set(reorderedView.map(p => p.id))
+    let subIdx = 0
+    const merged = store.products.map(p => ids.has(p.id) ? reorderedView[subIdx++] : p)
+    store.reorderProducts(merged)
+  }, [store])
+
+  const handleMoveProductTo = useCallback((fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return
     const view = getView(tab, store.products)
     const next = [...view]
-    const [moved] = next.splice(dragFrom, 1)
+    const [moved] = next.splice(fromIndex, 1)
     next.splice(toIndex, 0, moved)
-    const ids = new Set(next.map(p => p.id))
-    let subIdx = 0
-    const merged = store.products.map(p => ids.has(p.id) ? next[subIdx++] : p)
-    store.reorderProducts(merged)
-    setDragFrom(null)
-  }, [dragFrom, tab, store])
+    onReorderProducts(next)
+  }, [tab, store, onReorderProducts])
+
+  const handleAddCheckedToStock = useCallback((location, expiryDateStr) => {
+    const daysLeft = (() => {
+      if (location !== 'frigo' || !expiryDateStr) return null
+      const diff = new Date(expiryDateStr) - new Date(new Date().toISOString().split('T')[0])
+      return Math.max(0, Math.ceil(diff / 86400000))
+    })()
+    store.shoppingList
+      .filter(i => i.checked)
+      .forEach(item => store.addProduct({
+        name:     item.name,
+        emoji:    item.emoji ?? null,
+        image:    null,
+        qty:      item.qty ?? 1,
+        daysLeft,
+        location,
+      }))
+    store.clearCheckedItems()
+  }, [store])
+
+  const { activeIndex, rowProps, handleProps } = useSortable(
+    canDrag ? viewProducts : [],
+    onReorderProducts
+  )
 
   return (
     <div className="min-h-dvh bg-canvas max-w-[430px] mx-auto font-body text-ink-primary">
@@ -95,15 +144,26 @@ export default function App() {
           onClearChecked={store.clearCheckedItems}
           onReorder={store.reorderShoppingList}
           onAddItem={(name) => store.addToShoppingList({ id: Date.now(), name, emoji: '🛒' })}
+          onAddCheckedToStock={handleAddCheckedToStock}
           onClose={() => setPage(NO_PAGE)}
+          onMenu={() => setShowMenu(true)}
+          onCart={() => setPage('liste')}
+          cartCount={uncheckedCount}
         />
       )}
       {page === 'recettes' && (
         <RecipesPage
           recipes={recipes}
+          products={store.products}
           onAddRecipe={addRecipe}
           onDeleteRecipe={deleteRecipe}
+          onEditRecipe={editRecipe}
+          onToggleFavorite={toggleFavorite}
+          onReorderRecipes={reorderRecipes}
           onClose={() => setPage(NO_PAGE)}
+          onMenu={() => setShowMenu(true)}
+          onCart={() => setPage('liste')}
+          cartCount={uncheckedCount}
         />
       )}
 
@@ -114,10 +174,15 @@ export default function App() {
         onCart={() => setPage('liste')}
         cartCount={uncheckedCount}
       />
-      <TabBar active={tab} onChange={setTab} />
+      <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false) }} />
 
       <main className="px-4 pt-4 pb-16">
-<SectionLabel label={getSectionLabel(tab)} count={viewProducts.length} />
+        <SectionLabel
+          label={getSectionLabel(tab)}
+          count={viewProducts.length}
+          onSort={tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
+          sorting={sorting}
+        />
 
         {viewProducts.length === 0 ? (
           <EmptyState
@@ -131,14 +196,15 @@ export default function App() {
               <ProductRow
                 key={p.id}
                 product={p}
-                onDelete={() => store.deleteProduct(p.id)}
+                onDelete={() => store.decrementProduct(p.id)}
                 onAddToCart={() => store.addToShoppingList(p)}
-                draggable={canDrag}
-                isDragging={dragFrom === index}
-                onDragStart={() => setDragFrom(index)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleProductDrop(index)}
-                onDragEnd={() => setDragFrom(null)}
+                canDrag={canDrag}
+                isDragging={activeIndex === index}
+                rowProps={canDrag ? rowProps(index) : {}}
+                handleProps={canDrag ? handleProps(index) : {}}
+                sortIndex={index}
+                sortTotal={viewProducts.length}
+                onMoveTo={(toIndex) => handleMoveProductTo(index, toIndex)}
               />
             ))}
           </div>
@@ -176,9 +242,10 @@ export default function App() {
 
       {showRecipe && recipe && (
         <RecipeModal
-          recipe={recipe}
+          recipe={recipes.find(r => r.id === recipe.id) ?? recipe}
           products={store.products}
           onClose={() => setShowRecipe(false)}
+          onEdit={editRecipe}
         />
       )}
     </div>
