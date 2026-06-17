@@ -77,6 +77,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             </label>
             <input
               type="text"
+              name="recipe-name"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="ex. Salade de quinoa"
@@ -91,6 +92,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             </label>
             <input
               type="text"
+              name="recipe-time"
               value={time}
               onChange={e => setTime(e.target.value)}
               placeholder="ex. 25 min"
@@ -114,6 +116,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             <div className="flex gap-2">
               <input
                 type="text"
+                name="recipe-ingredient"
                 value={newIng}
                 onChange={e => setNewIng(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addIngredient()}
@@ -147,6 +150,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             <div className="flex gap-2">
               <input
                 type="text"
+                name="recipe-step"
                 value={newStep}
                 onChange={e => setNewStep(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addStep()}

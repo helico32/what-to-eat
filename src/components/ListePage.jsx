@@ -36,6 +36,7 @@ function AddItemSheet({ onAdd, onClose }) {
         <input
           ref={inputRef}
           type="text"
+          name="add-item"
           value={value}
           onChange={e => setValue(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && submit()}

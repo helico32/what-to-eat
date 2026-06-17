@@ -80,15 +80,15 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
             <p className="font-body text-[16px] text-ink-secondary mb-5">
               {checkedItems.length} article{checkedItems.length > 1 ? 's' : ''} sélectionné{checkedItems.length > 1 ? 's' : ''}
             </p>
-            <div className="flex flex-col gap-3 mb-6">
+            <div className="flex flex-col gap-y-3 mb-6">
               {LOCATIONS.map(l => {
                 const isSelected = loc === l.id
                 return (
                   <button
                     key={l.id}
                     onClick={() => setLoc(l.id)}
-                    className={`flex items-center gap-4 p-4 rounded-[10px] border-2 text-left transition-all font-body font-semibold text-[15px] ${
-                      isSelected ? 'bg-brand text-ink-primary border-brand' : 'bg-[#F9EDDC] text-ink-secondary border-[#F9EDDC]'
+                    className={`flex items-center gap-4 p-4 rounded-[10px] border border-ink-primary text-left transition-all font-body font-semibold text-[16px] ${
+                      isSelected ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-secondary'
                     }`}
                   >
                     <l.Icon />

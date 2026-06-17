@@ -9,7 +9,7 @@ export const initialProducts = [
   { id: 2,  name: 'Eponges',     emoji: null,  image: '/eponges.jpg',      expiryDate: null,      location: 'placard', qty: 2 },
   { id: 3,  name: 'Nesquick',    emoji: null,  image: '/nesquick.jpg',     expiryDate: null,      location: 'placard', qty: 4 },
   { id: 4,  name: 'Oeufs',       emoji: null,  image: '/oeufs.jpg',        expiryDate: inDays(10),location: 'frigo',   qty: 6 },
-  { id: 5,  name: 'Saumon',      emoji: null,  image: '/saumon.jpg',       expiryDate: inDays(1), location: 'frigo',   qty: 1 },
+  { id: 5,  name: 'Saumon',      emoji: null,  image: '/saumon.jpg',       expiryDate: inDays(-1), location: 'frigo',   qty: 1 },
   { id: 6,  name: 'Pâtes',       emoji: null,  image: '/pates.jpg',        expiryDate: null,      location: 'placard', qty: 2 },
   { id: 7,  name: 'Lait',        emoji: '🥛',  image: null,                expiryDate: inDays(7), location: 'frigo',   qty: 1 },
   { id: 8,  name: 'Baguette',    emoji: null,  image: './baguette.png',    expiryDate: inDays(2), location: 'placard', qty: 1 },

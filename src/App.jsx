@@ -78,7 +78,7 @@ const getSectionLabel = (tab) => ({
   urgent:  'À utiliser en priorité',
   frigo:   'Frigo',
   congel:  'Congélateur',
-  placard: 'Placards',
+  placard: 'Placard',
   tout:    'Tout',
 }[tab])
 

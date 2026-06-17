@@ -57,14 +57,14 @@ function EditForm({ recipe, onSave, onCancel }) {
       {/* Name */}
       <div className="mb-4">
         <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom*</label>
-        <input type="text" value={name} onChange={e => setName(e.target.value)}
+        <input type="text" name="edit-name" value={name} onChange={e => setName(e.target.value)}
           className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary outline-none focus:border-forest transition-colors" />
       </div>
 
       {/* Time */}
       <div className="mb-5">
         <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Temps de préparation</label>
-        <input type="text" value={time} onChange={e => setTime(e.target.value)} placeholder="ex. 25 min"
+        <input type="text" name="edit-time" value={time} onChange={e => setTime(e.target.value)} placeholder="ex. 25 min"
           className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
       </div>
 
@@ -80,7 +80,7 @@ function EditForm({ recipe, onSave, onCancel }) {
           ))}
         </div>
         <div className="flex gap-2">
-          <input type="text" value={newIng} onChange={e => setNewIng(e.target.value)}
+          <input type="text" name="edit-ingredient" value={newIng} onChange={e => setNewIng(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addIngredient()} placeholder="Ajouter un ingrédient"
             className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
           <button onClick={addIngredient} disabled={!newIng.trim()}
@@ -101,7 +101,7 @@ function EditForm({ recipe, onSave, onCancel }) {
           ))}
         </div>
         <div className="flex gap-2">
-          <input type="text" value={newStep} onChange={e => setNewStep(e.target.value)}
+          <input type="text" name="edit-step" value={newStep} onChange={e => setNewStep(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addStep()} placeholder="Ajouter une étape"
             className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
           <button onClick={addStep} disabled={!newStep.trim()}

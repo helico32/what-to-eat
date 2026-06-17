@@ -111,12 +111,12 @@ export default function AddModal({ onClose, onAdd }) {
               </div>
             </header>
 
-            <div className="flex-1 px-4 pt-5 pb-10">
+            <div className="flex-1 px-4 pt-5 pb-10 flex flex-col gap-y-6">
               {/* Image picker */}
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
+              <input ref={fileRef} type="file" name="add-image" accept="image/*" className="hidden" onChange={handleImage} />
               <button
                 onClick={() => fileRef.current.click()}
-                className="w-full h-40 bg-canvas-surface rounded-xl flex items-center justify-center mb-5 relative overflow-hidden border border-ink-primary transition-colors"
+                className="w-full h-40 bg-canvas-surface rounded-xl flex items-center justify-center relative overflow-hidden border border-ink-primary transition-colors"
               >
                 {image
                   ? <img src={image} alt="preview" className="w-full h-full object-cover" />
@@ -133,10 +133,11 @@ export default function AddModal({ onClose, onAdd }) {
               </button>
 
               {/* Nom */}
-              <div className="mb-4">
+              <div>
                 <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom</label>
                 <input
                   type="text"
+                  name="add-name"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="ex. Framboises"
@@ -145,13 +146,14 @@ export default function AddModal({ onClose, onAdd }) {
               </div>
 
               {/* Quantité */}
-              <div className="mb-4">
+              <div>
                 <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Quantité</label>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-canvas-surface border border-ink-primary rounded-xl overflow-hidden">
                     <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary transition-colors text-xl">−</button>
                     <input
                       type="number"
+                      name="add-qty"
                       min="0.5"
                       step="0.5"
                       value={qty}
@@ -168,7 +170,7 @@ export default function AddModal({ onClose, onAdd }) {
               </div>
 
               {/* Date de péremption */}
-              <div className="mb-8">
+              <div>
                 <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block uppercase tracking-wider">Date de péremption</label>
                 <div className="flex gap-2 mb-3">
                   {PRESETS.map(p => {
@@ -196,6 +198,7 @@ export default function AddModal({ onClose, onAdd }) {
                   </div>
                   <input
                     type="date"
+                    name="add-expiry"
                     value={expiry}
                     min={todayStr()}
                     onChange={e => setExpiry(e.target.value)}
@@ -225,10 +228,10 @@ export default function AddModal({ onClose, onAdd }) {
               <button
                 key={l.id}
                 onClick={() => setLoc(l.id)}
-                className={`flex items-center gap-4 p-4 rounded-[10px] border-2 text-left font-body font-semibold text-[15px] transition-all ${
+                className={`flex items-center gap-4 p-4 rounded-[10px] border border-ink-primary text-left font-body font-semibold text-[16px] transition-all ${
                   loc === l.id
-                    ? 'bg-brand text-ink-primary border-brand'
-                    : 'bg-canvas-border text-ink-secondary border-canvas-border'
+                    ? 'bg-brand text-ink-primary'
+                    : 'bg-canvas-border text-ink-secondary'
                 }`}
               >
                 <l.Icon />
