@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import ShoppingList from './ShoppingList'
 import Header from './Header'
+import SearchBar from './SearchBar'
+import SearchEmpty from './SearchEmpty'
 
 function SortIcon() {
   return (
@@ -57,6 +59,12 @@ function AddItemSheet({ onAdd, onClose }) {
 export default function ListePage({ items, onToggle, onRemove, onClearChecked, onReorder, onAddItem, onAddCheckedToStock, onClose, onMenu, onCart, cartCount }) {
   const [showAdd, setShowAdd] = useState(false)
   const [sorting, setSorting] = useState(false)
+  const [search, setSearch] = useState('')
+
+  const q = search.trim().toLowerCase()
+  const filteredItems = q
+    ? items.filter(i => i.name.toLowerCase().includes(q))
+    : items
 
   return (
     <div className="fixed inset-0 z-30 bg-canvas overflow-y-auto">
@@ -70,34 +78,46 @@ export default function ListePage({ items, onToggle, onRemove, onClearChecked, o
           cartCount={cartCount}
         />
 
-        <main className="px-4 pt-4 pb-32">
-          {/* Section label */}
+        <SearchBar
+          value={search}
+          onChange={v => { setSearch(v); setSorting(false) }}
+          placeholder="Rechercher dans la liste…"
+        />
+
+        <main className="px-4 pb-32">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <p className="font-display font-semibold text-[15px] text-ink-primary">Liste de courses</p>
-              <button
-                onClick={() => setSorting(s => !s)}
-                className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
-                  sorting ? 'text-ink-primary bg-brand' : 'text-ink-primary'
-                }`}
-              >
-                <SortIcon />
-              </button>
+              <p className="font-display font-semibold text-[15px] text-ink-primary">
+                {q ? `"${search.trim()}"` : 'Liste de courses'}
+              </p>
+              {!q && (
+                <button
+                  onClick={() => setSorting(s => !s)}
+                  className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
+                    sorting ? 'text-ink-primary bg-brand' : 'text-ink-primary'
+                  }`}
+                >
+                  <SortIcon />
+                </button>
+              )}
             </div>
             <span className="font-body text-[16px] text-ink-secondary">
-              {items.length} article{items.length > 1 ? 's' : ''}
+              {filteredItems.length} article{filteredItems.length > 1 ? 's' : ''}
             </span>
           </div>
 
-          <ShoppingList
-            items={items}
-            onToggle={onToggle}
-            onRemove={onRemove}
-            onClearChecked={onClearChecked}
-            onReorder={onReorder}
-            onAddCheckedToStock={onAddCheckedToStock}
-            canSort={sorting}
-          />
+          {q && filteredItems.length === 0
+            ? <SearchEmpty />
+            : <ShoppingList
+                items={filteredItems}
+                onToggle={onToggle}
+                onRemove={onRemove}
+                onClearChecked={onClearChecked}
+                onReorder={onReorder}
+                onAddCheckedToStock={onAddCheckedToStock}
+                canSort={!q && sorting}
+              />
+          }
         </main>
       </div>
 

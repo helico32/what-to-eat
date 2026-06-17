@@ -27,9 +27,9 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
         </button>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {cartCount > 0 && (
-            <button onClick={onCart} className="relative w-10 h-10 flex items-center justify-center text-ink-secondary">
+            <button onClick={onCart} className="relative w-10 h-10 flex items-center justify-center text-ink-secondary translate-y-1">
               <CartIcon />
               <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-brand text-ink-primary text-[14px] font-bold rounded-full flex items-center justify-center px-1">
                 {cartCount}
@@ -38,7 +38,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
           )}
           <button
             onClick={onAdd}
-            className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light active:scale-95 transition-all shadow-sm"
+            className="w-8 h-8 bg-brand text-ink-primary border border-ink-primary rounded-full flex items-center justify-center text-2xl font-light active:scale-95 transition-all shadow-sm"
           >
             +
           </button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSortable } from '../hooks/useSortable'
+import { btnActive, btnDefault } from '../utils/styles'
 
 function FridgeIcon() {
   return (
@@ -212,6 +213,7 @@ function DragHandle() {
 
 export default function ShoppingList({ items, onToggle, onRemove, onClearChecked, onReorder, onAddCheckedToStock, canSort }) {
   const [showRangerSheet, setShowRangerSheet] = useState(false)
+  const [confirmId, setConfirmId] = useState(null)
   const { activeIndex, rowProps, handleProps } = useSortable(canSort ? items : [], onReorder)
 
   const handleMoveTo = (fromIndex, toIndex) => {
@@ -238,58 +240,80 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
 
   return (
     <div>
-      <div className="bg-canvas-card rounded-xl border border-ink-primary shadow-sm divide-y divide-ink-primary mb-4 overflow-hidden">
+      <div className="bg-canvas-card rounded-xl border border-ink-primary shadow-sm mb-4 overflow-hidden">
         {items.map((item, index) => (
           <div
             key={item.id}
             {...rowProps(index)}
-            className={`flex items-center gap-3 px-4 py-3.5 transition-opacity select-none ${
+            className={`border-b border-ink-primary last:border-b-0 transition-opacity select-none ${
               activeIndex === index ? 'opacity-40' : ''
-            } ${
-              item.checked ? 'bg-canvas-border/40' : 'bg-transparent'
             }`}
           >
-            <button
-              onClick={() => onToggle(item.id)}
-              className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                item.checked
-                  ? 'bg-forest border-forest text-canvas'
-                  : 'border-ink-primary'
-              }`}
-            >
-              {item.checked && <CheckIcon />}
-            </button>
+            <div className={`flex items-center gap-3 px-4 py-3.5 ${item.checked ? 'bg-canvas-border/40' : ''}`}>
+              <button
+                onClick={() => onToggle(item.id)}
+                className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                  item.checked
+                    ? 'bg-forest border-forest text-canvas'
+                    : 'border-ink-primary'
+                }`}
+              >
+                {item.checked && <CheckIcon />}
+              </button>
 
-            <span className="text-xl flex-shrink-0">{item.emoji}</span>
+              <span className="text-xl flex-shrink-0">{item.emoji}</span>
 
-            <p className={`flex-1 font-body text-[16px] font-medium transition-colors ${
-              item.checked ? 'text-ink-secondary' : 'text-ink-primary'
-            }`}>
-              {item.name}
-              {item.qty > 1 && (
-                <span className="ml-1.5 font-body text-[16px] text-ink-secondary font-normal">x{item.qty}</span>
-              )}
-            </p>
+              <p className={`flex-1 font-body text-[16px] font-medium transition-colors ${
+                item.checked ? 'text-ink-secondary' : 'text-ink-primary'
+              }`}>
+                {item.name}
+                {item.qty > 1 && (
+                  <span className="ml-1.5 font-body text-[16px] text-ink-secondary font-normal">x{item.qty}</span>
+                )}
+              </p>
 
-            <button
-              onClick={() => onRemove(item.id)}
-              className="text-ink-secondary/40 transition-colors flex-shrink-0 p-1"
-            >
-              <TrashIcon />
-            </button>
-
-            {canSort && (
-              <>
-                <div
-                  {...handleProps(index)}
-                  className="md:hidden text-ink-secondary/40 flex-shrink-0 cursor-grab active:cursor-grabbing p-1 touch-none"
+              {canSort ? (
+                <>
+                  <div
+                    {...handleProps(index)}
+                    className="md:hidden text-ink-primary flex-shrink-0 cursor-grab active:cursor-grabbing p-1 touch-none"
+                  >
+                    <DragHandle />
+                  </div>
+                  <div className="hidden md:flex flex-shrink-0">
+                    <PositionInput position={index + 1} total={items.length} onMoveTo={(to) => handleMoveTo(index, to)} />
+                  </div>
+                </>
+              ) : (
+                <button
+                  onClick={() => setConfirmId(confirmId === item.id ? null : item.id)}
+                  className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${
+                    confirmId === item.id ? btnActive : btnDefault
+                  }`}
                 >
-                  <DragHandle />
-                </div>
-                <div className="hidden md:flex flex-shrink-0">
-                  <PositionInput position={index + 1} total={items.length} onMoveTo={(to) => handleMoveTo(index, to)} />
-                </div>
-              </>
+                  <TrashIcon />
+                </button>
+              )}
+            </div>
+
+            {confirmId === item.id && (
+              <div className="pb-3 px-4 flex items-center gap-2">
+                <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
+                  Supprimer « {item.name} » x1 ?
+                </p>
+                <button
+                  onClick={() => { onRemove(item.id); setConfirmId(null) }}
+                  className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
+                >
+                  Oui
+                </button>
+                <button
+                  onClick={() => setConfirmId(null)}
+                  className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
+                >
+                  Non
+                </button>
+              </div>
             )}
           </div>
         ))}

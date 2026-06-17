@@ -26,6 +26,16 @@ function PositionInput({ position, total, onMoveTo }) {
   )
 }
 
+function TrashIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <path d="M8 6V4h8v2"/>
+      <path d="M19 6l-1 14H6L5 6"/>
+    </svg>
+  )
+}
+
 function CartIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -80,7 +90,8 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
         {/* Badge */}
         {badge.label && (
           <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[14px] ${badge.cls}`}>
-            {badge.label}
+            <span className="md:hidden">{badge.label}</span>
+            <span className="hidden md:inline">{badge.labelFull}</span>
           </span>
         )}
 
@@ -107,10 +118,10 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
             </button>
             <button
               onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold text-[22px] leading-none transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
               title="Supprimer"
             >
-              ×
+              <TrashIcon />
             </button>
           </>
         )}
@@ -136,13 +147,13 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
           </p>
           <button
             onClick={() => handleConfirm(confirm)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'delete' ? btnDefault : btnActive}`}
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(null)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'delete' ? btnActive : btnDefault}`}
           >
             Non
           </button>

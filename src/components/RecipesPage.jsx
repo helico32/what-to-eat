@@ -4,6 +4,8 @@ import { getIngredientChipBg } from '../utils/badges'
 import { btnActive, btnDefault } from '../utils/styles'
 import { useSortable } from '../hooks/useSortable'
 import Header from './Header'
+import SearchBar from './SearchBar'
+import SearchEmpty from './SearchEmpty'
 
 function ClockIcon() {
   return (
@@ -161,13 +163,13 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
           </p>
           <button
             onClick={() => onDelete(recipe.id)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(false)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
           >
             Non
           </button>
@@ -180,11 +182,19 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
 export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRecipe, onEditRecipe, onToggleFavorite, onReorderRecipes, onClose, onMenu, onCart, cartCount }) {
   const navigate = useNavigate()
   const [sorting, setSorting] = useState(false)
+  const [search, setSearch] = useState('')
 
+  const q = search.trim().toLowerCase()
   const sortedRecipes = [
     ...recipes.filter(r => r.favorite),
     ...recipes.filter(r => !r.favorite),
   ]
+  const filteredRecipes = q
+    ? sortedRecipes.filter(r =>
+        r.name.toLowerCase().includes(q) ||
+        r.ingredients.some(ing => ing.toLowerCase().includes(q))
+      )
+    : sortedRecipes
 
   const { activeIndex, rowProps, handleProps } = useSortable(sorting ? sortedRecipes : [], onReorderRecipes)
 
@@ -208,11 +218,19 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
           cartCount={cartCount}
         />
 
-        <main className="px-4 pt-4 pb-32">
+        <SearchBar
+          value={search}
+          onChange={v => { setSearch(v); setSorting(false) }}
+          placeholder="Titre ou ingrédient…"
+        />
+
+        <main className="px-4 pb-32">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <p className="font-display font-semibold text-[15px] text-ink-primary">Recettes</p>
-              {recipes.length > 1 && (
+              <p className="font-display font-semibold text-[15px] text-ink-primary">
+                {q ? `"${search.trim()}"` : 'Recettes'}
+              </p>
+              {!q && recipes.length > 1 && (
                 <button
                   onClick={() => setSorting(s => !s)}
                   className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
@@ -224,21 +242,22 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
               )}
             </div>
             <span className="font-body text-[16px] text-ink-secondary">
-              {recipes.length} recette{recipes.length > 1 ? 's' : ''}
+              {filteredRecipes.length} recette{filteredRecipes.length > 1 ? 's' : ''}
             </span>
           </div>
 
-          {recipes.length === 0 ? (
+          {filteredRecipes.length === 0 ? (
+            q ? <SearchEmpty /> : (
             <div className="text-center py-20">
               <span className="text-4xl block mb-3">🍳</span>
               <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Aucune recette</h3>
               <p className="font-body text-[16px] text-ink-secondary">
                 Ajoute tes recettes favorites pour les retrouver chaque soir.
               </p>
-            </div>
+            </div>)
           ) : (
             <div className="flex flex-col gap-3">
-              {sortedRecipes.map((r, index) => (
+              {filteredRecipes.map((r, index) => (
                 <RecipeItem
                   key={r.id}
                   recipe={r}
@@ -246,12 +265,12 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
                   onDelete={onDeleteRecipe}
                   onView={(r) => navigate(`/recettes/${r.id}`)}
                   onToggleFavorite={onToggleFavorite}
-                  canSort={sorting}
+                  canSort={sorting && !q}
                   isDragging={activeIndex === index}
-                  rowProps={sorting ? rowProps(index) : {}}
-                  handleProps={sorting ? handleProps(index) : {}}
+                  rowProps={sorting && !q ? rowProps(index) : {}}
+                  handleProps={sorting && !q ? handleProps(index) : {}}
                   sortIndex={index}
-                  sortTotal={sortedRecipes.length}
+                  sortTotal={filteredRecipes.length}
                   onMoveTo={(to) => handleMoveTo(index, to)}
                 />
               ))}

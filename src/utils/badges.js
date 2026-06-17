@@ -6,14 +6,14 @@ const computeDaysLeft = (expiryDate) => {
 
 // Returns { cls: '...', label: '...' } for product urgency badges
 export function getBadge(expiryDate, location) {
-  if (location === 'congel')  return { cls: 'bg-cold-light text-ink-secondary border border-ink-primary',    label: '❄️' }
-  if (location === 'placard') return { cls: 'bg-canvas-border text-ink-secondary border border-ink-primary', label: '📦' }
+  if (location === 'congel')  return { cls: 'bg-transparent text-ink-secondary border border-ink-secondary/50', label: '❄️', labelFull: '❄️' }
+  if (location === 'placard') return { cls: 'bg-transparent text-ink-secondary border border-ink-secondary/50', label: '📦', labelFull: '📦' }
   const daysLeft = computeDaysLeft(expiryDate)
-  if (daysLeft === null)      return { cls: '', label: '' }
-  if (daysLeft <= 0)  return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: "Auj." }
-  if (daysLeft === 1) return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: '1 jour' }
-  if (daysLeft <= 4)  return { cls: 'bg-brand/30 text-ink-secondary border border-brand',   label: `${daysLeft} jours` }
-  return                     { cls: 'bg-canvas-border text-ink-secondary border border-ink-primary', label: `${daysLeft} jours` }
+  if (daysLeft === null)      return { cls: '', label: '', labelFull: '' }
+  if (daysLeft <= 0)  return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: "Auj.",       labelFull: "Auj." }
+  if (daysLeft === 1) return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: '1',          labelFull: '1 jour' }
+  if (daysLeft <= 4)  return { cls: 'bg-brand/30 text-ink-secondary border border-brand',   label: `${daysLeft}`, labelFull: `${daysLeft} jours` }
+  return                     { cls: 'bg-canvas-border text-ink-secondary border border-ink-primary', label: `${daysLeft}`, labelFull: `${daysLeft} jours` }
 }
 
 // For ingredient chips — returns only the background class (text stays ink-secondary)

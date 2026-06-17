@@ -17,8 +17,8 @@ const TABS = [
 
 export default function TabBar({ active, onChange }) {
   return (
-    <div>
-      <div className="flex gap-2 px-4 py-2.5 overflow-x-auto scrollbar-none">
+    <div className="pt-3">
+      <div className="flex gap-3 px-4 py-2.5 overflow-x-auto scrollbar-none">
         {TABS.map(({ id, label, Icon }) => (
           <button
             key={id}

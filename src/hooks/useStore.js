@@ -87,6 +87,14 @@ export function useStore() {
     setAndPersistShopping(prev => prev.filter(p => p.id !== id))
   }, [])
 
+  const decrementShoppingItem = useCallback((id) => {
+    setAndPersistShopping(prev => prev.reduce((acc, p) => {
+      if (p.id !== id) return [...acc, p]
+      const next = (p.qty ?? 1) - 1
+      return next > 0 ? [...acc, { ...p, qty: next }] : acc
+    }, []))
+  }, [])
+
   const clearCheckedItems = useCallback(() => {
     setAndPersistShopping(prev => prev.filter(p => !p.checked))
   }, [])
@@ -107,6 +115,7 @@ export function useStore() {
     addToShoppingList,
     toggleShoppingItem,
     removeFromShoppingList,
+    decrementShoppingItem,
     clearCheckedItems,
     reorderShoppingList,
     reorderProducts,

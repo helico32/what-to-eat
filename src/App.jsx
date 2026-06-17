@@ -13,6 +13,8 @@ import ListePage       from './components/ListePage'
 import RecipesPage     from './components/RecipesPage'
 import AddModal        from './components/AddModal'
 import AddRecipeModal  from './components/AddRecipeModal'
+import SearchBar       from './components/SearchBar'
+import SearchEmpty     from './components/SearchEmpty'
 import RecipeModal     from './components/RecipeModal'
 
 function SortIcon() {
@@ -57,7 +59,7 @@ function EmptyState({ icon, title }) {
       <span className="text-4xl block mb-3">{icon}</span>
       <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">{title}</h3>
       <p className="font-body text-[16px] text-ink-secondary inline-flex items-center gap-1.5">
-        Ajoute-le avec le
+        Ajoute-le avec 
         <span className="inline-flex items-center justify-center w-5 h-5 bg-brand text-ink-primary rounded-full text-[14px] font-light leading-none">+</span>
       </p>
     </div>
@@ -157,25 +159,13 @@ export default function App() {
             />
             <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false) }} />
 
-            <div className="px-4 pt-3">
-              <div className="relative">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-primary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                </svg>
-                <input
-                  type="text"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Rechercher un article…"
-                  className="w-full pl-9 pr-4 py-2 bg-canvas-surface border border-ink-primary rounded-[10px] font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none"
-                />
-                {search && (
-                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-secondary text-lg leading-none">×</button>
-                )}
-              </div>
-            </div>
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Rechercher un article…"
+            />
 
-            <main className="px-4 pt-4 pb-16">
+            <main className="px-4 pb-16">
               <SectionLabel
                 label={q ? `Résultats pour "${search.trim()}"` : getSectionLabel(tab)}
                 count={viewProducts.length}
@@ -184,10 +174,12 @@ export default function App() {
               />
 
               {viewProducts.length === 0 ? (
-                <EmptyState
-                  icon={tab === 'congel' ? '❄️' : tab === 'placard' ? '📦' : '🧊'}
-                  title="Rien ici"
-                />
+                q
+                  ? <SearchEmpty />
+                  : <EmptyState
+                      icon={tab === 'congel' ? '❄️' : tab === 'placard' ? '📦' : '🧊'}
+                      title="Rien ici"
+                    />
               ) : (
                 <div className="bg-canvas-card rounded-xl border border-ink-primary divide-y divide-ink-primary px-4">
                   {viewProducts.map((p, index) => (
@@ -234,7 +226,7 @@ export default function App() {
           <ListePage
             items={store.shoppingList}
             onToggle={store.toggleShoppingItem}
-            onRemove={store.removeFromShoppingList}
+            onRemove={store.decrementShoppingItem}
             onClearChecked={store.clearCheckedItems}
             onReorder={store.reorderShoppingList}
             onAddItem={(name) => store.addToShoppingList({ id: Date.now(), name, emoji: '🛒' })}
