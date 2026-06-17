@@ -122,11 +122,11 @@ export default function AddModal({ onClose, onAdd }) {
                   ? <img src={image} alt="preview" className="w-full h-full object-cover" />
                   : <div className="flex flex-col items-center gap-2 text-ink-secondary">
                       {emoji && <span className="text-4xl">{emoji}</span>}
-                      <span className="font-body text-[12px]">Ajouter une photo</span>
+                      <span className="font-body text-[16px]">Ajouter une photo</span>
                     </div>
                 }
                 {image && (
-                  <div className="absolute bottom-2 right-2 bg-ink-primary/50 text-canvas text-[11px] px-2 py-1 rounded-lg font-body">
+                  <div className="absolute bottom-2 right-2 bg-ink-primary/50 text-canvas text-[14px] px-2 py-1 rounded-lg font-body">
                     Changer
                   </div>
                 )}
@@ -134,19 +134,19 @@ export default function AddModal({ onClose, onAdd }) {
 
               {/* Nom */}
               <div className="mb-4">
-                <label className="font-body font-semibold text-[12px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="ex. Framboises"
-                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[14px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
                 />
               </div>
 
               {/* Quantité */}
               <div className="mb-4">
-                <label className="font-body font-semibold text-[12px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Quantité</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Quantité</label>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-canvas-surface border border-ink-primary rounded-xl overflow-hidden">
                     <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary transition-colors text-xl">−</button>
@@ -159,17 +159,17 @@ export default function AddModal({ onClose, onAdd }) {
                         const v = parseFloat(e.target.value)
                         if (!isNaN(v) && v >= 0.5) setQty(Math.round(v * 10) / 10)
                       }}
-                      className="w-12 text-center font-body font-bold text-[14px] border-x border-ink-primary bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-12 text-center font-body font-bold text-[16px] border-x border-ink-primary bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <button onClick={() => setQty(q => Math.round((q + 0.5) * 10) / 10)} className="w-10 h-10 text-ink-secondary transition-colors text-xl">＋</button>
                   </div>
-                  <span className="font-body text-[14px] text-ink-secondary">restant{qty > 1 ? 's' : ''}</span>
+                  <span className="font-body text-[16px] text-ink-secondary">restant{qty > 1 ? 's' : ''}</span>
                 </div>
               </div>
 
               {/* Date de péremption */}
               <div className="mb-8">
-                <label className="font-body font-semibold text-[12px] text-ink-secondary mb-2 block uppercase tracking-wider">Date de péremption</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block uppercase tracking-wider">Date de péremption</label>
                 <div className="flex gap-2 mb-3">
                   {PRESETS.map(p => {
                     const val = dateInDays(p.days)
@@ -177,7 +177,7 @@ export default function AddModal({ onClose, onAdd }) {
                       <button
                         key={p.label}
                         onClick={() => setExpiry(val)}
-                        className={`flex-1 py-2 rounded-pill font-body font-semibold text-[13px] border transition-all ${
+                        className={`flex-1 py-2 rounded-pill font-body font-semibold text-[14px] border transition-all ${
                           expiry === val
                             ? 'bg-brand text-ink-primary border-brand'
                             : 'bg-canvas-surface text-ink-secondary border-ink-primary'

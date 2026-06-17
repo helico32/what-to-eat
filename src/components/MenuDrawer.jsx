@@ -49,7 +49,7 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
 
         <div className="h-px bg-canvas-border mx-5 my-5" />
 
-        <p className="font-body font-semibold text-[11px] uppercase tracking-wider text-ink-secondary px-5 mb-3">
+        <p className="font-body font-semibold text-[16px] uppercase tracking-wider text-ink-secondary px-5 mb-3">
           Outils
         </p>
 
@@ -69,7 +69,7 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
                 </span>
                 <span className="flex-1">{label}</span>
                 {id === 'liste' && shoppingCount > 0 && (
-                  <span className="w-5 h-5 bg-brand text-ink-primary text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="w-5 h-5 bg-brand text-ink-primary text-[14px] font-bold rounded-full flex items-center justify-center">
                     {shoppingCount}
                   </span>
                 )}

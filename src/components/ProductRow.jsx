@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { getBadge } from '../utils/badges'
+import { btnActive, btnDefault } from '../utils/styles'
 
 function PositionInput({ position, total, onMoveTo }) {
   const [val, setVal] = useState(String(position))
@@ -20,7 +21,7 @@ function PositionInput({ position, total, onMoveTo }) {
       onChange={e => setVal(e.target.value)}
       onBlur={commit}
       onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[13px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -72,13 +73,13 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
 
         {/* Name + subtitle */}
         <div className="flex-1 min-w-0">
-          <p className="font-body font-semibold text-[14px] text-ink-primary truncate">{product.name}</p>
-          <p className="font-body text-[12px] text-ink-secondary mt-0.5">x{product.qty}</p>
+          <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{product.name}</p>
+          <p className="font-body text-[16px] text-ink-secondary mt-0.5">x{product.qty}</p>
         </div>
 
         {/* Badge */}
         {badge.label && (
-          <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[12px] ${badge.cls}`}>
+          <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[14px] ${badge.cls}`}>
             {badge.label}
           </span>
         )}
@@ -99,14 +100,14 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
           <>
             <button
               onClick={() => setConfirm(confirm === 'cart' ? null : 'cart')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold transition-all ${confirm === 'cart' ? 'bg-forest text-canvas border-forest' : 'bg-canvas-border text-ink-secondary border-ink-primary'}`}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === 'cart' ? btnActive : btnDefault}`}
               title="Ajouter à la liste"
             >
               <CartIcon />
             </button>
             <button
               onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold text-[22px] leading-none transition-all ${confirm === 'delete' ? 'bg-urgent/20 text-urgent border-urgent' : 'bg-canvas-border text-ink-secondary border-ink-primary'}`}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold text-[22px] leading-none transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
               title="Supprimer"
             >
               ×
@@ -118,7 +119,7 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
       {/* Done feedback */}
       {done && (
         <div className="pb-3 flex items-center gap-2">
-          <p className="font-body text-[13px] text-forest font-semibold">
+          <p className="font-body text-[16px] text-forest font-semibold">
             {done === 'cart' ? `✓ Ajouté au panier` : `✓ Supprimé`}
           </p>
         </div>
@@ -127,7 +128,7 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
       {/* Confirmation inline */}
       {confirm && (
         <div className="pb-3 flex items-center gap-2">
-          <p className="flex-1 font-body text-[13px] text-ink-secondary truncate">
+          <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
             {confirm === 'cart'
               ? `Ajouter "${product.name}" x${product.qty === 0.5 ? '0.5' : '1'} ?`
               : `Supprimer "${product.name}" x${product.qty === 0.5 ? '0.5' : '1'} ?`
@@ -135,13 +136,13 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
           </p>
           <button
             onClick={() => handleConfirm(confirm)}
-            className="px-3 py-1.5 bg-forest text-canvas border-2 border-forest rounded-[10px] font-body font-semibold text-[13px]"
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(null)}
-            className="px-3 py-1.5 bg-canvas-border text-ink-secondary border-2 border-ink-primary rounded-[10px] font-body font-semibold text-[13px]"
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
           >
             Non
           </button>

@@ -43,7 +43,7 @@ function SectionLabel({ label, count, onSort, sorting }) {
         )}
       </div>
       {count !== undefined && (
-        <span className="font-body text-[13px] text-ink-secondary">
+        <span className="font-body text-[16px] text-ink-secondary">
           {count} article{count > 1 ? 's' : ''}
         </span>
       )}
@@ -56,9 +56,9 @@ function EmptyState({ icon, title }) {
     <div className="text-center py-16 px-6">
       <span className="text-4xl block mb-3">{icon}</span>
       <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">{title}</h3>
-      <p className="font-body text-[14px] text-ink-secondary inline-flex items-center gap-1.5">
+      <p className="font-body text-[16px] text-ink-secondary inline-flex items-center gap-1.5">
         Ajoute-le avec le
-        <span className="inline-flex items-center justify-center w-5 h-5 bg-brand text-ink-primary rounded-full text-[13px] font-light leading-none">+</span>
+        <span className="inline-flex items-center justify-center w-5 h-5 bg-brand text-ink-primary rounded-full text-[14px] font-light leading-none">+</span>
       </p>
     </div>
   )
@@ -167,7 +167,7 @@ export default function App() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Rechercher un article…"
-                  className="w-full pl-9 pr-4 py-2 bg-canvas-surface border border-ink-primary rounded-[10px] font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none"
+                  className="w-full pl-9 pr-4 py-2 bg-canvas-surface border border-ink-primary rounded-[10px] font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none"
                 />
                 {search && (
                   <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-secondary text-lg leading-none">×</button>
@@ -189,7 +189,7 @@ export default function App() {
                   title="Rien ici"
                 />
               ) : (
-                <div className="bg-canvas-surface rounded-xl border border-ink-primary divide-y divide-ink-primary px-4">
+                <div className="bg-canvas-card rounded-xl border border-ink-primary divide-y divide-ink-primary px-4">
                   {viewProducts.map((p, index) => (
                     <ProductRow
                       key={p.id}

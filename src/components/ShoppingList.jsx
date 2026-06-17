@@ -68,7 +68,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-ink-primary/40" onClick={onClose}>
       <div
-        className="w-full max-w-[430px] mx-auto bg-canvas-surface rounded-t-[20px] px-5 pt-5 pb-10 shadow-lg"
+        className="w-full max-w-[430px] mx-auto bg-canvas-card rounded-t-[20px] px-5 pt-5 pb-10 shadow-lg"
         onClick={e => e.stopPropagation()}
       >
         <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-5" />
@@ -76,7 +76,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
         {step === 1 && (
           <>
             <p className="font-display font-bold text-[16px] text-ink-primary mb-1">Où ranger les courses ?</p>
-            <p className="font-body text-[13px] text-ink-secondary mb-5">
+            <p className="font-body text-[16px] text-ink-secondary mb-5">
               {checkedItems.length} article{checkedItems.length > 1 ? 's' : ''} sélectionné{checkedItems.length > 1 ? 's' : ''}
             </p>
             <div className="flex flex-col gap-3 mb-6">
@@ -109,7 +109,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
           <>
             <button onClick={() => setStep(1)} className="text-ink-secondary text-lg mb-3">←</button>
             <p className="font-display font-bold text-[16px] text-ink-primary mb-1">Date de péremption</p>
-            <p className="font-body text-[13px] text-ink-secondary mb-5">Optionnel — s'applique à tous les articles</p>
+            <p className="font-body text-[16px] text-ink-secondary mb-5">Optionnel — s'applique à tous les articles</p>
 
             <div className="flex gap-2 mb-3">
               {EXPIRY_PRESETS.map(p => {
@@ -118,7 +118,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                   <button
                     key={p.label}
                     onClick={() => setExpiry(val)}
-                    className={`flex-1 py-2 rounded-pill font-body font-semibold text-[13px] border transition-all ${
+                    className={`flex-1 py-2 rounded-pill font-body font-semibold text-[16px] border transition-all ${
                       expiry === val
                         ? 'bg-brand text-ink-primary border-brand'
                         : 'bg-canvas-surface text-ink-secondary border-ink-primary'
@@ -177,7 +177,7 @@ function PositionInput({ position, total, onMoveTo }) {
       onChange={e => setVal(e.target.value)}
       onBlur={commit}
       onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[13px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -229,7 +229,7 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
       <div className="text-center py-20">
         <span className="text-4xl block mb-3">🛒</span>
         <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Liste vide</h3>
-        <p className="font-body text-[14px] text-ink-secondary">
+        <p className="font-body text-[16px] text-ink-secondary">
           Appuie sur l'icône 🛒 à côté d'un produit.
         </p>
       </div>
@@ -238,7 +238,7 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
 
   return (
     <div>
-      <div className="bg-canvas-surface rounded-xl border border-ink-primary shadow-sm divide-y divide-ink-primary mb-4 overflow-hidden">
+      <div className="bg-canvas-card rounded-xl border border-ink-primary shadow-sm divide-y divide-ink-primary mb-4 overflow-hidden">
         {items.map((item, index) => (
           <div
             key={item.id}
@@ -262,12 +262,12 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
 
             <span className="text-xl flex-shrink-0">{item.emoji}</span>
 
-            <p className={`flex-1 font-body text-[14px] font-medium transition-colors ${
+            <p className={`flex-1 font-body text-[16px] font-medium transition-colors ${
               item.checked ? 'text-ink-secondary' : 'text-ink-primary'
             }`}>
               {item.name}
               {item.qty > 1 && (
-                <span className="ml-1.5 font-body text-[12px] text-ink-secondary font-normal">x{item.qty}</span>
+                <span className="ml-1.5 font-body text-[16px] text-ink-secondary font-normal">x{item.qty}</span>
               )}
             </p>
 
@@ -299,13 +299,13 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
         <div className="flex gap-2">
           <button
             onClick={() => setShowRangerSheet(true)}
-            className="flex-1 py-3.5 bg-forest/10 border border-forest/20 rounded-xl font-body font-semibold text-[14px] text-forest transition-colors"
+            className="flex-1 py-3.5 bg-forest/10 border border-forest/20 rounded-xl font-body font-semibold text-[16px] text-forest transition-colors"
           >
             Ranger les courses ({checked.length})
           </button>
           <button
             onClick={onClearChecked}
-            className="py-3.5 px-4 bg-urgent/10 border border-urgent/20 rounded-xl font-body font-semibold text-[14px] text-urgent transition-colors"
+            className="py-3.5 px-4 bg-urgent/10 border border-urgent/20 rounded-xl font-body font-semibold text-[16px] text-urgent transition-colors"
           >
             Effacer
           </button>

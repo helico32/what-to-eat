@@ -11,7 +11,7 @@ export default {
         forest: '#263522',
         // Neutrals
         ink:    { primary: '#5C4D42', secondary: '#5C4D42' },
-        canvas: { DEFAULT: '#FDF8F0', border: '#F9EDDC', surface: '#FDF8F0' },
+        canvas: { DEFAULT: '#FDF8F0', border: '#F9EDDC', surface: '#FDF8F0', card: '#FEFCF9' },
         // Semantic badge colors
         cold:   { light: '#E8F4FB' },
       },

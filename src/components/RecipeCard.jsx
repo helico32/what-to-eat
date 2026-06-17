@@ -26,8 +26,8 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
 
   if (!recipes.length) {
     return (
-      <div className="bg-canvas-surface rounded-xl border border-ink-primary p-5 mb-4 text-center">
-        <p className="font-body text-[14px] text-ink-secondary">Aucune recette — ajoute-en une via Recettes.</p>
+      <div className="bg-canvas-card rounded-xl border border-ink-primary p-5 mb-4 text-center">
+        <p className="font-body text-[16px] text-ink-secondary">Aucune recette — ajoute-en une via Recettes.</p>
       </div>
     )
   }
@@ -46,7 +46,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
   }
 
   return (
-    <div className="bg-canvas-surface rounded-xl border border-ink-primary mb-4 overflow-hidden">
+    <div className="bg-canvas-card rounded-xl border border-ink-primary mb-4 overflow-hidden">
       <div className="flex">
         {/* Left: image area */}
         <div className="w-[130px] flex-shrink-0 bg-canvas flex items-center justify-center text-[56px]">
@@ -61,7 +61,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
           </h2>
 
           {/* Time */}
-          <p className="flex items-center gap-1 font-body text-[12px] text-ink-secondary mb-3">
+          <p className="flex items-center gap-1 font-body text-[16px] text-ink-secondary mb-3">
             <ClockIcon /> {recipe.time}
           </p>
 
@@ -74,7 +74,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
                 return (
                   <span
                     key={name}
-                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[11px] text-ink-secondary ${chipBg}`}
+                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[14px] text-ink-secondary ${chipBg}`}
                   >
                     {name}
                   </span>
@@ -87,7 +87,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
           <div className="flex gap-2">
             <button
               onClick={() => onViewRecipe(recipe)}
-              className="flex-1 py-2.5 bg-forest text-canvas rounded-lg font-body font-semibold text-[13px] active:scale-[.98] transition-all"
+              className="flex-1 py-2.5 bg-forest text-canvas rounded-lg font-body font-semibold text-[16px] active:scale-[.98] transition-all"
             >
               Voir la recette
             </button>

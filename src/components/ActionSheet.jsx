@@ -23,8 +23,8 @@ export default function ActionSheet({ product, onClose, onDelete, onAddToCart })
             {product.emoji}
           </div>
           <div>
-            <p className="font-body font-semibold text-[14px] text-ink-primary">{product.name}</p>
-            <p className="font-body text-[12px] text-ink-secondary">{product.qty} restant{product.qty > 1 ? 's' : ''}</p>
+            <p className="font-body font-semibold text-[16px] text-ink-primary">{product.name}</p>
+            <p className="font-body text-[16px] text-ink-secondary">{product.qty} restant{product.qty > 1 ? 's' : ''}</p>
           </div>
         </div>
 
@@ -35,8 +35,8 @@ export default function ActionSheet({ product, onClose, onDelete, onAddToCart })
           >
             <span className="text-xl">🛒</span>
             <div>
-              <p className="font-body font-semibold text-[14px] text-ink-primary">Ajouter à la liste de courses</p>
-              <p className="font-body text-[12px] text-ink-secondary mt-0.5">Pour ne pas oublier de racheter</p>
+              <p className="font-body font-semibold text-[16px] text-ink-primary">Ajouter à la liste de courses</p>
+              <p className="font-body text-[16px] text-ink-secondary mt-0.5">Pour ne pas oublier de racheter</p>
             </div>
           </button>
 
@@ -46,14 +46,14 @@ export default function ActionSheet({ product, onClose, onDelete, onAddToCart })
           >
             <span className="text-xl">🗑️</span>
             <div>
-              <p className="font-body font-semibold text-[14px] text-urgent">Supprimer du frigo</p>
-              <p className="font-body text-[12px] text-urgent/60 mt-0.5">Consommé ou jeté</p>
+              <p className="font-body font-semibold text-[16px] text-urgent">Supprimer du frigo</p>
+              <p className="font-body text-[16px] text-urgent/60 mt-0.5">Consommé ou jeté</p>
             </div>
           </button>
 
           <button
             onClick={onClose}
-            className="w-full py-3.5 font-body text-[14px] text-ink-secondary transition-colors"
+            className="w-full py-3.5 font-body text-[16px] text-ink-secondary transition-colors"
           >
             Annuler
           </button>

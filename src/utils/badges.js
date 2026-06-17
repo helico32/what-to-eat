@@ -6,23 +6,23 @@ const computeDaysLeft = (expiryDate) => {
 
 // Returns { cls: '...', label: '...' } for product urgency badges
 export function getBadge(expiryDate, location) {
-  if (location === 'congel')  return { cls: 'bg-cold-light text-ink-secondary',    label: '❄️' }
-  if (location === 'placard') return { cls: 'bg-canvas-border text-ink-secondary', label: '📦' }
+  if (location === 'congel')  return { cls: 'bg-cold-light text-ink-secondary border border-ink-primary',    label: '❄️' }
+  if (location === 'placard') return { cls: 'bg-canvas-border text-ink-secondary border border-ink-primary', label: '📦' }
   const daysLeft = computeDaysLeft(expiryDate)
   if (daysLeft === null)      return { cls: '', label: '' }
-  if (daysLeft <= 0)  return { cls: 'bg-urgent/30 text-ink-secondary', label: "Auj." }
-  if (daysLeft === 1) return { cls: 'bg-urgent/30 text-ink-secondary', label: '1 jour' }
-  if (daysLeft <= 4)  return { cls: 'bg-brand/30 text-ink-secondary',  label: `${daysLeft} jours` }
-  return                     { cls: 'bg-canvas-border text-ink-secondary', label: `${daysLeft} jours` }
+  if (daysLeft <= 0)  return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: "Auj." }
+  if (daysLeft === 1) return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: '1 jour' }
+  if (daysLeft <= 4)  return { cls: 'bg-brand/30 text-ink-secondary border border-brand',   label: `${daysLeft} jours` }
+  return                     { cls: 'bg-canvas-border text-ink-secondary border border-ink-primary', label: `${daysLeft} jours` }
 }
 
 // For ingredient chips — returns only the background class (text stays ink-secondary)
 export function getIngredientChipBg(expiryDate) {
   const daysLeft = computeDaysLeft(expiryDate)
-  if (daysLeft === null) return 'bg-canvas'
-  if (daysLeft <= 1)     return 'bg-urgent/30'
-  if (daysLeft <= 4)     return 'bg-brand/30'
-  return 'bg-canvas-border'
+  if (daysLeft === null) return 'bg-canvas border border-ink-primary'
+  if (daysLeft <= 1)     return 'bg-urgent/30 border border-urgent'
+  if (daysLeft <= 4)     return 'bg-brand/30 border border-brand'
+  return 'bg-canvas-border border border-ink-primary'
 }
 
 export function sortByUrgency(list) {

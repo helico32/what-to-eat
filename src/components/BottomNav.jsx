@@ -25,14 +25,14 @@ export default function BottomNav({ shoppingCount, onShowListe, onShowRecettes, 
 
           <button
             onClick={onShowListe}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[14px] transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[16px] transition-all ${
               activePage === 'liste' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70'
             }`}
           >
             <div className="relative">
               <CartIcon />
               {shoppingCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-canvas text-ink-primary text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 w-4 h-4 bg-canvas text-ink-primary text-[14px] font-bold rounded-full flex items-center justify-center">
                   {shoppingCount}
                 </span>
               )}
@@ -44,7 +44,7 @@ export default function BottomNav({ shoppingCount, onShowListe, onShowRecettes, 
 
           <button
             onClick={onShowRecettes}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[14px] transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[16px] transition-all ${
               activePage === 'recettes' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70'
             }`}
           >
