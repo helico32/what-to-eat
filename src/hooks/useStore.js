@@ -15,12 +15,23 @@ function load(key, fallback) {
   }
 }
 
+// One-time migration: daysLeft (number) → expiryDate (ISO string)
+function migrateProducts(products) {
+  return products.map(p => {
+    if ('expiryDate' in p) return p
+    if (!p.daysLeft) return { ...p, expiryDate: null }
+    const d = new Date()
+    d.setDate(d.getDate() + p.daysLeft)
+    return { ...p, expiryDate: d.toISOString().split('T')[0] }
+  })
+}
+
 function persist(key, data) {
   try { localStorage.setItem(key, JSON.stringify(data)) } catch {}
 }
 
 export function useStore() {
-  const [products,     setProducts]     = useState(() => load(KEYS.products,     initialProducts))
+  const [products,     setProducts]     = useState(() => migrateProducts(load(KEYS.products, initialProducts)))
   const [shoppingList, setShoppingList] = useState(() => load(KEYS.shoppingList, []))
 
   const setAndPersistProducts = (updater) => {

@@ -31,7 +31,7 @@ export default function ActionSheet({ product, onClose, onDelete, onAddToCart })
         <div className="px-5 flex flex-col gap-3">
           <button
             onClick={onAddToCart}
-            className="w-full flex items-center gap-3 px-4 py-4 bg-canvas border border-canvas-border rounded-xl text-left hover:bg-canvas-border/30 active:scale-[.98] transition-all"
+            className="w-full flex items-center gap-3 px-4 py-4 bg-canvas border border-ink-primary rounded-xl text-left active:scale-[.98] transition-all"
           >
             <span className="text-xl">🛒</span>
             <div>
@@ -42,18 +42,18 @@ export default function ActionSheet({ product, onClose, onDelete, onAddToCart })
 
           <button
             onClick={onDelete}
-            className="w-full flex items-center gap-3 px-4 py-4 bg-red-50 border border-red-100 rounded-xl text-left hover:bg-red-100 active:scale-[.98] transition-all"
+            className="w-full flex items-center gap-3 px-4 py-4 bg-urgent/10 border border-urgent/20 rounded-xl text-left active:scale-[.98] transition-all"
           >
             <span className="text-xl">🗑️</span>
             <div>
-              <p className="font-body font-semibold text-[14px] text-red-700">Supprimer du frigo</p>
-              <p className="font-body text-[12px] text-red-400 mt-0.5">Consommé ou jeté</p>
+              <p className="font-body font-semibold text-[14px] text-urgent">Supprimer du frigo</p>
+              <p className="font-body text-[12px] text-urgent/60 mt-0.5">Consommé ou jeté</p>
             </div>
           </button>
 
           <button
             onClick={onClose}
-            className="w-full py-3.5 font-body text-[14px] text-ink-secondary hover:text-ink-primary transition-colors"
+            className="w-full py-3.5 font-body text-[14px] text-ink-secondary transition-colors"
           >
             Annuler
           </button>

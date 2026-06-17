@@ -5,18 +5,15 @@ export default {
     extend: {
       colors: {
         // Primary — Orange
-        brand:  '#F6C27A',
+        brand:  '#F5BC6B',
         urgent: '#F07A34',
         // Secondary — Forest Green
-        forest: { DEFAULT: '#3E5A3A', light: '#E7F3E2' },
+        forest: '#263522',
         // Neutrals
-        ink:    { primary: '#2A1E17', secondary: '#6B5D4B' },
-        canvas: { DEFAULT: '#FDF8F0', border: '#E8DDCA', surface: '#FFFFFF' },
+        ink:    { primary: '#5C4D42', secondary: '#5C4D42' },
+        canvas: { DEFAULT: '#FDF8F0', border: '#F9EDDC', surface: '#FDF8F0' },
         // Semantic badge colors
-        cold:   { DEFAULT: '#3AA2D8', light: '#E8F4FB' },
-        fresh:  { DEFAULT: '#7DBA43', light: '#E7F3E2' },
-        days:   { DEFAULT: '#F4A261', light: '#FEF3E8' },
-        pantry: { DEFAULT: '#8A6B52', light: '#EAEED3' },
+        cold:   { light: '#E8F4FB' },
       },
       fontFamily: {
         display: ['Poppins', 'system-ui', 'sans-serif'],

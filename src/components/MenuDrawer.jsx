@@ -8,9 +8,9 @@ function ChefHatIcon()   { return <svg width="18" height="18" viewBox="0 0 24 24
 
 const TABS = [
   { id: 'urgent',  label: 'À utiliser en priorité', Icon: UrgentIcon,    color: 'text-urgent',          bg: 'bg-urgent/10'       },
-  { id: 'frigo',   label: 'Frigo',                  Icon: FridgeIcon,    color: 'text-forest',          bg: 'bg-forest-light'    },
-  { id: 'congel',  label: 'Congélateur',             Icon: SnowflakeIcon, color: 'text-cold',            bg: 'bg-cold-light'      },
-  { id: 'placard', label: 'Placards',                Icon: BoxIcon,       color: 'text-pantry',          bg: 'bg-pantry-light'    },
+  { id: 'frigo',   label: 'Frigo',                  Icon: FridgeIcon,    color: 'text-forest',          bg: 'bg-forest/10'       },
+  { id: 'congel',  label: 'Congélateur',             Icon: SnowflakeIcon, color: 'text-ink-secondary',   bg: 'bg-cold-light'      },
+  { id: 'placard', label: 'Placards',                Icon: BoxIcon,       color: 'text-ink-secondary',   bg: 'bg-canvas-border'   },
   { id: 'tout',    label: 'Tout',                    Icon: ListIcon,      color: 'text-ink-secondary',   bg: 'bg-canvas-border/40'},
 ]
 
@@ -37,7 +37,7 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
                 key={id}
                 onClick={() => { onSelectTab(id); onClose() }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-body font-semibold text-[15px] transition-all text-left ${
-                  active ? `${bg} ${color}` : `text-ink-secondary hover:bg-canvas-surface`
+                  active ? `${bg} ${color}` : `text-ink-secondary`
                 }`}
               >
                 <span className={active ? color : 'text-ink-secondary/60'}><Icon /></span>
@@ -61,7 +61,7 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
                 key={id}
                 onClick={() => { onSelectPage(id); onClose() }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-body font-semibold text-[15px] transition-all text-left ${
-                  active ? `${bg} ${color}` : `text-ink-secondary hover:bg-canvas-surface`
+                  active ? `${bg} ${color}` : `text-ink-secondary`
                 }`}
               >
                 <span className={active ? color : 'text-ink-secondary/60'}>

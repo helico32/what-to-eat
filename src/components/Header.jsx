@@ -9,7 +9,7 @@ function CartIcon() {
 
 export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount }) {
   return (
-    <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-3 border-b border-canvas-border">
+    <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-3 border-b border-ink-primary">
       <div className="flex items-center justify-between">
         {/* Hamburger */}
         <button onClick={onMenu} className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">
@@ -31,7 +31,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
           {/* Cart */}
           <button
             onClick={onCart}
-            className="relative w-10 h-10 flex items-center justify-center text-ink-secondary hover:text-ink-primary transition-colors"
+            className="relative w-10 h-10 flex items-center justify-center text-ink-secondary transition-colors"
           >
             <CartIcon />
             {cartCount > 0 && (
@@ -44,7 +44,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
           {/* Add */}
           <button
             onClick={onAdd}
-            className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light hover:opacity-90 active:scale-95 transition-all shadow-sm"
+            className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light active:scale-95 transition-all shadow-sm"
           >
             +
           </button>

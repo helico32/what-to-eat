@@ -41,36 +41,15 @@ function BoxIcon() {
 }
 
 const LOCATIONS = [
-  {
-    id: 'frigo',
-    label: 'Frigo',
-    Icon: FridgeIcon,
-    cls: 'bg-forest text-white border-forest',
-  },
-  {
-    id: 'congel',
-    label: 'Congélateur',
-    Icon: SnowflakeIcon,
-    cls: 'bg-cold-light text-cold border-cold',
-  },
-  {
-    id: 'placard',
-    label: 'Placard',
-    Icon: BoxIcon,
-    cls: 'bg-pantry-light text-pantry border-pantry',
-  },
+  { id: 'frigo',   label: 'Frigo',        Icon: FridgeIcon    },
+  { id: 'congel',  label: 'Congélateur',  Icon: SnowflakeIcon },
+  { id: 'placard', label: 'Placard',       Icon: BoxIcon       },
 ]
 
 const dateInDays = (n) => {
   const d = new Date()
   d.setDate(d.getDate() + n)
   return d.toISOString().split('T')[0]
-}
-
-const daysFromStr = (str) => {
-  if (!str) return null
-  const diff = new Date(str) - new Date(new Date().toISOString().split('T')[0])
-  return Math.max(0, Math.ceil(diff / 86400000))
 }
 
 const todayStr = () => new Date().toISOString().split('T')[0]
@@ -109,7 +88,7 @@ export default function AddModal({ onClose, onAdd }) {
       emoji,
       image,
       qty,
-      daysLeft: loc === 'frigo' ? daysFromStr(expiry) : null,
+      expiryDate: loc === 'frigo' ? expiry || null : null,
       location: loc,
     })
     onClose()
@@ -122,7 +101,7 @@ export default function AddModal({ onClose, onAdd }) {
         {/* ── STEP 1 : Détails ── */}
         {step === 1 && (
           <>
-            <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
+            <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
               <div className="flex items-center py-3">
                 <button onClick={onClose} className="text-ink-secondary text-lg w-10">←</button>
                 <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
@@ -137,7 +116,7 @@ export default function AddModal({ onClose, onAdd }) {
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
               <button
                 onClick={() => fileRef.current.click()}
-                className="w-full h-40 bg-canvas-surface rounded-xl flex items-center justify-center mb-5 relative overflow-hidden border border-canvas-border hover:border-ink-secondary/40 transition-colors"
+                className="w-full h-40 bg-canvas-surface rounded-xl flex items-center justify-center mb-5 relative overflow-hidden border border-ink-primary transition-colors"
               >
                 {image
                   ? <img src={image} alt="preview" className="w-full h-full object-cover" />
@@ -147,7 +126,7 @@ export default function AddModal({ onClose, onAdd }) {
                     </div>
                 }
                 {image && (
-                  <div className="absolute bottom-2 right-2 bg-ink-primary/50 text-white text-[11px] px-2 py-1 rounded-lg font-body">
+                  <div className="absolute bottom-2 right-2 bg-ink-primary/50 text-canvas text-[11px] px-2 py-1 rounded-lg font-body">
                     Changer
                   </div>
                 )}
@@ -161,7 +140,7 @@ export default function AddModal({ onClose, onAdd }) {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="ex. Framboises"
-                  className="w-full px-4 py-3 bg-canvas-surface border border-canvas-border rounded-xl font-body text-[14px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[14px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
                 />
               </div>
 
@@ -169,8 +148,8 @@ export default function AddModal({ onClose, onAdd }) {
               <div className="mb-4">
                 <label className="font-body font-semibold text-[12px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Quantité</label>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center bg-canvas-surface border border-canvas-border rounded-xl overflow-hidden">
-                    <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">−</button>
+                  <div className="flex items-center bg-canvas-surface border border-ink-primary rounded-xl overflow-hidden">
+                    <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary transition-colors text-xl">−</button>
                     <input
                       type="number"
                       min="0.5"
@@ -180,9 +159,9 @@ export default function AddModal({ onClose, onAdd }) {
                         const v = parseFloat(e.target.value)
                         if (!isNaN(v) && v >= 0.5) setQty(Math.round(v * 10) / 10)
                       }}
-                      className="w-12 text-center font-body font-bold text-[14px] border-x border-canvas-border bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-12 text-center font-body font-bold text-[14px] border-x border-ink-primary bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <button onClick={() => setQty(q => Math.round((q + 0.5) * 10) / 10)} className="w-10 h-10 text-ink-secondary hover:bg-canvas-border/50 transition-colors text-xl">＋</button>
+                    <button onClick={() => setQty(q => Math.round((q + 0.5) * 10) / 10)} className="w-10 h-10 text-ink-secondary transition-colors text-xl">＋</button>
                   </div>
                   <span className="font-body text-[14px] text-ink-secondary">restant{qty > 1 ? 's' : ''}</span>
                 </div>
@@ -201,7 +180,7 @@ export default function AddModal({ onClose, onAdd }) {
                         className={`flex-1 py-2 rounded-pill font-body font-semibold text-[13px] border transition-all ${
                           expiry === val
                             ? 'bg-brand text-ink-primary border-brand'
-                            : 'bg-canvas-surface text-ink-secondary border-canvas-border hover:border-ink-secondary/40'
+                            : 'bg-canvas-surface text-ink-secondary border-ink-primary'
                         }`}
                       >
                         {p.label}
@@ -220,14 +199,14 @@ export default function AddModal({ onClose, onAdd }) {
                     value={expiry}
                     min={todayStr()}
                     onChange={e => setExpiry(e.target.value)}
-                    className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-canvas-border rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                    className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
                   />
                 </div>
               </div>
 
               <button
                 onClick={() => setStep(2)}
-                className="w-full py-3.5 bg-forest text-white rounded-xl font-body font-semibold text-[16px] hover:opacity-90 active:scale-[.98] transition-all"
+                className="w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
               >
                 Suivant
               </button>
@@ -237,39 +216,33 @@ export default function AddModal({ onClose, onAdd }) {
 
         {/* ── STEP 2 : Emplacement ── */}
         {step === 2 && (
-          <>
-            <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
-              <div className="flex items-center py-3">
-                <button onClick={() => setStep(1)} className="text-ink-secondary text-lg w-10">←</button>
-                <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
-                  Où le ranger ?
-                </h1>
-                <div className="w-10" />
-              </div>
-            </header>
+          <div className="flex-1 px-5 pt-6 pb-10 flex flex-col gap-3">
+            <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-2" />
+            <button onClick={() => setStep(1)} className="text-ink-secondary text-lg w-10 mb-1">←</button>
+            <p className="font-display font-bold text-[20px] text-ink-primary mb-1">Où le ranger ?</p>
 
-            <div className="flex-1 px-4 pt-8 pb-10 flex flex-col gap-4">
-              {LOCATIONS.map(l => (
-                <button
-                  key={l.id}
-                  onClick={() => { setLoc(l.id); }}
-                  className={`flex items-center gap-4 p-5 rounded-xl border-2 text-left transition-all font-body font-semibold text-[16px] ${l.cls} ${
-                    loc === l.id ? 'opacity-100 scale-[1.01]' : 'opacity-60'
-                  }`}
-                >
-                  <l.Icon />
-                  <span>{l.label}</span>
-                </button>
-              ))}
-
+            {LOCATIONS.map(l => (
               <button
-                onClick={handleConfirm}
-                className="mt-4 w-full py-3.5 bg-forest text-white rounded-xl font-body font-semibold text-[16px] hover:opacity-90 active:scale-[.98] transition-all"
+                key={l.id}
+                onClick={() => setLoc(l.id)}
+                className={`flex items-center gap-4 p-4 rounded-[10px] border-2 text-left font-body font-semibold text-[15px] transition-all ${
+                  loc === l.id
+                    ? 'bg-brand text-ink-primary border-brand'
+                    : 'bg-canvas-border text-ink-secondary border-canvas-border'
+                }`}
               >
-                Ajouter
+                <l.Icon />
+                <span>{l.label}</span>
               </button>
-            </div>
-          </>
+            ))}
+
+            <button
+              onClick={handleConfirm}
+              className="mt-2 w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
+            >
+              Ajouter
+            </button>
+          </div>
         )}
       </div>
     </div>

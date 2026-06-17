@@ -5,7 +5,7 @@
 @layer base {
   html, body {
     font-family: 'Inter', system-ui, sans-serif;
-    color: #2A1E17;
+    color: #5C4D42;
     background-color: #FDF8F0;
   }
   /* Prevent any element from falling back to browser black */

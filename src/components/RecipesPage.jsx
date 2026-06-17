@@ -89,7 +89,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
   const [confirm, setConfirm] = useState(false)
 
   return (
-    <div {...rowProps} className={`bg-canvas-surface rounded-xl border border-canvas-border shadow-sm overflow-hidden transition-opacity ${isDragging ? 'opacity-40' : ''}`}>
+    <div {...rowProps} className={`bg-canvas-surface rounded-xl border border-ink-primary shadow-sm overflow-hidden transition-opacity ${isDragging ? 'opacity-40' : ''}`}>
       <div
         className="flex items-center gap-3 p-4 cursor-pointer"
         onClick={() => !canSort && onView(recipe)}
@@ -129,7 +129,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
         {/* Star */}
         <button
           onClick={e => { e.stopPropagation(); onToggleFavorite(recipe.id) }}
-          className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all hover:opacity-80 ${
+          className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${
             recipe.favorite ? 'bg-brand text-ink-primary' : 'bg-[#F9EDDC] text-ink-secondary'
           }`}
         >
@@ -152,7 +152,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
         ) : (
           <button
             onClick={e => { e.stopPropagation(); setConfirm(c => !c) }}
-            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all hover:opacity-80 ${
+            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${
               confirm ? 'bg-urgent/20 text-urgent' : 'bg-[#F9EDDC] text-ink-secondary'
             }`}
           >
@@ -168,13 +168,13 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
           </p>
           <button
             onClick={() => onDelete(recipe.id)}
-            className="px-3 py-1.5 bg-forest text-white rounded-[10px] font-body font-semibold text-[13px] hover:opacity-90"
+            className="px-3 py-1.5 bg-forest text-canvas rounded-[10px] font-body font-semibold text-[13px]"
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(false)}
-            className="px-3 py-1.5 bg-[#F9EDDC] text-ink-secondary rounded-[10px] font-body font-semibold text-[13px] hover:opacity-80"
+            className="px-3 py-1.5 bg-[#F9EDDC] text-ink-secondary rounded-[10px] font-body font-semibold text-[13px]"
           >
             Non
           </button>
@@ -207,7 +207,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
     <div className="fixed inset-0 z-30 bg-canvas overflow-y-auto">
       <div className="max-w-[430px] mx-auto">
 
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
             <button onClick={onMenu} className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">
               <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
@@ -224,7 +224,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
               )}
               <button
                 onClick={() => navigate('/recettes/new')}
-                className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light active:scale-95 transition-all shadow-sm"
               >
                 +
               </button>
@@ -240,7 +240,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
                 <button
                   onClick={() => setSorting(s => !s)}
                   className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
-                    sorting ? 'text-ink-primary bg-brand' : 'text-ink-secondary/50 hover:text-ink-secondary'
+                    sorting ? 'text-ink-primary bg-brand' : 'text-ink-secondary/50'
                   }`}
                 >
                   <SortIcon />

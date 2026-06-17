@@ -18,8 +18,10 @@ import RecipeModal     from './components/RecipeModal'
 function SortIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
-      <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+      <path d="m21 16-4 4-4-4"/>
+      <path d="M17 20V4"/>
+      <path d="m3 8 4-4 4 4"/>
+      <path d="M7 4v16"/>
     </svg>
   )
 }
@@ -33,7 +35,7 @@ function SectionLabel({ label, count, onSort, sorting }) {
           <button
             onClick={onSort}
             className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
-              sorting ? 'text-ink-primary bg-brand' : 'text-ink-secondary/50 hover:text-ink-secondary'
+              sorting ? 'text-ink-primary bg-brand' : 'text-ink-primary'
             }`}
           >
             <SortIcon />
@@ -49,12 +51,15 @@ function SectionLabel({ label, count, onSort, sorting }) {
   )
 }
 
-function EmptyState({ icon, title, desc }) {
+function EmptyState({ icon, title }) {
   return (
     <div className="text-center py-16 px-6">
       <span className="text-4xl block mb-3">{icon}</span>
       <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">{title}</h3>
-      <p className="font-body text-[14px] text-ink-secondary">{desc}</p>
+      <p className="font-body text-[14px] text-ink-secondary inline-flex items-center gap-1.5">
+        Ajoute-le avec le
+        <span className="inline-flex items-center justify-center w-5 h-5 bg-brand text-ink-primary rounded-full text-[13px] font-light leading-none">+</span>
+      </p>
     </div>
   )
 }
@@ -85,10 +90,14 @@ export default function App() {
   const [showAdd,  setShowAdd]  = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [sorting,  setSorting]  = useState(false)
+  const [search,   setSearch]   = useState('')
 
-  const uncheckedCount = store.shoppingList.filter(i => !i.checked).length
-  const viewProducts   = getView(tab, store.products)
-  const canDrag        = tab !== 'urgent' && sorting
+  const uncheckedCount  = store.shoppingList.filter(i => !i.checked).length
+  const q               = search.trim().toLowerCase()
+  const viewProducts    = q
+    ? store.products.filter(p => p.name.toLowerCase().includes(q))
+    : getView(tab, store.products)
+  const canDrag         = !q && tab !== 'urgent' && sorting
 
   const activePage = location.pathname === '/liste'
     ? 'liste'
@@ -113,11 +122,7 @@ export default function App() {
   }, [tab, store, onReorderProducts])
 
   const handleAddCheckedToStock = useCallback((location, expiryDateStr) => {
-    const daysLeft = (() => {
-      if (location !== 'frigo' || !expiryDateStr) return null
-      const diff = new Date(expiryDateStr) - new Date(new Date().toISOString().split('T')[0])
-      return Math.max(0, Math.ceil(diff / 86400000))
-    })()
+    const expiryDate = location === 'frigo' ? expiryDateStr || null : null
     store.shoppingList
       .filter(i => i.checked)
       .forEach(item => store.addProduct({
@@ -125,7 +130,7 @@ export default function App() {
         emoji:    item.emoji ?? null,
         image:    null,
         qty:      item.qty ?? 1,
-        daysLeft,
+        expiryDate,
         location,
       }))
     store.clearCheckedItems()
@@ -152,11 +157,29 @@ export default function App() {
             />
             <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false) }} />
 
+            <div className="px-4 pt-3">
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-primary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Rechercher un article…"
+                  className="w-full pl-9 pr-4 py-2 bg-canvas-surface border border-ink-primary rounded-[10px] font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none"
+                />
+                {search && (
+                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-secondary text-lg leading-none">×</button>
+                )}
+              </div>
+            </div>
+
             <main className="px-4 pt-4 pb-16">
               <SectionLabel
-                label={getSectionLabel(tab)}
+                label={q ? `Résultats pour "${search.trim()}"` : getSectionLabel(tab)}
                 count={viewProducts.length}
-                onSort={tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
+                onSort={!q && tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
                 sorting={sorting}
               />
 
@@ -164,10 +187,9 @@ export default function App() {
                 <EmptyState
                   icon={tab === 'congel' ? '❄️' : tab === 'placard' ? '📦' : '🧊'}
                   title="Rien ici"
-                  desc="Appuie sur + pour commencer."
                 />
               ) : (
-                <div className="bg-canvas-surface rounded-xl border border-canvas-border divide-y divide-canvas-border px-4">
+                <div className="bg-canvas-surface rounded-xl border border-ink-primary divide-y divide-ink-primary px-4">
                   {viewProducts.map((p, index) => (
                     <ProductRow
                       key={p.id}
@@ -186,7 +208,7 @@ export default function App() {
                 </div>
               )}
 
-              {tab === 'urgent' && (
+              {tab === 'urgent' && !q && (
                 <div className="mt-4">
                   <SectionLabel label="Proposition de repas" />
                   <RecipeCard

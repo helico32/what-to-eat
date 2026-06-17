@@ -86,7 +86,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                   <button
                     key={l.id}
                     onClick={() => setLoc(l.id)}
-                    className={`flex items-center gap-4 p-4 rounded-[10px] border-2 text-left transition-all font-body font-semibold text-[15px] hover:opacity-80 ${
+                    className={`flex items-center gap-4 p-4 rounded-[10px] border-2 text-left transition-all font-body font-semibold text-[15px] ${
                       isSelected ? 'bg-brand text-ink-primary border-brand' : 'bg-[#F9EDDC] text-ink-secondary border-[#F9EDDC]'
                     }`}
                   >
@@ -98,7 +98,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
             </div>
             <button
               onClick={handleNext}
-              className="w-full py-3.5 bg-forest text-white rounded-xl font-body font-semibold text-[16px] hover:opacity-90 active:scale-[.98] transition-all"
+              className="w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
             >
               {loc === 'frigo' ? 'Suivant' : 'Ranger'}
             </button>
@@ -121,7 +121,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                     className={`flex-1 py-2 rounded-pill font-body font-semibold text-[13px] border transition-all ${
                       expiry === val
                         ? 'bg-brand text-ink-primary border-brand'
-                        : 'bg-canvas-surface text-ink-secondary border-canvas-border hover:border-ink-secondary/40'
+                        : 'bg-canvas-surface text-ink-secondary border-ink-primary'
                     }`}
                   >
                     {p.label}
@@ -141,13 +141,13 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                 value={expiry}
                 min={todayStr()}
                 onChange={e => setExpiry(e.target.value)}
-                className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-canvas-border rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
               />
             </div>
 
             <button
               onClick={() => onConfirm(loc, expiry || null)}
-              className="w-full py-3.5 bg-forest text-white rounded-xl font-body font-semibold text-[16px] hover:opacity-90 active:scale-[.98] transition-all"
+              className="w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
             >
               Ranger
             </button>
@@ -238,7 +238,7 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
 
   return (
     <div>
-      <div className="bg-canvas-surface rounded-xl border border-canvas-border shadow-sm divide-y divide-canvas-border mb-4 overflow-hidden">
+      <div className="bg-canvas-surface rounded-xl border border-ink-primary shadow-sm divide-y divide-ink-primary mb-4 overflow-hidden">
         {items.map((item, index) => (
           <div
             key={item.id}
@@ -253,8 +253,8 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
               onClick={() => onToggle(item.id)}
               className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
                 item.checked
-                  ? 'bg-forest border-forest text-white'
-                  : 'border-canvas-border hover:border-ink-secondary'
+                  ? 'bg-forest border-forest text-canvas'
+                  : 'border-ink-primary'
               }`}
             >
               {item.checked && <CheckIcon />}
@@ -273,7 +273,7 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
 
             <button
               onClick={() => onRemove(item.id)}
-              className="text-ink-secondary/40 hover:text-ink-secondary transition-colors flex-shrink-0 p-1"
+              className="text-ink-secondary/40 transition-colors flex-shrink-0 p-1"
             >
               <TrashIcon />
             </button>
@@ -299,13 +299,13 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
         <div className="flex gap-2">
           <button
             onClick={() => setShowRangerSheet(true)}
-            className="flex-1 py-3.5 bg-forest/10 border border-forest/20 rounded-xl font-body font-semibold text-[14px] text-forest hover:bg-forest/15 transition-colors"
+            className="flex-1 py-3.5 bg-forest/10 border border-forest/20 rounded-xl font-body font-semibold text-[14px] text-forest transition-colors"
           >
             Ranger les courses ({checked.length})
           </button>
           <button
             onClick={onClearChecked}
-            className="py-3.5 px-4 bg-urgent/10 border border-urgent/20 rounded-xl font-body font-semibold text-[14px] text-urgent hover:bg-urgent/15 transition-colors"
+            className="py-3.5 px-4 bg-urgent/10 border border-urgent/20 rounded-xl font-body font-semibold text-[14px] text-urgent transition-colors"
           >
             Effacer
           </button>

@@ -36,7 +36,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
     <div className="fixed inset-0 z-50 bg-canvas overflow-y-auto">
       <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
 
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
             <button onClick={onClose} className="text-ink-secondary text-lg w-10">←</button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
@@ -61,7 +61,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                   className={`w-10 h-10 rounded-lg text-xl transition-all ${
                     emoji === e
                       ? 'bg-forest shadow-sm'
-                      : 'bg-canvas hover:bg-canvas-border/50'
+                      : 'bg-canvas'
                   }`}
                 >
                   {e}
@@ -80,7 +80,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="ex. Salade de quinoa"
-              className="w-full px-4 py-3 bg-canvas border border-canvas-border rounded-xl font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
             />
           </div>
 
@@ -94,7 +94,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
               value={time}
               onChange={e => setTime(e.target.value)}
               placeholder="ex. 25 min"
-              className="w-full px-4 py-3 bg-canvas border border-canvas-border rounded-xl font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
             />
           </div>
 
@@ -105,9 +105,9 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {ingredients.map((ing, i) => (
-                <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-canvas-border text-ink-primary rounded-pill font-body text-[13px]">
+                <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-ink-primary text-ink-primary rounded-pill font-body text-[13px]">
                   {ing}
-                  <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-secondary hover:text-urgent text-sm leading-none">×</button>
+                  <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-secondary text-sm leading-none">×</button>
                 </span>
               ))}
             </div>
@@ -118,12 +118,12 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 onChange={e => setNewIng(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addIngredient()}
                 placeholder="Ajouter un ingrédient"
-                className="flex-1 px-3 py-2 bg-canvas border border-canvas-border rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
               />
               <button
                 onClick={addIngredient}
                 disabled={!newIng.trim()}
-                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] hover:opacity-80 disabled:opacity-40 transition-all"
+                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] disabled:opacity-40 transition-all"
               >
                 +
               </button>
@@ -140,7 +140,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 <div key={i} className="flex items-start gap-2 p-3 bg-canvas rounded-xl">
                   <span className="w-5 h-5 bg-canvas-border rounded-full font-display font-bold text-[11px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
                   <p className="flex-1 font-body text-[13px] text-ink-primary leading-relaxed">{s}</p>
-                  <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-secondary hover:text-urgent text-sm leading-none">×</button>
+                  <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-secondary text-sm leading-none">×</button>
                 </div>
               ))}
             </div>
@@ -151,12 +151,12 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 onChange={e => setNewStep(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addStep()}
                 placeholder="Ajouter une étape"
-                className="flex-1 px-3 py-2 bg-canvas border border-canvas-border rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
               />
               <button
                 onClick={addStep}
                 disabled={!newStep.trim()}
-                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] hover:opacity-80 disabled:opacity-40 transition-all"
+                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] disabled:opacity-40 transition-all"
               >
                 +
               </button>
@@ -168,7 +168,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             disabled={!name.trim()}
             className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
               name.trim()
-                ? 'bg-forest text-white hover:opacity-90 active:scale-[.98]'
+                ? 'bg-forest text-canvas active:scale-[.98]'
                 : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
             }`}
           >

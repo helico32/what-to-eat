@@ -26,7 +26,7 @@ export default function BottomNav({ shoppingCount, onShowListe, onShowRecettes, 
           <button
             onClick={onShowListe}
             className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[14px] transition-all ${
-              activePage === 'liste' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70 hover:text-ink-primary'
+              activePage === 'liste' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70'
             }`}
           >
             <div className="relative">
@@ -45,7 +45,7 @@ export default function BottomNav({ shoppingCount, onShowListe, onShowRecettes, 
           <button
             onClick={onShowRecettes}
             className={`flex-1 flex items-center justify-center gap-2 py-4 font-body font-semibold text-[14px] transition-all ${
-              activePage === 'recettes' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70 hover:text-ink-primary'
+              activePage === 'recettes' ? 'bg-ink-primary/10 text-ink-primary' : 'text-ink-primary/70'
             }`}
           >
             <BowlIcon />

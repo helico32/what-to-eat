@@ -47,7 +47,7 @@ function EditForm({ recipe, onSave, onCancel }) {
         <div className="flex flex-wrap gap-2">
           {EMOJI_PRESETS.map(e => (
             <button key={e} onClick={() => setEmoji(e)}
-              className={`w-10 h-10 rounded-lg text-xl transition-all ${emoji === e ? 'bg-forest shadow-sm' : 'bg-canvas hover:bg-canvas-border/50'}`}>
+              className={`w-10 h-10 rounded-lg text-xl transition-all ${emoji === e ? 'bg-forest shadow-sm' : 'bg-canvas'}`}>
               {e}
             </button>
           ))}
@@ -58,14 +58,14 @@ function EditForm({ recipe, onSave, onCancel }) {
       <div className="mb-4">
         <label className="font-body font-semibold text-[12px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom*</label>
         <input type="text" value={name} onChange={e => setName(e.target.value)}
-          className="w-full px-4 py-3 bg-canvas border border-canvas-border rounded-xl font-body text-[14px] text-ink-primary outline-none focus:border-forest transition-colors" />
+          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[14px] text-ink-primary outline-none focus:border-forest transition-colors" />
       </div>
 
       {/* Time */}
       <div className="mb-5">
         <label className="font-body font-semibold text-[12px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Temps de préparation</label>
         <input type="text" value={time} onChange={e => setTime(e.target.value)} placeholder="ex. 25 min"
-          className="w-full px-4 py-3 bg-canvas border border-canvas-border rounded-xl font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
+          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[14px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
       </div>
 
       {/* Ingredients */}
@@ -73,18 +73,18 @@ function EditForm({ recipe, onSave, onCancel }) {
         <label className="font-body font-semibold text-[12px] text-ink-secondary mb-2 block uppercase tracking-wider">Ingrédients</label>
         <div className="flex flex-wrap gap-2 mb-2">
           {ingredients.map((ing, i) => (
-            <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-canvas-border text-ink-primary rounded-pill font-body text-[13px]">
+            <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-ink-primary text-ink-primary rounded-pill font-body text-[13px]">
               {ing}
-              <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-secondary hover:text-urgent text-sm leading-none">×</button>
+              <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-secondary text-sm leading-none">×</button>
             </span>
           ))}
         </div>
         <div className="flex gap-2">
           <input type="text" value={newIng} onChange={e => setNewIng(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addIngredient()} placeholder="Ajouter un ingrédient"
-            className="flex-1 px-3 py-2 bg-canvas border border-canvas-border rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
+            className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
           <button onClick={addIngredient} disabled={!newIng.trim()}
-            className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] hover:opacity-80 disabled:opacity-40 transition-all">+</button>
+            className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] disabled:opacity-40 transition-all">+</button>
         </div>
       </div>
 
@@ -96,29 +96,29 @@ function EditForm({ recipe, onSave, onCancel }) {
             <div key={i} className="flex items-start gap-2 p-3 bg-canvas rounded-xl">
               <span className="w-5 h-5 bg-canvas-border rounded-full font-display font-bold text-[11px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
               <p className="flex-1 font-body text-[13px] text-ink-primary leading-relaxed">{s}</p>
-              <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-secondary hover:text-urgent text-sm leading-none">×</button>
+              <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-secondary text-sm leading-none">×</button>
             </div>
           ))}
         </div>
         <div className="flex gap-2">
           <input type="text" value={newStep} onChange={e => setNewStep(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addStep()} placeholder="Ajouter une étape"
-            className="flex-1 px-3 py-2 bg-canvas border border-canvas-border rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
+            className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[13px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
           <button onClick={addStep} disabled={!newStep.trim()}
-            className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] hover:opacity-80 disabled:opacity-40 transition-all">+</button>
+            className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[13px] disabled:opacity-40 transition-all">+</button>
         </div>
       </div>
 
       <div className="flex gap-2">
         <button onClick={onCancel}
-          className="flex-1 py-3.5 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body font-semibold text-[15px] hover:opacity-80 transition-all">
+          className="flex-1 py-3.5 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body font-semibold text-[15px] transition-all">
           Annuler
         </button>
         <button
           onClick={() => name.trim() && onSave({ emoji, name: name.trim(), time: time.trim() || '15 min', ingredients, steps })}
           disabled={!name.trim()}
           className={`flex-1 py-3.5 rounded-xl font-body font-semibold text-[15px] transition-all ${
-            name.trim() ? 'bg-forest text-white hover:opacity-90 active:scale-[.98]' : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
+            name.trim() ? 'bg-forest text-canvas active:scale-[.98]' : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
           }`}>
           Enregistrer
         </button>
@@ -150,7 +150,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
     <div className="fixed inset-0 z-50 bg-canvas overflow-y-auto">
       <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
 
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
             <button onClick={editing ? () => setEditing(false) : () => navigate(-1)}
               className="text-ink-secondary text-lg w-10">←</button>
@@ -159,7 +159,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
             </h1>
             {!editing ? (
               <button onClick={() => setEditing(true)}
-                className="w-10 h-10 flex items-center justify-center text-ink-secondary hover:opacity-70 transition-all">
+                className="w-10 h-10 flex items-center justify-center text-ink-secondary transition-all">
                 <PencilIcon />
               </button>
             ) : <div className="w-10" />}
@@ -190,7 +190,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
                     {recipe.ingredients.map((name, i) => {
                       const p = products.find(x => x.name === name)
                       return (
-                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-canvas-surface border border-canvas-border text-ink-primary rounded-pill font-body text-[13px]">
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-canvas-surface border border-ink-primary text-ink-primary rounded-pill font-body text-[13px]">
                           {p?.emoji} {name}
                         </span>
                       )
@@ -205,7 +205,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
                   <div className="flex flex-col gap-3 mb-6">
                     {recipe.steps.map((step, i) => (
                       <div key={i} className="flex gap-3">
-                        <div className="w-6 h-6 rounded-full bg-canvas-surface border border-canvas-border font-display font-bold text-[11px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-canvas-surface border border-ink-primary font-display font-bold text-[11px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
                           {i + 1}
                         </div>
                         <p className="font-body text-[14px] text-ink-primary leading-relaxed">{step}</p>
@@ -216,7 +216,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
               )}
 
               <button onClick={() => navigate(-1)}
-                className="w-full py-3.5 bg-forest text-white rounded-xl font-body font-semibold text-[16px] hover:opacity-90 active:scale-[.98] transition-all">
+                className="w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all">
                 Fermer
               </button>
             </div>

@@ -45,7 +45,7 @@ function DragHandle() {
 }
 
 export default function ProductRow({ product, onDelete, onAddToCart, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
-  const badge = getBadge(product.daysLeft, product.location)
+  const badge = getBadge(product.expiryDate, product.location)
   const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete'
   const [done,    setDone]    = useState(null) // null | 'cart' | 'delete'
   const timerRef = useRef()
@@ -87,7 +87,7 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
           <>
             <div
               {...handleProps}
-              className="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center text-ink-secondary/40 cursor-grab active:cursor-grabbing touch-none"
+              className="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center text-ink-primary cursor-grab active:cursor-grabbing touch-none"
             >
               <DragHandle />
             </div>
@@ -99,14 +99,14 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
           <>
             <button
               onClick={() => setConfirm(confirm === 'cart' ? null : 'cart')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] text-ink-secondary hover:opacity-80 transition-all ${confirm === 'cart' ? 'bg-forest text-white' : 'bg-[#F9EDDC]'}`}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold transition-all ${confirm === 'cart' ? 'bg-forest text-canvas border-forest' : 'bg-canvas-border text-ink-secondary border-ink-primary'}`}
               title="Ajouter à la liste"
             >
               <CartIcon />
             </button>
             <button
               onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] text-ink-secondary hover:opacity-80 transition-all font-body font-thin text-[22px] leading-none ${confirm === 'delete' ? 'bg-urgent/20 text-urgent' : 'bg-[#F9EDDC]'}`}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold text-[22px] leading-none transition-all ${confirm === 'delete' ? 'bg-urgent/20 text-urgent border-urgent' : 'bg-canvas-border text-ink-secondary border-ink-primary'}`}
               title="Supprimer"
             >
               ×
@@ -135,13 +135,13 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
           </p>
           <button
             onClick={() => handleConfirm(confirm)}
-            className="px-3 py-1.5 bg-forest text-white rounded-[10px] font-body font-semibold text-[13px] hover:opacity-90"
+            className="px-3 py-1.5 bg-forest text-canvas border-2 border-forest rounded-[10px] font-body font-semibold text-[13px]"
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(null)}
-            className="px-3 py-1.5 bg-[#F9EDDC] text-ink-secondary rounded-[10px] font-body font-semibold text-[13px] hover:opacity-80"
+            className="px-3 py-1.5 bg-canvas-border text-ink-secondary border-2 border-ink-primary rounded-[10px] font-body font-semibold text-[13px]"
           >
             Non
           </button>

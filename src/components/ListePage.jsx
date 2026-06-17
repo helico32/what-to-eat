@@ -44,13 +44,13 @@ function AddItemSheet({ onAdd, onClose }) {
           onChange={e => setValue(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && submit()}
           placeholder="ex. Lait, pain..."
-          className="w-full px-4 py-3 bg-canvas border border-canvas-border rounded-xl font-body text-[14px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors mb-4"
+          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[14px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors mb-4"
         />
         <button
           onClick={submit}
           disabled={!value.trim()}
           className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
-            value.trim() ? 'bg-forest text-white hover:opacity-90' : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
+            value.trim() ? 'bg-forest text-canvas' : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
           }`}
         >
           Ajouter
@@ -68,7 +68,7 @@ export default function ListePage({ items, onToggle, onRemove, onClearChecked, o
     <div className="fixed inset-0 z-30 bg-canvas overflow-y-auto">
       <div className="max-w-[430px] mx-auto">
 
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-canvas-border z-10">
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
             <button onClick={onMenu} className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">
               <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
@@ -89,7 +89,7 @@ export default function ListePage({ items, onToggle, onRemove, onClearChecked, o
               )}
               <button
                 onClick={() => setShowAdd(true)}
-                className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                className="w-10 h-10 bg-brand text-ink-primary rounded-full flex items-center justify-center text-xl font-light active:scale-95 transition-all shadow-sm"
               >
                 +
               </button>
@@ -105,7 +105,7 @@ export default function ListePage({ items, onToggle, onRemove, onClearChecked, o
               <button
                 onClick={() => setSorting(s => !s)}
                 className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors ${
-                  sorting ? 'text-ink-primary bg-brand' : 'text-ink-secondary/50 hover:text-ink-secondary'
+                  sorting ? 'text-ink-primary bg-brand' : 'text-ink-secondary/50'
                 }`}
               >
                 <SortIcon />

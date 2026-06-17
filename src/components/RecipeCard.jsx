@@ -12,10 +12,11 @@ function ClockIcon() {
 function ShuffleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="16 3 21 3 21 8"/>
-      <line x1="4" y1="20" x2="21" y2="3"/>
-      <polyline points="21 16 21 21 16 21"/>
-      <line x1="4" y1="4" x2="21" y2="21"/>
+      <path d="m18 14 4 4-4 4"/>
+      <path d="m18 2 4 4-4 4"/>
+      <path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"/>
+      <path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/>
+      <path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/>
     </svg>
   )
 }
@@ -25,7 +26,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
 
   if (!recipes.length) {
     return (
-      <div className="bg-canvas-surface rounded-xl border border-canvas-border p-5 mb-4 text-center">
+      <div className="bg-canvas-surface rounded-xl border border-ink-primary p-5 mb-4 text-center">
         <p className="font-body text-[14px] text-ink-secondary">Aucune recette — ajoute-en une via Recettes.</p>
       </div>
     )
@@ -41,11 +42,11 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
 
   const getDays = (name) => {
     const p = products.find(x => x.name === name)
-    return (p && p.daysLeft !== null) ? p.daysLeft : null
+    return (p && p.expiryDate != null) ? p.expiryDate : null
   }
 
   return (
-    <div className="bg-canvas-surface rounded-xl border border-canvas-border mb-4 overflow-hidden">
+    <div className="bg-canvas-surface rounded-xl border border-ink-primary mb-4 overflow-hidden">
       <div className="flex">
         {/* Left: image area */}
         <div className="w-[130px] flex-shrink-0 bg-canvas flex items-center justify-center text-[56px]">
@@ -86,7 +87,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
           <div className="flex gap-2">
             <button
               onClick={() => onViewRecipe(recipe)}
-              className="flex-1 py-2.5 bg-forest text-white rounded-lg font-body font-semibold text-[13px] hover:opacity-90 active:scale-[.98] transition-all"
+              className="flex-1 py-2.5 bg-forest text-canvas rounded-lg font-body font-semibold text-[13px] active:scale-[.98] transition-all"
             >
               Voir la recette
             </button>
@@ -94,7 +95,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
               <button
                 onClick={() => setIdx(i => i + 1)}
                 title="Recette aléatoire"
-                className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg flex items-center justify-center hover:opacity-90 active:scale-[.98] transition-all"
+                className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg flex items-center justify-center active:scale-[.98] transition-all"
               >
                 <ShuffleIcon />
               </button>

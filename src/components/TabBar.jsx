@@ -21,10 +21,10 @@ export default function TabBar({ active, onChange }) {
           <button
             key={id}
             onClick={() => onChange(id)}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-5 py-2 rounded-lg text-[13px] font-semibold transition-all ${
+            className={`flex-shrink-0 flex items-center gap-1.5 px-5 py-2 rounded-[10px] border text-[13px] font-semibold transition-all ${
               active === id
-                ? 'bg-brand text-ink-primary'
-                : 'bg-[#F9EDDC] text-ink-secondary hover:opacity-80'
+                ? 'bg-brand text-ink-primary border-1 border-ink-primary'
+                : 'bg-canvas-border text-ink-secondary border-ink-primary'
             }`}
           >
             <Icon />
