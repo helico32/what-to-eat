@@ -136,7 +136,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
             </button>
             <button
               onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
+              className={`flex-shrink-0 w-9 h-9 hidden md:flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
               title="Supprimer"
             >
               <TrashIcon />
