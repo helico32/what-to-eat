@@ -340,7 +340,7 @@ export default function MealPlanPage({ meals, products, onAddMeal, onConfirmMeal
             onClick={handleRemettre}
             className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] transition-all ${btnActive}`}
           >
-            Remettre
+            Ranger
           </button>
         </div>
       )}

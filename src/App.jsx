@@ -34,10 +34,9 @@ function SortIcon() {
 function CutleryToggleIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="8" y1="2" x2="8" y2="22"/>
-      <path d="M5 2v6a3 3 0 0 0 6 0V2"/>
-      <line x1="17" y1="2" x2="17" y2="22"/>
-      <path d="M17 2a5 5 0 0 1 5 5"/>
+      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+      <path d="M7 2v20"/>
+      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
     </svg>
   )
 }
@@ -269,6 +268,7 @@ export default function App() {
               <AddModal
                 onClose={() => setShowAdd(false)}
                 onAdd={(p) => { store.addProduct(p); setShowAdd(false) }}
+                products={store.products}
               />
             )}
           </>

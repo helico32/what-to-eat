@@ -1,5 +1,90 @@
 import { useState, useRef } from 'react'
 
+function CameraIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+      <circle cx="12" cy="13" r="3"/>
+    </svg>
+  )
+}
+
+function ImageIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+  )
+}
+
+function GridIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+    </svg>
+  )
+}
+
+function SmileIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
+      <line x1="9" y1="9" x2="9.01" y2="9"/>
+      <line x1="15" y1="9" x2="15.01" y2="9"/>
+    </svg>
+  )
+}
+
+const IMG_CACHE_KEY = 'wte-image-cache'
+
+function loadImageCache() {
+  try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) ?? '[]') } catch { return [] }
+}
+
+function saveToImageCache(base64) {
+  try {
+    const cache = loadImageCache().filter(img => img !== base64)
+    localStorage.setItem(IMG_CACHE_KEY, JSON.stringify([base64, ...cache]))
+  } catch {}
+}
+
+function GallerySheet({ onSelect, onClose }) {
+  const images = loadImageCache()
+  return (
+    <div className="fixed inset-0 z-50" onClick={onClose}>
+      <div className="absolute inset-0 bg-ink-primary/30" />
+      <div
+        className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary p-5 pb-10 shadow-lg"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-4" />
+        <p className="font-display font-semibold text-[16px] text-ink-primary mb-4">Galerie</p>
+        {images.length === 0 ? (
+          <p className="font-body text-[15px] text-ink-secondary">Aucune photo en cache pour l'instant.</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-3 max-h-[55vh] overflow-y-auto">
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => { onSelect(img); onClose() }}
+                className="aspect-square rounded-xl overflow-hidden border border-ink-primary active:scale-95 transition-all"
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ArrowLeft() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -62,15 +147,18 @@ const dateInDays = (n) => {
 
 const todayStr = () => new Date().toISOString().split('T')[0]
 
-export default function AddModal({ onClose, onAdd }) {
-  const [step,   setStep]   = useState(1)
-  const [name,   setName]   = useState('')
-  const [qty,    setQty]    = useState(1)
-  const [emoji,  setEmoji]  = useState(null)
-  const [image,  setImage]  = useState(null)
-  const [expiry, setExpiry] = useState('')
-  const [loc,    setLoc]    = useState('frigo')
-  const fileRef = useRef()
+export default function AddModal({ onClose, onAdd, products = [] }) {
+  const [step,        setStep]        = useState(1)
+  const [name,        setName]        = useState('')
+  const [qty,         setQty]         = useState(1)
+  const [emoji,       setEmoji]       = useState(null)
+  const [image,       setImage]       = useState(null)
+  const [expiry,      setExpiry]      = useState('')
+  const [loc,         setLoc]         = useState('frigo')
+  const [showGallery, setShowGallery] = useState(false)
+  const [emojiMode,   setEmojiMode]   = useState(false)
+  const fileRef   = useRef()
+  const cameraRef = useRef()
 
   const handleImage = (e) => {
     const file = e.target.files?.[0]
@@ -84,7 +172,9 @@ export default function AddModal({ onClose, onAdd }) {
       canvas.width  = Math.round(img.width  * ratio)
       canvas.height = Math.round(img.height * ratio)
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-      setImage(canvas.toDataURL('image/jpeg', 0.72))
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.72)
+      setImage(dataUrl)
+      saveToImageCache(dataUrl)
       URL.revokeObjectURL(url)
     }
     img.src = url
@@ -122,35 +212,67 @@ export default function AddModal({ onClose, onAdd }) {
             </header>
 
             <div className="flex-1 px-4 pt-5 pb-10 flex flex-col gap-y-6">
-              {/* Image picker */}
-              <input ref={fileRef} type="file" name="add-image" accept="image/*" className="hidden" onChange={handleImage} />
-              <button
-                onClick={() => fileRef.current.click()}
-                className="w-full h-40 bg-canvas-surface rounded-xl flex items-center justify-center relative overflow-hidden border border-ink-primary transition-colors"
-              >
-                {image
-                  ? <img src={image} alt="preview" className="w-full h-full object-cover" />
-                  : <div className="flex flex-col items-center gap-2 text-ink-secondary">
-                      {emoji && <span className="text-4xl">{emoji}</span>}
-                      <span className="font-body text-[16px]">Ajouter une photo</span>
-                    </div>
-                }
-                {image && (
-                  <div className="absolute bottom-2 right-2 bg-ink-primary/50 text-canvas text-[14px] px-2 py-1 rounded-lg font-body">
-                    Changer
-                  </div>
-                )}
-              </button>
+              {/* Hidden file inputs */}
+              <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImage} />
+              <input ref={fileRef}   type="file" accept="image/*" className="hidden" onChange={handleImage} />
 
-              {/* Emoji */}
-              <div>
+              {/* Image preview */}
+              {image && (
+                <div className="relative w-full h-36 rounded-xl overflow-hidden border border-ink-primary">
+                  <img src={image} alt="preview" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => setImage(null)}
+                    className="absolute top-2 right-2 w-7 h-7 bg-ink-primary/60 text-canvas rounded-full flex items-center justify-center font-bold text-[16px] leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
+              {/* 2×2 source grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => { setEmojiMode(false); cameraRef.current.click() }}
+                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary hover:bg-brand active:scale-95 transition-all"
+                >
+                  <CameraIcon />
+                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Prendre une photo</span>
+                </button>
+                <button
+                  onClick={() => { setEmojiMode(false); fileRef.current.click() }}
+                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary hover:bg-brand active:scale-95 transition-all"
+                >
+                  <ImageIcon />
+                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Ajouter une photo</span>
+                </button>
+                <button
+                  onClick={() => { setEmojiMode(false); setShowGallery(true) }}
+                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary hover:bg-brand active:scale-95 transition-all"
+                >
+                  <GridIcon />
+                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Galerie</span>
+                </button>
+                <button
+                  onClick={() => { setImage(null); setEmojiMode(m => !m) }}
+                  className={`aspect-square flex flex-col items-center justify-center gap-2 border rounded-xl active:scale-95 transition-all ${
+                    emojiMode ? 'bg-brand border-ink-primary text-ink-primary' : 'bg-canvas-surface border-ink-primary text-ink-secondary hover:bg-brand'
+                  }`}
+                >
+                  {emoji ? <span className="text-3xl leading-none">{emoji}</span> : <SmileIcon />}
+                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Emoji</span>
+                </button>
+              </div>
+
+              {/* Champ emoji — visible uniquement si le carré Emoji est actif */}
+              <div className={emojiMode ? 'block' : 'hidden'}>
                 <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Emoji</label>
                 <input
+                  autoFocus={emojiMode}
                   type="text"
                   value={emoji ?? ''}
                   onChange={e => setEmoji(e.target.value || null)}
-                  placeholder="ex. 🍓"
-                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[20px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                  placeholder="😊"
+                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[28px] text-center placeholder:text-ink-secondary/40 outline-none focus:border-forest transition-colors"
                 />
               </div>
 
@@ -171,22 +293,26 @@ export default function AddModal({ onClose, onAdd }) {
               <div>
                 <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Quantité</label>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center bg-canvas-surface border border-ink-primary rounded-xl overflow-hidden">
-                    <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 text-ink-secondary hover:bg-brand hover:text-ink-primary transition-colors text-xl">−</button>
-                    <input
-                      type="number"
-                      name="add-qty"
-                      min="1"
-                      step="1"
-                      value={qty}
-                      onChange={e => {
-                        const v = parseInt(e.target.value)
-                        if (!isNaN(v) && v >= 1) setQty(v)
-                      }}
-                      className="w-12 text-center font-body font-bold text-[16px] border-x border-ink-primary bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 text-ink-secondary hover:bg-brand hover:text-ink-primary transition-colors text-xl">＋</button>
-                  </div>
+                  <button
+                    onClick={() => setQty(q => Math.max(1, q - 1))}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-surface border border-ink-primary text-ink-secondary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
+                  >−</button>
+                  <input
+                    type="number"
+                    name="add-qty"
+                    min="1"
+                    step="1"
+                    value={qty}
+                    onChange={e => {
+                      const v = parseInt(e.target.value)
+                      if (!isNaN(v) && v >= 1) setQty(v)
+                    }}
+                    className="w-10 text-center font-body font-bold text-[18px] bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    onClick={() => setQty(q => q + 1)}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-surface border border-ink-primary text-ink-secondary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
+                  >+</button>
                 </div>
               </div>
 
@@ -218,7 +344,7 @@ export default function AddModal({ onClose, onAdd }) {
                     value={expiry}
                     min={todayStr()}
                     onChange={e => setExpiry(e.target.value)}
-                    className="w-full px-4 py-5 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                    className="w-full px-4 py-6 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[18px] font-semibold outline-none focus:border-forest transition-colors min-h-[64px]"
                   />
                 </div>
               </div>
@@ -236,6 +362,14 @@ export default function AddModal({ onClose, onAdd }) {
               </button>
             </div>
           </>
+        )}
+
+        {/* In-app gallery sheet */}
+        {showGallery && (
+          <GallerySheet
+            onSelect={setImage}
+            onClose={() => setShowGallery(false)}
+          />
         )}
 
         {/* ── STEP 2 : Emplacement ── */}
