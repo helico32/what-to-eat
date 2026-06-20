@@ -133,6 +133,15 @@ export default function RecipeModal({ recipes, products, onEdit }) {
   const [editing, setEditing] = useState(false)
 
   const recipe = recipes.find(r => String(r.id) === id)
+  const [checkedSteps, setCheckedSteps] = useState(new Set())
+
+  const toggleStep = (i) => {
+    setCheckedSteps(prev => {
+      const next = new Set(prev)
+      next.has(i) ? next.delete(i) : next.add(i)
+      return next
+    })
+  }
 
   useEffect(() => {
     if (!recipe) navigate('/recettes', { replace: true })
@@ -205,10 +214,19 @@ export default function RecipeModal({ recipes, products, onEdit }) {
                   <div className="flex flex-col gap-3 mb-6">
                     {recipe.steps.map((step, i) => (
                       <div key={i} className="flex gap-3">
-                        <div className="w-6 h-6 rounded-full bg-canvas-surface border border-ink-primary font-display font-bold text-[14px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <button
+                          onClick={() => toggleStep(i)}
+                          className={`w-6 h-6 rounded-full border border-ink-primary font-display font-bold text-[14px] flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                            checkedSteps.has(i)
+                              ? 'bg-canvas-surface text-ink-secondary'
+                              : 'bg-forest text-canvas'
+                          }`}
+                        >
                           {i + 1}
-                        </div>
-                        <p className="font-body text-[16px] text-ink-primary leading-relaxed">{step}</p>
+                        </button>
+                        <p className={`font-body text-[16px] leading-relaxed transition-colors ${
+                          checkedSteps.has(i) ? 'text-ink-secondary line-through' : 'text-ink-primary'
+                        }`}>{step}</p>
                       </div>
                     ))}
                   </div>

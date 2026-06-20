@@ -74,7 +74,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
                 return (
                   <span
                     key={name}
-                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[14px] text-ink-secondary ${chipBg}`}
+                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[14px] text-ink-secondary whitespace-nowrap ${chipBg}`}
                   >
                     {name}
                   </span>

@@ -111,7 +111,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
           </p>
           <div className="flex flex-wrap gap-1">
             {recipe.ingredients.slice(0, 3).map((ing, i) => (
-              <span key={i} className={`px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-secondary ${getIngredientChipBg(getDays(ing))}`}>
+              <span key={i} className={`px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-secondary whitespace-nowrap ${getIngredientChipBg(getDays(ing))}`}>
                 {ing}
               </span>
             ))}
