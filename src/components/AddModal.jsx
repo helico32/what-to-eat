@@ -132,6 +132,18 @@ export default function AddModal({ onClose, onAdd }) {
                 )}
               </button>
 
+              {/* Emoji */}
+              <div>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Emoji</label>
+                <input
+                  type="text"
+                  value={emoji ?? ''}
+                  onChange={e => setEmoji(e.target.value || null)}
+                  placeholder="ex. 🍓"
+                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[20px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                />
+              </div>
+
               {/* Nom */}
               <div>
                 <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom</label>

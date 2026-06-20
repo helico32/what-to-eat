@@ -211,7 +211,7 @@ function DragHandle() {
   )
 }
 
-export default function ShoppingList({ items, onToggle, onRemove, onClearChecked, onReorder, onAddCheckedToStock, canSort }) {
+export default function ShoppingList({ items, onToggle, onDelete, onDecrement, onIncrement, onClearChecked, onReorder, onAddCheckedToStock, canSort }) {
   const [showRangerSheet, setShowRangerSheet] = useState(false)
   const [confirmId, setConfirmId] = useState(null)
   const { activeIndex, rowProps, handleProps } = useSortable(canSort ? items : [], onReorder)
@@ -261,16 +261,35 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
                 {item.checked && <CheckIcon />}
               </button>
 
-              <span className="text-xl flex-shrink-0">{item.emoji}</span>
+              {item.image
+                ? <img src={item.image} alt={item.name} className="w-[75px] h-[60px] rounded-lg object-cover flex-shrink-0" />
+                : <span className="text-xl flex-shrink-0">{item.emoji ?? '🛒'}</span>
+              }
 
-              <p className={`flex-1 font-body text-[16px] font-medium transition-colors ${
-                item.checked ? 'text-ink-secondary' : 'text-ink-primary'
-              }`}>
-                {item.name}
-                {item.qty > 1 && (
-                  <span className="ml-1.5 font-body text-[16px] text-ink-secondary font-normal">x{item.qty}</span>
+              <div className="flex-1 min-w-0">
+                <p className={`font-body text-[16px] font-medium transition-colors ${
+                  item.checked ? 'text-ink-secondary line-through' : 'text-ink-primary'
+                }`}>
+                  {item.name}
+                </p>
+                {!canSort && (
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <button
+                      onClick={() => onDecrement(item.id)}
+                      className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+                    >
+                      −
+                    </button>
+                    <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">{item.qty}</span>
+                    <button
+                      onClick={() => onIncrement(item.id)}
+                      className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+                    >
+                      +
+                    </button>
+                  </div>
                 )}
-              </p>
+              </div>
 
               {canSort ? (
                 <>
@@ -299,10 +318,10 @@ export default function ShoppingList({ items, onToggle, onRemove, onClearChecked
             {confirmId === item.id && (
               <div className="pb-3 px-4 flex items-center gap-2">
                 <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
-                  Supprimer « {item.name} » x1 ?
+                  Supprimer "{item.name}" ?
                 </p>
                 <button
-                  onClick={() => { onRemove(item.id); setConfirmId(null) }}
+                  onClick={() => { onDelete(item.id); setConfirmId(null) }}
                   className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
                 >
                   Oui

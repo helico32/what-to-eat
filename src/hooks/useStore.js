@@ -76,10 +76,8 @@ export function useStore() {
   const addToShoppingList = useCallback((product) => {
     setAndPersistShopping(prev => {
       const existing = prev.find(p => p.id === product.id)
-      if (existing) {
-        return prev.map(p => p.id === product.id ? { ...p, qty: Math.round(((p.qty ?? 1) + 1) * 10) / 10 } : p)
-      }
-      return [...prev, { ...product, qty: product.qty ?? 1, checked: false }]
+      if (existing) return prev
+      return [...prev, { id: product.id, name: product.name, emoji: product.emoji ?? null, image: product.image ?? null, qty: 1, checked: false }]
     })
   }, [])
 
@@ -99,6 +97,12 @@ export function useStore() {
       const next = (p.qty ?? 1) - 1
       return next > 0 ? [...acc, { ...p, qty: next }] : acc
     }, []))
+  }, [])
+
+  const incrementShoppingItem = useCallback((id) => {
+    setAndPersistShopping(prev =>
+      prev.map(p => p.id === id ? { ...p, qty: (p.qty ?? 1) + 1 } : p)
+    )
   }, [])
 
   const clearCheckedItems = useCallback(() => {
@@ -122,6 +126,7 @@ export function useStore() {
     toggleShoppingItem,
     removeFromShoppingList,
     decrementShoppingItem,
+    incrementShoppingItem,
     clearCheckedItems,
     reorderShoppingList,
     reorderProducts,

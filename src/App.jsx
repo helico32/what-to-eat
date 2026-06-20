@@ -130,7 +130,7 @@ export default function App() {
       .forEach(item => store.addProduct({
         name:     item.name,
         emoji:    item.emoji ?? null,
-        image:    null,
+        image:    item.image ?? null,
         qty:      item.qty ?? 1,
         expiryDate,
         location,
@@ -228,10 +228,12 @@ export default function App() {
           <ListePage
             items={store.shoppingList}
             onToggle={store.toggleShoppingItem}
-            onRemove={store.decrementShoppingItem}
+            onDelete={store.removeFromShoppingList}
+            onDecrement={store.decrementShoppingItem}
+            onIncrement={store.incrementShoppingItem}
             onClearChecked={store.clearCheckedItems}
             onReorder={store.reorderShoppingList}
-            onAddItem={(name) => store.addToShoppingList({ id: Date.now(), name, emoji: '🛒' })}
+            onAddItem={(name, emoji) => store.addToShoppingList({ id: Date.now(), name, emoji: emoji ?? '🛒' })}
             onAddCheckedToStock={handleAddCheckedToStock}
             onClose={() => navigate('/')}
             onMenu={() => setShowMenu(true)}

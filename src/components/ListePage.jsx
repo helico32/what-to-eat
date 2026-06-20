@@ -17,12 +17,13 @@ function SortIcon() {
 
 function AddItemSheet({ onAdd, onClose }) {
   const [value, setValue] = useState('')
+  const [emoji, setEmoji] = useState('')
   const inputRef = useRef()
 
   useEffect(() => { inputRef.current?.focus() }, [])
 
   const submit = () => {
-    if (value.trim()) { onAdd(value.trim()); onClose() }
+    if (value.trim()) { onAdd(value.trim(), emoji.trim() || null); onClose() }
   }
 
   return (
@@ -33,16 +34,25 @@ function AddItemSheet({ onAdd, onClose }) {
       >
         <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-5" />
         <p className="font-display font-bold text-[16px] text-ink-primary mb-4">Ajouter à la liste</p>
-        <input
-          ref={inputRef}
-          type="text"
-          name="add-item"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && submit()}
-          placeholder="ex. Lait, pain..."
-          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors mb-4"
-        />
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={emoji}
+            onChange={e => setEmoji(e.target.value)}
+            placeholder="🛒"
+            className="w-16 px-3 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[20px] text-center placeholder:text-ink-secondary/40 outline-none focus:border-forest transition-colors"
+          />
+          <input
+            ref={inputRef}
+            type="text"
+            name="add-item"
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && submit()}
+            placeholder="ex. Lait, pain..."
+            className="flex-1 px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+          />
+        </div>
         <button
           onClick={submit}
           disabled={!value.trim()}
@@ -57,7 +67,7 @@ function AddItemSheet({ onAdd, onClose }) {
   )
 }
 
-export default function ListePage({ items, onToggle, onRemove, onClearChecked, onReorder, onAddItem, onAddCheckedToStock, onClose, onMenu, onCart, cartCount }) {
+export default function ListePage({ items, onToggle, onDelete, onDecrement, onIncrement, onClearChecked, onReorder, onAddItem, onAddCheckedToStock, onClose, onMenu, onCart, cartCount }) {
   const [showAdd, setShowAdd] = useState(false)
   const [sorting, setSorting] = useState(false)
   const [search, setSearch] = useState('')
@@ -112,7 +122,9 @@ export default function ListePage({ items, onToggle, onRemove, onClearChecked, o
             : <ShoppingList
                 items={filteredItems}
                 onToggle={onToggle}
-                onRemove={onRemove}
+                onDelete={onDelete}
+                onDecrement={onDecrement}
+                onIncrement={onIncrement}
                 onClearChecked={onClearChecked}
                 onReorder={onReorder}
                 onAddCheckedToStock={onAddCheckedToStock}
