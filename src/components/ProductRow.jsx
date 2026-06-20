@@ -55,7 +55,7 @@ function DragHandle() {
   )
 }
 
-export default function ProductRow({ product, onDelete, onAddToCart, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
+export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
   const badge = getBadge(product.expiryDate, product.location)
   const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete'
   const [done,    setDone]    = useState(null) // null | 'cart' | 'delete'
@@ -81,10 +81,28 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
             </div>
         }
 
-        {/* Name + subtitle */}
+        {/* Name + qty controls */}
         <div className="flex-1 min-w-0">
           <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{product.name}</p>
-          <p className="font-body text-[16px] text-ink-secondary mt-0.5">x{product.qty}</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <button
+              onClick={onDecrement}
+              className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+              title="Diminuer"
+            >
+              −
+            </button>
+            <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">
+              {product.qty}
+            </span>
+            <button
+              onClick={onIncrement}
+              className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+              title="Augmenter"
+            >
+              +
+            </button>
+          </div>
         </div>
 
         {/* Badge */}
@@ -141,8 +159,8 @@ export default function ProductRow({ product, onDelete, onAddToCart, canDrag, is
         <div className="pb-3 flex items-center gap-2">
           <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
             {confirm === 'cart'
-              ? `Ajouter "${product.name}" x${product.qty === 0.5 ? '0.5' : '1'} ?`
-              : `Supprimer "${product.name}" x${product.qty === 0.5 ? '0.5' : '1'} ?`
+              ? `Ajouter "${product.name}" au panier ?`
+              : `Supprimer "${product.name}" ?`
             }
           </p>
           <button

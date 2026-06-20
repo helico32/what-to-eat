@@ -67,6 +67,12 @@ export function useStore() {
     }, []))
   }, [])
 
+  const incrementProduct = useCallback((id) => {
+    setAndPersistProducts(prev =>
+      prev.map(p => p.id === id ? { ...p, qty: Math.round((p.qty + 1) * 10) / 10 } : p)
+    )
+  }, [])
+
   const addToShoppingList = useCallback((product) => {
     setAndPersistShopping(prev => {
       const existing = prev.find(p => p.id === product.id)
@@ -120,5 +126,6 @@ export function useStore() {
     reorderShoppingList,
     reorderProducts,
     decrementProduct,
+    incrementProduct,
   }
 }

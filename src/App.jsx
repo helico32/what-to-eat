@@ -186,7 +186,9 @@ export default function App() {
                     <ProductRow
                       key={p.id}
                       product={p}
-                      onDelete={() => store.decrementProduct(p.id)}
+                      onDelete={() => store.deleteProduct(p.id)}
+                      onDecrement={() => store.decrementProduct(p.id)}
+                      onIncrement={() => store.incrementProduct(p.id)}
                       onAddToCart={() => store.addToShoppingList(p)}
                       canDrag={canDrag}
                       isDragging={activeIndex === index}
