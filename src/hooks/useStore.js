@@ -61,15 +61,14 @@ export function useStore() {
   const decrementProduct = useCallback((id) => {
     setAndPersistProducts(prev => prev.reduce((acc, p) => {
       if (p.id !== id) return [...acc, p]
-      const step = p.qty <= 0.5 ? p.qty : 1
-      const next = Math.round((p.qty - step) * 10) / 10
+      const next = (p.qty ?? 1) - 1
       return next > 0 ? [...acc, { ...p, qty: next }] : acc
     }, []))
   }, [])
 
   const incrementProduct = useCallback((id) => {
     setAndPersistProducts(prev =>
-      prev.map(p => p.id === id ? { ...p, qty: Math.round((p.qty + 1) * 10) / 10 } : p)
+      prev.map(p => p.id === id ? { ...p, qty: (p.qty ?? 1) + 1 } : p)
     )
   }, [])
 

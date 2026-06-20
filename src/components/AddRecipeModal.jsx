@@ -1,5 +1,13 @@
 import { useState } from 'react'
 
+function ArrowLeft() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+    </svg>
+  )
+}
+
 const EMOJI_PRESETS = ['🍳', '🥘', '🍲', '🥗', '🍜', '🍝', '🫕', '🥙', '🌮', '🍱', '🐟', '🥩']
 
 export default function AddRecipeModal({ onClose, onAdd }) {
@@ -11,21 +19,23 @@ export default function AddRecipeModal({ onClose, onAdd }) {
   const [newIng,      setNewIng]      = useState('')
   const [newStep,     setNewStep]     = useState('')
 
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+
   const addIngredient = () => {
     const v = newIng.trim()
-    if (v) { setIngredients(p => [...p, v]); setNewIng('') }
+    if (v) { setIngredients(p => [...p, cap(v)]); setNewIng('') }
   }
 
   const addStep = () => {
     const v = newStep.trim()
-    if (v) { setSteps(p => [...p, v]); setNewStep('') }
+    if (v) { setSteps(p => [...p, cap(v)]); setNewStep('') }
   }
 
   const handleSubmit = () => {
     if (!name.trim()) return
     onAdd({
       emoji,
-      name: name.trim(),
+      name: cap(name.trim()),
       time: time.trim() || '15 min',
       ingredients: ingredients.length ? ingredients : [],
       steps:       steps.length       ? steps       : [],
@@ -38,7 +48,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
         <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
-            <button onClick={onClose} className="text-ink-secondary text-lg w-10">←</button>
+            <button onClick={onClose} className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
               Ajouter une recette
             </h1>
@@ -50,7 +60,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Emoji */}
           <div className="mb-5">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block uppercase tracking-wider">
+            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Emoji
             </label>
             <div className="flex flex-wrap gap-2">
@@ -72,7 +82,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Name */}
           <div className="mb-4">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">
+            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
               Nom*
             </label>
             <input
@@ -87,7 +97,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Time */}
           <div className="mb-5">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">
+            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
               Temps de préparation
             </label>
             <input
@@ -102,7 +112,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Ingredients */}
           <div className="mb-5">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block uppercase tracking-wider">
+            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Ingrédients
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
@@ -135,7 +145,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Steps */}
           <div className="mb-6">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block uppercase tracking-wider">
+            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Étapes
             </label>
             <div className="flex flex-col gap-2 mb-2">
@@ -173,7 +183,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
               name.trim()
                 ? 'bg-forest text-canvas active:scale-[.98]'
-                : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
+                : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
             }`}
           >
             Enregistrer

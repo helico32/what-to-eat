@@ -1,5 +1,13 @@
 import { useState, useRef } from 'react'
 
+function ArrowLeft() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+    </svg>
+  )
+}
+
 const PRESETS = [
   { label: 'Demain', days: 1  },
   { label: '1 sem.', days: 7  },
@@ -82,9 +90,11 @@ export default function AddModal({ onClose, onAdd }) {
     img.src = url
   }
 
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+
   const handleConfirm = () => {
     onAdd({
-      name:     name || 'Produit',
+      name:     cap(name.trim()) || 'Produit',
       emoji,
       image,
       qty,
@@ -103,7 +113,7 @@ export default function AddModal({ onClose, onAdd }) {
           <>
             <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
               <div className="flex items-center py-3">
-                <button onClick={onClose} className="text-ink-secondary text-lg w-10">←</button>
+                <button onClick={onClose} className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
                 <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
                   Détails de l'article
                 </h1>
@@ -134,7 +144,7 @@ export default function AddModal({ onClose, onAdd }) {
 
               {/* Emoji */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Emoji</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Emoji</label>
                 <input
                   type="text"
                   value={emoji ?? ''}
@@ -146,7 +156,7 @@ export default function AddModal({ onClose, onAdd }) {
 
               {/* Nom */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Nom</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Nom*</label>
                 <input
                   type="text"
                   name="add-name"
@@ -159,31 +169,30 @@ export default function AddModal({ onClose, onAdd }) {
 
               {/* Quantité */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block uppercase tracking-wider">Quantité</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Quantité</label>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-canvas-surface border border-ink-primary rounded-xl overflow-hidden">
-                    <button onClick={() => setQty(q => Math.max(0.5, Math.round((q - 0.5) * 10) / 10))} className="w-10 h-10 text-ink-secondary transition-colors text-xl">−</button>
+                    <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 text-ink-secondary hover:bg-brand hover:text-ink-primary transition-colors text-xl">−</button>
                     <input
                       type="number"
                       name="add-qty"
-                      min="0.5"
-                      step="0.5"
+                      min="1"
+                      step="1"
                       value={qty}
                       onChange={e => {
-                        const v = parseFloat(e.target.value)
-                        if (!isNaN(v) && v >= 0.5) setQty(Math.round(v * 10) / 10)
+                        const v = parseInt(e.target.value)
+                        if (!isNaN(v) && v >= 1) setQty(v)
                       }}
                       className="w-12 text-center font-body font-bold text-[16px] border-x border-ink-primary bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <button onClick={() => setQty(q => Math.round((q + 0.5) * 10) / 10)} className="w-10 h-10 text-ink-secondary transition-colors text-xl">＋</button>
+                    <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 text-ink-secondary hover:bg-brand hover:text-ink-primary transition-colors text-xl">＋</button>
                   </div>
-                  <span className="font-body text-[16px] text-ink-secondary">restant{qty > 1 ? 's' : ''}</span>
                 </div>
               </div>
 
               {/* Date de péremption */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block uppercase tracking-wider">Date de péremption</label>
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Date de péremption</label>
                 <div className="flex gap-2 mb-3">
                   {PRESETS.map(p => {
                     const val = dateInDays(p.days)
@@ -193,7 +202,7 @@ export default function AddModal({ onClose, onAdd }) {
                         onClick={() => setExpiry(val)}
                         className={`flex-1 py-2 rounded-pill font-body font-semibold text-[14px] border transition-all ${
                           expiry === val
-                            ? 'bg-brand text-ink-primary border-brand'
+                            ? 'bg-brand text-ink-primary border-ink-primary'
                             : 'bg-canvas-surface text-ink-secondary border-ink-primary'
                         }`}
                       >
@@ -203,25 +212,25 @@ export default function AddModal({ onClose, onAdd }) {
                   })}
                 </div>
                 <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink-secondary">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                  </div>
                   <input
                     type="date"
                     name="add-expiry"
                     value={expiry}
                     min={todayStr()}
                     onChange={e => setExpiry(e.target.value)}
-                    className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                    className="w-full px-4 py-5 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
                   />
                 </div>
               </div>
 
               <button
                 onClick={() => setStep(2)}
-                className="w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
+                disabled={!name.trim()}
+                className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
+                  name.trim()
+                    ? 'bg-forest text-canvas active:scale-[.98]'
+                    : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
+                }`}
               >
                 Suivant
               </button>
@@ -233,7 +242,7 @@ export default function AddModal({ onClose, onAdd }) {
         {step === 2 && (
           <div className="flex-1 px-5 pt-6 pb-10 flex flex-col gap-3">
             <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-2" />
-            <button onClick={() => setStep(1)} className="text-ink-secondary text-lg w-10 mb-1">←</button>
+            <button onClick={() => setStep(1)} className="text-ink-secondary w-10 mb-1 flex items-center"><ArrowLeft /></button>
             <p className="font-display font-bold text-[20px] text-ink-primary mb-1">Où le ranger ?</p>
 
             {LOCATIONS.map(l => (

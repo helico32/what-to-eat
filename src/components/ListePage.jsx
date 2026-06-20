@@ -22,8 +22,10 @@ function AddItemSheet({ onAdd, onClose }) {
 
   useEffect(() => { inputRef.current?.focus() }, [])
 
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+
   const submit = () => {
-    if (value.trim()) { onAdd(value.trim(), emoji.trim() || null); onClose() }
+    if (value.trim()) { onAdd(cap(value.trim()), emoji.trim() || null); onClose() }
   }
 
   return (
@@ -42,22 +44,24 @@ function AddItemSheet({ onAdd, onClose }) {
             placeholder="🛒"
             className="w-16 px-3 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[20px] text-center placeholder:text-ink-secondary/40 outline-none focus:border-forest transition-colors"
           />
-          <input
-            ref={inputRef}
-            type="text"
-            name="add-item"
-            value={value}
-            onChange={e => setValue(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && submit()}
-            placeholder="ex. Lait, pain..."
-            className="flex-1 px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
-          />
+          <div className="flex-1 flex flex-col gap-1">
+            <input
+              ref={inputRef}
+              type="text"
+              name="add-item"
+              value={value}
+              onChange={e => setValue(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && submit()}
+              placeholder="ex. Lait, pain..."
+              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+            />
+          </div>
         </div>
         <button
           onClick={submit}
           disabled={!value.trim()}
           className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
-            value.trim() ? 'bg-forest text-canvas' : 'bg-canvas-border text-ink-secondary cursor-not-allowed'
+            value.trim() ? 'bg-forest text-canvas active:scale-[.98]' : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
           }`}
         >
           Ajouter
