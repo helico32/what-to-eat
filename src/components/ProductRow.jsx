@@ -57,16 +57,20 @@ function DragHandle() {
 
 export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
   const badge = getBadge(product.expiryDate, product.location)
-  const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete'
+  const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete' | 'decrement'
   const [done,    setDone]    = useState(null) // null | 'cart' | 'delete'
   const timerRef = useRef()
 
   const handleConfirm = (type) => {
-    type === 'cart' ? onAddToCart() : onDelete()
+    if (type === 'cart') onAddToCart()
+    else if (type === 'delete') onDelete()
+    else if (type === 'decrement') onDecrement()
     setConfirm(null)
-    setDone(type)
-    clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => setDone(null), 1500)
+    if (type !== 'decrement') {
+      setDone(type)
+      clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => setDone(null), 1500)
+    }
   }
 
   return (
@@ -86,7 +90,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{product.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <button
-              onClick={onDecrement}
+              onClick={() => product.qty <= 1 ? setConfirm(confirm === 'decrement' ? null : 'decrement') : onDecrement()}
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
               title="Diminuer"
             >
@@ -163,19 +167,21 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
                 <span className="md:hidden">Ajouter au panier ?</span>
                 <span className="hidden md:inline">Ajouter "{product.name}" au panier ?</span>
               </>
+            ) : confirm === 'decrement' ? (
+              `Effacer l'item ?`
             ) : (
               `Supprimer "${product.name}" ?`
             )}
           </p>
           <button
             onClick={() => handleConfirm(confirm)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'delete' ? btnDefault : btnActive}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'cart' ? btnActive : btnDefault}`}
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(null)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'delete' ? btnActive : btnDefault}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'cart' ? btnDefault : btnActive}`}
           >
             Non
           </button>
