@@ -36,7 +36,7 @@ function SectionLabel({ label, count, onSort, sorting }) {
         {onSort && (
           <button
             onClick={onSort}
-            className={`w-5 h-5 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
+            className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
               sorting ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
             }`}
           >

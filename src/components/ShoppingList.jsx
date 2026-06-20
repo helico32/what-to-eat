@@ -276,14 +276,14 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <button
                       onClick={() => onDecrement(item.id)}
-                      className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
                     >
                       −
                     </button>
                     <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">{item.qty}</span>
                     <button
                       onClick={() => onIncrement(item.id)}
-                      className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
                     >
                       +
                     </button>

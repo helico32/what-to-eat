@@ -87,7 +87,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           <div className="flex items-center gap-1.5 mt-0.5">
             <button
               onClick={onDecrement}
-              className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
               title="Diminuer"
             >
               −
@@ -97,7 +97,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
             </span>
             <button
               onClick={onIncrement}
-              className="w-5 h-5 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
               title="Augmenter"
             >
               +

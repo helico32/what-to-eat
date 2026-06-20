@@ -233,7 +233,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
               {!q && recipes.length > 1 && (
                 <button
                   onClick={() => setSorting(s => !s)}
-                  className={`w-5 h-5 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
+                  className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
                     sorting ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
                   }`}
                 >
