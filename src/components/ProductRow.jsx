@@ -158,10 +158,14 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
       {confirm && (
         <div className="pb-3 flex items-center gap-2">
           <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
-            {confirm === 'cart'
-              ? `Ajouter "${product.name}" au panier ?`
-              : `Supprimer "${product.name}" ?`
-            }
+            {confirm === 'cart' ? (
+              <>
+                <span className="md:hidden">Ajouter au panier ?</span>
+                <span className="hidden md:inline">Ajouter "{product.name}" au panier ?</span>
+              </>
+            ) : (
+              `Supprimer "${product.name}" ?`
+            )}
           </p>
           <button
             onClick={() => handleConfirm(confirm)}
