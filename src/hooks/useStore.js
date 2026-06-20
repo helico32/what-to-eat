@@ -116,6 +116,25 @@ export function useStore() {
     setAndPersistProducts(() => newList)
   }, [])
 
+  // Decrease qty by n — keeps row even if it reaches 0 (for meal planning)
+  const decreaseQty = useCallback((id, n) => {
+    setAndPersistProducts(prev =>
+      prev.map(p => p.id === id ? { ...p, qty: Math.max(0, (p.qty ?? 1) - n) } : p)
+    )
+  }, [])
+
+  // Increase qty by n — used when returning items from a meal
+  const increaseQty = useCallback((id, n) => {
+    setAndPersistProducts(prev =>
+      prev.map(p => p.id === id ? { ...p, qty: (p.qty ?? 0) + n } : p)
+    )
+  }, [])
+
+  // Remove product only if its qty is 0 — called when confirming a fully eaten meal
+  const removeIfZero = useCallback((id) => {
+    setAndPersistProducts(prev => prev.filter(p => !(p.id === id && (p.qty ?? 0) === 0)))
+  }, [])
+
   return {
     products,
     shoppingList,
@@ -131,5 +150,8 @@ export function useStore() {
     reorderProducts,
     decrementProduct,
     incrementProduct,
+    decreaseQty,
+    increaseQty,
+    removeIfZero,
   }
 }

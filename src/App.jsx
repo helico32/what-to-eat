@@ -3,19 +3,22 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useSortable }   from './hooks/useSortable'
 import { useStore }      from './hooks/useStore'
 import { useRecipes }    from './hooks/useRecipes'
+import { useMeals }      from './hooks/useMeals'
 import { sortByUrgency } from './utils/badges'
-import Header          from './components/Header'
-import MenuDrawer      from './components/MenuDrawer'
-import TabBar          from './components/TabBar'
-import RecipeCard      from './components/RecipeCard'
-import ProductRow      from './components/ProductRow'
-import ListePage       from './components/ListePage'
-import RecipesPage     from './components/RecipesPage'
-import AddModal        from './components/AddModal'
-import AddRecipeModal  from './components/AddRecipeModal'
-import SearchBar       from './components/SearchBar'
-import SearchEmpty     from './components/SearchEmpty'
-import RecipeModal     from './components/RecipeModal'
+import Header               from './components/Header'
+import MenuDrawer           from './components/MenuDrawer'
+import TabBar               from './components/TabBar'
+import RecipeCard           from './components/RecipeCard'
+import ProductRow           from './components/ProductRow'
+import ListePage            from './components/ListePage'
+import RecipesPage          from './components/RecipesPage'
+import AddModal             from './components/AddModal'
+import AddRecipeModal       from './components/AddRecipeModal'
+import SearchBar            from './components/SearchBar'
+import SearchEmpty          from './components/SearchEmpty'
+import RecipeModal          from './components/RecipeModal'
+import PlannedMealsSection  from './components/PlannedMealsSection'
+import MealPlanPage         from './components/MealPlanPage'
 
 function SortIcon() {
   return (
@@ -28,7 +31,18 @@ function SortIcon() {
   )
 }
 
-function SectionLabel({ label, count, onSort, sorting }) {
+function CutleryToggleIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="2" x2="8" y2="22"/>
+      <path d="M5 2v6a3 3 0 0 0 6 0V2"/>
+      <line x1="17" y1="2" x2="17" y2="22"/>
+      <path d="M17 2a5 5 0 0 1 5 5"/>
+    </svg>
+  )
+}
+
+function SectionLabel({ label, count, onSort, sorting, onMealMode, mealMode }) {
   return (
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2">
@@ -41,6 +55,17 @@ function SectionLabel({ label, count, onSort, sorting }) {
             }`}
           >
             <SortIcon />
+          </button>
+        )}
+        {onMealMode && (
+          <button
+            onClick={onMealMode}
+            className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
+              mealMode ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
+            }`}
+            title="Mode repas"
+          >
+            <CutleryToggleIcon />
           </button>
         )}
       </div>
@@ -93,6 +118,13 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false)
   const [sorting,  setSorting]  = useState(false)
   const [search,   setSearch]   = useState('')
+  const [mealMode, setMealMode] = useState(false)
+
+  const mealsStore = useMeals({
+    onDecreaseQty:  store.decreaseQty,
+    onIncreaseQty:  store.increaseQty,
+    onRemoveIfZero: store.removeIfZero,
+  })
 
   const uncheckedCount  = store.shoppingList.filter(i => !i.checked).length
   const q               = search.trim().toLowerCase()
@@ -105,7 +137,14 @@ export default function App() {
     ? 'liste'
     : location.pathname.startsWith('/recettes')
     ? 'recettes'
+    : location.pathname === '/planning'
+    ? 'planning'
     : null
+
+  const handleAddToMeal = useCallback((product, qty) => {
+    const today = new Date().toISOString().split('T')[0]
+    mealsStore.addMeal(product, qty, today)
+  }, [mealsStore])
 
   const onReorderProducts = useCallback((reorderedView) => {
     const ids = new Set(reorderedView.map(p => p.id))
@@ -157,7 +196,7 @@ export default function App() {
               onCart={() => navigate('/liste')}
               cartCount={uncheckedCount}
             />
-            <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false) }} />
+            <TabBar active={tab} onChange={(t) => { setTab(t); setSorting(false); setMealMode(false) }} />
 
             <SearchBar
               value={search}
@@ -166,11 +205,21 @@ export default function App() {
             />
 
             <main className="px-4 pb-16">
+              {/* Repas prévus — visible only when meals exist and not searching */}
+              {!q && (
+                <PlannedMealsSection
+                  meals={mealsStore.meals}
+                  onConfirmMeal={mealsStore.confirmMeal}
+                />
+              )}
+
               <SectionLabel
                 label={q ? `Résultats pour "${search.trim()}"` : getSectionLabel(tab)}
                 count={viewProducts.length}
                 onSort={!q && tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
                 sorting={sorting}
+                onMealMode={!q && tab === 'urgent' ? () => setMealMode(m => !m) : undefined}
+                mealMode={mealMode}
               />
 
               {viewProducts.length === 0 ? (
@@ -190,6 +239,8 @@ export default function App() {
                       onDecrement={() => store.decrementProduct(p.id)}
                       onIncrement={() => store.incrementProduct(p.id)}
                       onAddToCart={() => store.addToShoppingList(p)}
+                      onAddToMeal={(qty) => handleAddToMeal(p, qty)}
+                      mealMode={mealMode}
                       canDrag={canDrag}
                       isDragging={activeIndex === index}
                       rowProps={canDrag ? rowProps(index) : {}}
@@ -273,6 +324,21 @@ export default function App() {
             recipes={recipes}
             products={store.products}
             onEdit={editRecipe}
+          />
+        } />
+
+        {/* ── Planning repas ── */}
+        <Route path="/planning" element={
+          <MealPlanPage
+            meals={mealsStore.meals}
+            products={store.products}
+            onAddMeal={mealsStore.addMeal}
+            onConfirmMeal={mealsStore.confirmMeal}
+            onCancelMeal={mealsStore.cancelMeal}
+            onClose={() => navigate('/')}
+            onMenu={() => setShowMenu(true)}
+            onCart={() => navigate('/liste')}
+            cartCount={uncheckedCount}
           />
         } />
 

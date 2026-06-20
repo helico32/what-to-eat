@@ -45,6 +45,17 @@ function CartIcon() {
   )
 }
 
+function CutleryIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="2" x2="8" y2="22"/>
+      <path d="M5 2v6a3 3 0 0 0 6 0V2"/>
+      <line x1="17" y1="2" x2="17" y2="22"/>
+      <path d="M17 2a5 5 0 0 1 5 5"/>
+    </svg>
+  )
+}
+
 function DragHandle() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -55,18 +66,29 @@ function DragHandle() {
   )
 }
 
-export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
+export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, onAddToMeal, mealMode, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
   const badge = getBadge(product.expiryDate, product.location)
-  const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete' | 'decrement'
+  const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete' | 'decrement' | 'meal'
   const [done,    setDone]    = useState(null) // null | 'cart' | 'delete'
   const timerRef = useRef()
+
+  // qty to add to meal — local state, initialized from product.qty
+  const [mealQty, setMealQty] = useState(product.qty ?? 1)
+  useEffect(() => { setMealQty(product.qty ?? 1) }, [product.qty])
+
+  // Reset confirm / done when meal mode is toggled
+  useEffect(() => {
+    setConfirm(null)
+    setDone(null)
+  }, [mealMode])
 
   const handleConfirm = (type) => {
     if (type === 'cart') onAddToCart()
     else if (type === 'delete') onDelete()
     else if (type === 'decrement') onDecrement()
+    else if (type === 'meal') onAddToMeal(mealQty)
     setConfirm(null)
-    if (type !== 'decrement') {
+    if (type === 'cart' || type === 'delete') {
       setDone(type)
       clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => setDone(null), 1500)
@@ -90,17 +112,29 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{product.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <button
-              onClick={() => product.qty <= 1 ? setConfirm(confirm === 'decrement' ? null : 'decrement') : onDecrement()}
+              onClick={() => {
+                if (mealMode && product.qty > 0) {
+                  setMealQty(q => Math.max(1, q - 1))
+                } else {
+                  product.qty <= 1 ? setConfirm(confirm === 'decrement' ? null : 'decrement') : onDecrement()
+                }
+              }}
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
               title="Diminuer"
             >
               −
             </button>
             <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">
-              {product.qty}
+              {mealMode && product.qty > 0 ? mealQty : product.qty}
             </span>
             <button
-              onClick={onIncrement}
+              onClick={() => {
+                if (mealMode && product.qty > 0) {
+                  setMealQty(q => Math.min(product.qty, q + 1))
+                } else {
+                  onIncrement()
+                }
+              }}
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
               title="Augmenter"
             >
@@ -129,6 +163,14 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
               <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
             </div>
           </>
+        ) : mealMode && product.qty > 0 ? (
+          <button
+            onClick={() => setConfirm(confirm === 'meal' ? null : 'meal')}
+            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === 'meal' ? btnActive : btnDefault}`}
+            title="Ajouter au repas"
+          >
+            <CutleryIcon />
+          </button>
         ) : (
           <>
             <button
@@ -167,6 +209,8 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
                 <span className="md:hidden">Ajouter au panier ?</span>
                 <span className="hidden md:inline">Ajouter "{product.name}" au panier ?</span>
               </>
+            ) : confirm === 'meal' ? (
+              `Ajouter ${mealQty} ${product.name} au repas ?`
             ) : confirm === 'decrement' ? (
               `Effacer l'item ?`
             ) : (
@@ -175,13 +219,13 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           </p>
           <button
             onClick={() => handleConfirm(confirm)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'cart' ? btnActive : btnDefault}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'cart' || confirm === 'meal' ? btnActive : btnDefault}`}
           >
             Oui
           </button>
           <button
             onClick={() => setConfirm(null)}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'cart' ? btnDefault : btnActive}`}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${confirm === 'cart' || confirm === 'meal' ? btnDefault : btnActive}`}
           >
             Non
           </button>
