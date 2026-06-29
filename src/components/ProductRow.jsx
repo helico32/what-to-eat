@@ -87,7 +87,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
     else if (type === 'decrement') onDecrement()
     else if (type === 'meal') onAddToMeal(mealQty)
     setConfirm(null)
-    if (type === 'cart' || type === 'delete') {
+    if (type === 'cart' || type === 'delete' || type === 'meal') {
       setDone(type)
       clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => setDone(null), 1500)
@@ -111,14 +111,15 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{product.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <button
+              disabled={product.qty === 0}
               onClick={() => {
                 if (mealMode && product.qty > 0) {
                   setMealQty(q => Math.max(1, q - 1))
-                } else {
+                } else if (!mealMode) {
                   product.qty <= 1 ? setConfirm(confirm === 'decrement' ? null : 'decrement') : onDecrement()
                 }
               }}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
               title="Diminuer"
             >
               −
@@ -127,14 +128,15 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
               {mealMode && product.qty > 0 ? mealQty : product.qty}
             </span>
             <button
+              disabled={product.qty === 0}
               onClick={() => {
                 if (mealMode && product.qty > 0) {
                   setMealQty(q => Math.min(product.qty, q + 1))
-                } else {
+                } else if (!mealMode) {
                   onIncrement()
                 }
               }}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
               title="Augmenter"
             >
               +
@@ -179,13 +181,15 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
             >
               <CartIcon />
             </button>
-            <button
-              onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-              className={`flex-shrink-0 w-9 h-9 hidden md:flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
-              title="Supprimer"
-            >
-              <TrashIcon />
-            </button>
+            {product.qty > 0 && (
+              <button
+                onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
+                className={`flex-shrink-0 w-9 h-9 hidden md:flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
+                title="Supprimer"
+              >
+                <TrashIcon />
+              </button>
+            )}
           </>
         )}
       </div>
@@ -194,7 +198,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
       {done && (
         <div className="pb-3 flex items-center gap-2">
           <p className="font-body text-[16px] text-forest font-semibold">
-            {done === 'cart' ? `✓ Ajouté au panier` : `✓ Supprimé`}
+            {done === 'cart' ? `✓ Ajouté au panier` : done === 'meal' ? `✓ Ajouté au repas` : `✓ Supprimé`}
           </p>
         </div>
       )}
