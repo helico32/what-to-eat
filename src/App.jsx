@@ -208,7 +208,11 @@ export default function App() {
               {!q && (
                 <PlannedMealsSection
                   meals={mealsStore.meals}
+                  repas={mealsStore.repas}
                   onConfirmMeal={mealsStore.confirmMeal}
+                  onCancelMeal={mealsStore.cancelMeal}
+                  onRenameRepas={mealsStore.renameRepas}
+                  onNameNoneMeals={mealsStore.nameNoneMeals}
                 />
               )}
 
@@ -331,8 +335,13 @@ export default function App() {
         <Route path="/planning" element={
           <MealPlanPage
             meals={mealsStore.meals}
+            repas={mealsStore.repas}
             products={store.products}
             onAddMeal={mealsStore.addMeal}
+            onAddRepas={mealsStore.addRepas}
+            onRenameRepas={mealsStore.renameRepas}
+            onNameNoneMeals={mealsStore.nameNoneMeals}
+            onDeleteRepas={mealsStore.deleteRepas}
             onConfirmMeal={mealsStore.confirmMeal}
             onCancelMeal={mealsStore.cancelMeal}
             onClose={() => navigate('/')}

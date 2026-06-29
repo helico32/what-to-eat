@@ -261,10 +261,12 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
                 {item.checked && <CheckIcon />}
               </button>
 
-              {item.image
-                ? <img src={item.image} alt={item.name} className="w-[75px] h-[60px] rounded-lg object-cover flex-shrink-0" />
-                : <span className="text-xl flex-shrink-0">{item.emoji ?? '🛒'}</span>
-              }
+              <div className="w-10 h-10 bg-canvas rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                {item.image
+                  ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  : <span>{item.emoji ?? '🛒'}</span>
+                }
+              </div>
 
               <div className="flex-1 min-w-0">
                 <p className={`font-body text-[16px] font-medium transition-colors ${

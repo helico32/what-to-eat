@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 
 const KEY = 'wte-meals'
+const KEY_REPAS = 'wte-repas'
 
 function load(key, fallback) {
   try {
@@ -17,6 +18,7 @@ function persist(key, data) {
 
 export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
   const [meals, setMeals] = useState(() => load(KEY, []))
+  const [repas, setRepas] = useState(() => load(KEY_REPAS, []))
 
   const setAndPersist = (updater) => {
     setMeals(prev => {
@@ -26,8 +28,54 @@ export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
     })
   }
 
-  // Add a meal for a given date — immediately decreases fridge qty
-  const addMeal = useCallback((product, qty, date) => {
+  const addRepas = useCallback((name, date) => {
+    const id = Date.now()
+    setRepas(prev => {
+      const next = [...prev, { id, name, date }]
+      persist(KEY_REPAS, next)
+      return next
+    })
+    return id
+  }, [])
+
+  const renameRepas = useCallback((repasId, newName) => {
+    setRepas(prev => {
+      const next = prev.map(r => r.id === repasId ? { ...r, name: newName } : r)
+      persist(KEY_REPAS, next)
+      return next
+    })
+  }, [])
+
+  const nameNoneMeals = useCallback((name, date) => {
+    const id = Date.now()
+    setRepas(prev => {
+      const next = [...prev, { id, name, date }]
+      persist(KEY_REPAS, next)
+      return next
+    })
+    setMeals(prev => {
+      const next = prev.map(m => m.date === date && !m.repasId ? { ...m, repasId: id } : m)
+      persist(KEY, next)
+      return next
+    })
+  }, [])
+
+  const deleteRepas = useCallback((repasId) => {
+    setMeals(prev => {
+      const toCancel = prev.filter(m => m.repasId === repasId)
+      toCancel.forEach(m => onIncreaseQty(m.productId, m.qty))
+      const next = prev.filter(m => m.repasId !== repasId)
+      persist(KEY, next)
+      return next
+    })
+    setRepas(prev => {
+      const next = prev.filter(r => r.id !== repasId)
+      persist(KEY_REPAS, next)
+      return next
+    })
+  }, [onIncreaseQty])
+
+  const addMeal = useCallback((product, qty, date, repasId = null) => {
     setAndPersist(prev => [...prev, {
       id: Date.now(),
       productId: product.id,
@@ -38,12 +86,11 @@ export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
       },
       qty,
       date,
+      repasId: repasId ?? null,
     }])
     onDecreaseQty(product.id, qty)
   }, [onDecreaseQty])
 
-  // Confirm a meal was eaten — optionally return some qty to fridge
-  // If returnQty = 0 and product is at 0 in fridge, removes the row
   const confirmMeal = useCallback((mealId, returnQty) => {
     setMeals(prev => {
       const meal = prev.find(m => m.id === mealId)
@@ -59,7 +106,6 @@ export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
     })
   }, [onIncreaseQty, onRemoveIfZero])
 
-  // Cancel a planned meal — restores the full qty to fridge
   const cancelMeal = useCallback((mealId) => {
     setMeals(prev => {
       const meal = prev.find(m => m.id === mealId)
@@ -71,5 +117,5 @@ export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
     })
   }, [onIncreaseQty])
 
-  return { meals, addMeal, confirmMeal, cancelMeal }
+  return { meals, repas, addMeal, addRepas, renameRepas, nameNoneMeals, deleteRepas, confirmMeal, cancelMeal }
 }

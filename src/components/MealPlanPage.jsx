@@ -1,19 +1,10 @@
-import { useState } from 'react'
-import MealConfirmSheet from './MealConfirmSheet'
+import { useState, useRef, useEffect } from 'react'
 import Header from './Header'
 import SearchBar from './SearchBar'
+import MealGroupsList from './MealGroupsList'
 import { btnActive, btnDefault } from '../utils/styles'
 import { sortByUrgency, getBadge } from '../utils/badges'
 
-function CheckIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-  )
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────
 function get7Days() {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date()
@@ -40,9 +31,8 @@ function getDayFullLabel(dateStr, index) {
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-// ── Product picker sheet ────────────────────────────────────────────────
 function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
-  const [step, setStep] = useState('pick') // 'pick' | 'qty'
+  const [step, setStep] = useState('pick')
   const [chosenProduct, setChosenProduct] = useState(null)
   const [qty, setQty] = useState(1)
   const [search, setSearch] = useState('')
@@ -75,11 +65,7 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
           <>
             <p className="font-display font-semibold text-[16px] text-ink-primary px-5 mb-3">Choisir un ingrédient</p>
             <div className="px-5 mb-3">
-              <SearchBar
-                value={search}
-                onChange={setSearch}
-                placeholder="Rechercher un ingrédient…"
-              />
+              <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un ingrédient…" />
             </div>
             {available.length === 0 ? (
               <p className="font-body text-[15px] text-ink-secondary px-5 pb-10">Aucun ingrédient trouvé.</p>
@@ -94,10 +80,7 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border border-ink-primary text-left active:scale-[0.98] transition-all ${btnDefault}`}
                     >
                       <div className="w-9 h-9 bg-canvas rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
-                        {p.image
-                          ? <img src={p.image} alt="" className="w-full h-full object-cover" />
-                          : <span>{p.emoji ?? '📦'}</span>
-                        }
+                        {p.image ? <img src={p.image} alt="" className="w-full h-full object-cover" /> : <span>{p.emoji ?? '📦'}</span>}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-body font-semibold text-[15px] text-ink-primary truncate">{p.name}</p>
@@ -116,7 +99,6 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
           </>
         ) : (
           <div className="px-5 pb-10">
-            {/* Selected product */}
             <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 bg-canvas-border rounded-xl flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">
                 {chosenProduct.image
@@ -129,7 +111,6 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
                 <p className="font-body text-[13px] text-ink-secondary">{chosenProduct.qty} disponible{chosenProduct.qty > 1 ? 's' : ''}</p>
               </div>
             </div>
-
             <p className="font-body font-semibold text-[15px] text-ink-primary mb-3">Quantité à utiliser</p>
             <div className="flex items-center gap-4 mb-6">
               <button
@@ -143,20 +124,9 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
               >+</button>
               <span className="font-body text-[13px] text-ink-secondary">/ {chosenProduct.qty} max</span>
             </div>
-
             <div className="flex gap-2">
-              <button
-                onClick={() => setStep('pick')}
-                className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
-              >
-                Retour
-              </button>
-              <button
-                onClick={handleConfirm}
-                className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
-              >
-                Ajouter au repas
-              </button>
+              <button onClick={() => setStep('pick')} className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}>Retour</button>
+              <button onClick={handleConfirm} className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}>Ajouter au repas</button>
             </div>
           </div>
         )}
@@ -165,70 +135,62 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
   )
 }
 
-// ── Main page ────────────────────────────────────────────────────────────
-export default function MealPlanPage({ meals, products, onAddMeal, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount }) {
+function NewRepasSheet({ onConfirm, onClose }) {
+  const [name, setName] = useState('')
+  const inputRef = useRef()
+  useEffect(() => { inputRef.current?.focus() }, [])
+
+  const submit = () => { if (name.trim()) onConfirm(name.trim()) }
+
+  return (
+    <div className="fixed inset-0 z-50" onClick={onClose}>
+      <div className="absolute inset-0 bg-ink-primary/30" />
+      <div
+        className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg px-5 pb-10"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mt-4 mb-5" />
+        <p className="font-display font-semibold text-[16px] text-ink-primary mb-4">Nom du repas</p>
+        <input
+          ref={inputRef}
+          type="text"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && submit()}
+          placeholder="ex. Déjeuner, Dîner…"
+          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors mb-4"
+        />
+        <div className="flex gap-2">
+          <button onClick={onClose} className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}>Annuler</button>
+          <button
+            onClick={submit}
+            disabled={!name.trim()}
+            className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] transition-all ${name.trim() ? btnActive : 'opacity-40 cursor-not-allowed ' + btnDefault}`}
+          >
+            Créer
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddRepas, onRenameRepas, onNameNoneMeals, onDeleteRepas, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount }) {
   const days = get7Days()
   const [selectedDay, setSelectedDay] = useState(days[0])
-  const [showPicker, setShowPicker] = useState(false)
-
-  // Checklist state — always visible, no toggle needed
-  const [checked, setChecked] = useState(new Set())   // meal IDs that are checked
-  const [rowQtys, setRowQtys] = useState({})          // mealId → qty to act on
+  const [pickerRepasId, setPickerRepasId] = useState(null)
+  const [showNewRepasSheet, setShowNewRepasSheet] = useState(false)
 
   const dayIndex = days.indexOf(selectedDay)
-  const dayMeals = meals.filter(m => m.date === selectedDay)
-  const anyChecked = checked.size > 0
 
   const handleDayChange = (date) => {
     setSelectedDay(date)
-    setChecked(new Set())
-    setRowQtys({})
+    setPickerRepasId(null)
   }
 
-  const toggleCheck = (meal) => {
-    setChecked(prev => {
-      const next = new Set(prev)
-      if (next.has(meal.id)) {
-        next.delete(meal.id)
-        setRowQtys(q => { const n = { ...q }; delete n[meal.id]; return n })
-      } else {
-        next.add(meal.id)
-        setRowQtys(q => ({ ...q, [meal.id]: meal.qty }))
-      }
-      return next
-    })
-  }
-
-  const setRowQty = (meal, val) => {
-    const clamped = Math.max(0, Math.min(meal.qty, val))
-    if (clamped === 0) {
-      setChecked(prev => { const n = new Set(prev); n.delete(meal.id); return n })
-      setRowQtys(q => { const n = { ...q }; delete n[meal.id]; return n })
-    } else {
-      setRowQtys(q => ({ ...q, [meal.id]: clamped }))
-    }
-  }
-
-  const handleJeter = () => {
-    dayMeals.forEach(meal => {
-      if (!checked.has(meal.id)) return
-      const qty = rowQtys[meal.id] ?? meal.qty
-      // throw qty items → return the rest
-      onConfirmMeal(meal.id, meal.qty - qty)
-    })
-    setChecked(new Set())
-    setRowQtys({})
-  }
-
-  const handleRemettre = () => {
-    dayMeals.forEach(meal => {
-      if (!checked.has(meal.id)) return
-      const qty = rowQtys[meal.id] ?? meal.qty
-      // put qty items back
-      onConfirmMeal(meal.id, qty)
-    })
-    setChecked(new Set())
-    setRowQtys({})
+  const handleCreateRepas = (name) => {
+    onAddRepas(name, selectedDay)
+    setShowNewRepasSheet(false)
   }
 
   return (
@@ -236,12 +198,11 @@ export default function MealPlanPage({ meals, products, onAddMeal, onConfirmMeal
       <Header
         onTitleClick={onClose}
         onMenu={onMenu}
-        onAdd={() => setShowPicker(true)}
+        onAdd={() => setPickerRepasId('__none__')}
         onCart={onCart}
         cartCount={cartCount}
       />
 
-      {/* 7-day selector */}
       <div className="flex gap-2 overflow-x-auto px-4 py-3 border-b border-ink-primary" style={{ scrollbarWidth: 'none' }}>
         {days.map((date, i) => {
           const active = date === selectedDay
@@ -253,7 +214,7 @@ export default function MealPlanPage({ meals, products, onAddMeal, onConfirmMeal
             >
               <span className="font-body text-[11px] font-semibold uppercase">{getDayShortLabel(date, i)}</span>
               <span className="font-display font-bold text-[18px] leading-tight">{getDayNumber(date)}</span>
-              {meals.some(m => m.date === date) && (
+              {(meals.some(m => m.date === date) || repas.some(r => r.date === date)) && (
                 <span className={`w-1.5 h-1.5 rounded-full mt-0.5 ${active ? 'bg-ink-primary' : 'bg-brand'}`} />
               )}
             </button>
@@ -261,97 +222,41 @@ export default function MealPlanPage({ meals, products, onAddMeal, onConfirmMeal
         })}
       </div>
 
-      {/* Day content */}
-      <main className={`px-4 pt-4 ${anyChecked ? 'pb-32' : 'pb-16'}`}>
+      <main className="px-4 pt-4 pb-24">
         <p className="font-display font-semibold text-[15px] text-ink-primary mb-3 capitalize">
           {getDayFullLabel(selectedDay, dayIndex)}
         </p>
-
-        {dayMeals.length === 0 ? (
-          <div className="text-center py-10">
-            <span className="text-4xl block mb-3">🍽️</span>
-            <p className="font-body text-[15px] text-ink-secondary">Aucun repas prévu ce jour</p>
-          </div>
-        ) : (
-          <div className="bg-canvas-card rounded-xl border border-ink-primary divide-y divide-ink-primary px-4 mb-4">
-            {dayMeals.map(meal => {
-              const isChecked = checked.has(meal.id)
-              const rowQty = rowQtys[meal.id] ?? meal.qty
-              return (
-                <div key={meal.id} className="py-3">
-                  <div className="flex items-center gap-3">
-                    {/* Checkbox circle */}
-                    <button
-                      onClick={() => toggleCheck(meal)}
-                      className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                        isChecked ? 'bg-brand border-ink-primary' : 'border-ink-primary'
-                      }`}
-                    >
-                      {isChecked && <CheckIcon />}
-                    </button>
-
-                    {/* Thumbnail */}
-                    <div className="w-10 h-10 bg-canvas rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
-                      {meal.productSnapshot.image
-                        ? <img src={meal.productSnapshot.image} alt="" className="w-full h-full object-cover" />
-                        : <span>{meal.productSnapshot.emoji ?? '🍽️'}</span>
-                      }
-                    </div>
-
-                    {/* Name */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-body font-semibold text-[15px] text-ink-primary truncate">{meal.productSnapshot.name}</p>
-                      <p className="font-body text-[13px] text-ink-secondary">x {meal.qty} prévu{meal.qty > 1 ? 's' : ''}</p>
-                    </div>
-
-                    {/* Qty selector — only when checked */}
-                    {isChecked && (
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() => setRowQty(meal, rowQty - 1)}
-                          className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
-                        >−</button>
-                        <span className="font-body text-[14px] text-ink-primary font-semibold min-w-[16px] text-center">{rowQty}</span>
-                        <button
-                          onClick={() => setRowQty(meal, rowQty + 1)}
-                          className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
-                        >+</button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
+        <MealGroupsList
+          key={selectedDay}
+          meals={meals}
+          repas={repas}
+          date={selectedDay}
+          onAddItem={setPickerRepasId}
+          onDeleteRepas={onDeleteRepas}
+          onRenameRepas={onRenameRepas}
+          onNameNoneMeals={(name) => onNameNoneMeals(name, selectedDay)}
+          onConfirmMeal={onConfirmMeal}
+          onCancelMeal={onCancelMeal}
+          onCreateRepas={() => setShowNewRepasSheet(true)}
+        />
       </main>
 
-      {/* Action bar — appears when at least one item is checked */}
-      {anyChecked && (
-        <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas border-t border-ink-primary px-4 py-4 flex gap-2">
-          <button
-            onClick={handleJeter}
-            className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] border border-ink-primary transition-all ${btnDefault}`}
-          >
-            Mangé
-          </button>
-          <button
-            onClick={handleRemettre}
-            className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] transition-all ${btnActive}`}
-          >
-            Ranger
-          </button>
-        </div>
-      )}
-
-      {/* Product picker */}
-      {showPicker && (
+      {pickerRepasId !== null && (
         <ProductPickerSheet
           products={products}
           selectedDate={selectedDay}
-          onAdd={onAddMeal}
-          onClose={() => setShowPicker(false)}
+          onAdd={(product, qty, date) => {
+            const repasId = pickerRepasId === '__none__' ? null : pickerRepasId
+            onAddMeal(product, qty, date, repasId)
+          }}
+          onClose={() => setPickerRepasId(null)}
+        />
+      )}
+
+      {showNewRepasSheet && (
+        <NewRepasSheet
+          onConfirm={handleCreateRepas}
+          onClose={() => setShowNewRepasSheet(false)}
         />
       )}
     </div>
