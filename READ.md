@@ -32,11 +32,11 @@ Aucune fonctionnalité "pour plus tard", "au cas où", ou "ça pourrait être ut
 **Pas de complexité défensive.**
 Pas de validation pour des cas impossibles. Pas de fallback pour ce que le framework garantit. Pas d'error handling sur du code interne qu'on contrôle.
 
-**localStorage est suffisant.**
-Pas de backend, pas de cloud, pas de sync, pas de compte. Tant que c'est vrai, on ne l'interroge pas.
+**IndexedDB via `src/db.js`.**
+Le storage est IndexedDB (pas localStorage) — nécessaire pour que le Service Worker PWA puisse accéder aux données et déclencher des notifications hors-app. Wrapper : `idb` (~1kb), pas Dexie (trop de magie). La base est définie dans `src/db.js` (infrastructure, pas données métier) avec 5 stores : `products`, `shoppingList`, `meals`, `repas`, `recipes`.
 
-**L'état distribué est un risque.**
-Quand deux clés localStorage doivent rester cohérentes (ex. `wte-meals` et le stock produit), c'est une dette à documenter, pas à ignorer.
+**L'état distribué est résolu par IndexedDB.**
+Avec une instance `db` partagée, `useMeals` écrit directement dans le store `products` sans passer par `useStore`. Les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` qui couplaient les deux hooks via `App.jsx` disparaissent — remplacés par une transaction directe dans `useMeals`.
 
 **La dette technique se documente ici.**
 Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "Points de vigilance".
@@ -45,9 +45,17 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 ### Points de vigilance actuels
 
-- **`MealGroupsList`** : logique d'état extraite dans `useMealChecklist`. Le composant ne fait plus que du rendu. À surveiller si `RepasGroup` grossit (rename + delete + collapse en un seul composant).
-- **Cohérence stock / planning** : quand on ajoute un produit au planning, le stock diminue immédiatement. Si l'app crash avant confirmation, le stock est faux. Acceptable en v1, à corriger si on ajoute une sync.
+- **`RepasGroup`** (dans `MealGroupsList.jsx`) : rename + delete confirm + collapse en un seul composant. À surveiller si ça grossit encore.
+- **Cohérence stock / planning** : résolue par la migration IndexedDB — `useMeals` modifie le store `products` dans la même transaction que le store `meals`. Plus de risque d'état incohérent.
 - **Pente glissante planning** : le planning n'est PAS un planificateur de menus. C'est une externalisation de mémoire — "je prévois d'utiliser ce produit tel jour avant qu'il périsse". Toute feature qui ressemble à "planifier ses repas" est hors scope. La question à se poser : "est-ce que ça aide à ne pas oublier un produit ?" Si non, on ne le fait pas.
+
+### À faire
+
+- **Cibles tactiles** : les boutons sort/mealMode (`w-8 h-8` = 32px) et le `+` du Header (`w-8 h-8` = 32px) sont en dessous des 44px requis par la règle accessibilité. Décision en suspens : les actions secondaires peuvent-elles rester à 32px ? À trancher.
+- **mealMode — état actif peu lisible** : le changement de fond seul ne suffit pas pour le persona TDAH ("l'état actif d'un bouton doit être indiscutable"). Proposition en attente de go : afficher un label texte à côté de l'icône quand le mode est actif.
+- **Lien urgence → planning absent** : aucun raccourci direct depuis un produit urgent pour le placer sur un jour. Le flux actuel (activer mealMode → taper l'icône → picker) est trop long pour le persona. À creuser.
+- **Produit déjà planifié non signalé** : dans le stock, rien n'indique qu'un produit a déjà été placé dans le planning. Risque de le planifier en double.
+- **Audit `aria-label` complet** : seuls les boutons sort/mealMode ont été mis à jour. Les autres boutons icônes de l'app (corbeille, panier, shuffle, etc.) sont à auditer.
 
 ---
 
@@ -89,7 +97,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 ## Principes de design
 
-- **Simple et local** : pas de compte, pas de panneau d'admin, pas de profil. Tout fonctionne en localStorage.
+- **Simple et local** : pas de compte, pas de panneau d'admin, pas de profil. Tout fonctionne en local (IndexedDB).
 - **Zéro friction cognitive** : chaque action demande le moins de décisions possible. Chaque réglage exposé à l'utilisateur est une décision cognitive en plus — on n'en ajoute pas sans raison impérative.
 - **L'image est le centre de gravité** : c'est ce qui déclenche la reconnaissance, pas le nom.
 - **L'urgence comme moteur** : les dates courtes sont un levier de motivation, pas un problème.
@@ -105,8 +113,22 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **Framework** : React 18 + Vite
 - **Routing** : React Router DOM (SPA)
 - **CSS** : Tailwind CSS v3
-- **Stockage** : localStorage uniquement — pas de backend, pas de compte
+- **Stockage** : IndexedDB via `idb` — local, sans backend, sans compte
 - **Structure** : composants découplés, logique dans des hooks custom
+
+### Migration IndexedDB — périmètre
+
+| Périmètre | Change ? |
+|---|---|
+| Interface des hooks (ce qu'ils retournent) | Non — les composants ne voient rien |
+| Composants | Non |
+| Intérieur des hooks | Oui — chargement initial en `useEffect`, écritures en `await` |
+| `persist()` | Remplacé par `await db.put()` |
+| `localStorage.getItem` | Remplacé par `await db.getAll()` |
+| `src/db.js` | Nouveau fichier, 5 stores |
+| Callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` | Supprimés — `useMeals` écrit directement dans le store `products` via `db` |
+
+Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent déjà une liste vide au démarrage. Aucune complexité défensive à ajouter.
 
 ### Hooks
 
@@ -115,6 +137,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 | `useStore` | Produits + liste de courses (localStorage) |
 | `useRecipes` | Recettes : CRUD, favoris, réordonnancement |
 | `useMeals` | Planning de repas : meals + groupes "repas" (localStorage) |
+| `useMealChecklist` | État checklist dans MealGroupsList (checked, rowQtys, Mangé/Ranger) |
 | `useSortable` | Drag-and-drop dans les listes produits |
 
 ---
@@ -194,7 +217,7 @@ Un repas = un produit du stock réservé pour une date. Quand on ajoute un produ
 ### Page `/planning`
 
 - Sélecteur de jours : 7 jours défilants, point indicateur si repas existants.
-- `MealGroupsList` : affiche les groupes "repas" + les meals sans groupe ("Sans nom").
+- `MealGroupsList` : affiche les groupes "repas" + les meals sans groupe (label : "Encas").
 - Bouton `+` dans le header : ouvre le picker de produit sans groupe.
 - "Nouveau repas" : crée un groupe nommé via bottom sheet.
 

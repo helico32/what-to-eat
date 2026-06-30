@@ -1,1 +1,15 @@
 READ.md
+
+# Dépendances
+node_modules/
+
+# Build
+dist/
+
+# Système
+.DS_Store
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
