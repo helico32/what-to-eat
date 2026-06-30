@@ -100,7 +100,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 ## Principes de design
 
-- **Simple et local** : pas de compte, pas de panneau d'admin, pas de profil. Tout fonctionne en local (IndexedDB).
+- **Local pour le quotidien, Firebase pour la mémoire long terme** : le stock, la liste de courses et le planning restent en IndexedDB local (éphémère, change souvent). Les recettes, le catalogue images et les données de notification vont dans Firebase (valeur durable, survit au changement d'appareil).
 - **Zéro friction cognitive** : chaque action demande le moins de décisions possible. Chaque réglage exposé à l'utilisateur est une décision cognitive en plus — on n'en ajoute pas sans raison impérative.
 - **L'image est le centre de gravité** : c'est ce qui déclenche la reconnaissance, pas le nom.
 - **L'urgence comme moteur** : les dates courtes sont un levier de motivation, pas un problème.
@@ -111,13 +111,163 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 ---
 
+## Statut du projet
+
+**V1 — PWA avec notifications push. Gratuite, en test.**
+L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne passe à l'étape suivante que quand la précédente est stable.
+
+### Roadmap — 5 étapes
+
+**Étape 1 — Finir la migration IndexedDB** ← on est là
+- Migrer `useMeals` (dernière hook restante)
+- Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`
+- Corriger les points UX ouverts (aria-labels, état actif mealMode)
+
+**Étape 2 — PWA**
+- Icône (192×192 et 512×512)
+- `vite-plugin-pwa` + manifest + Service Worker (`src/sw.js`)
+- Déploiement sur Firebase Hosting
+
+**Étape 3 — Notifications push** ← objectif V1
+- Firebase Anonymous Auth (silencieux, aucune friction)
+- Sync des dates d'expiration vers Firestore
+- Cloud Function quotidienne : vérifie les expirations → envoie push via FCM
+- Demande de permission notification dans l'app (une seule fois, non bloquante)
+
+**Étape 4 — Auth upgrade + catalogue images**
+- Google Sign-In, Magic Link, Passkeys dans Firebase Auth
+- Point d'entrée unique : MenuDrawer, discret
+- Catalogue images (nom → URL) dans Firestore + Firebase Storage
+- Recettes sauvegardées dans Firestore (survit au changement d'appareil)
+
+**Étape 5 — Monétisation**
+- Contacter ONEM pour autorisation activité accessoire (obligatoire avant)
+- Intégrer LemonSqueezy (7 semaines d'essai → 2,99€/mois)
+- Webhook LemonSqueezy → Cloud Function → statut dans Firestore
+- Désactivation douce Firebase si non-abonné (app locale reste fonctionnelle)
+
+### Modèle économique futur
+
+**7 semaines gratuites, puis 1,99€/mois.**
+
+Les 7 semaines sont délibérées : le persona TDAH a besoin de ce temps pour construire une habitude et traverser plusieurs cycles d'achat anti-gaspi avant de percevoir la valeur. Un essai de 7 jours serait insuffisant.
+
+**Ce qui reste gratuit pour toujours**
+- L'app locale (IndexedDB) — stock, planning, liste de courses
+- Aucune fonctionnalité de base bloquée
+
+**Ce qui nécessite un abonnement après l'essai**
+- Notifications push hors-app (expiration produits)
+- Synchronisation cross-device
+- Catalogue images personnel
+- Sauvegarde des recettes dans le cloud
+
+**Flux d'essai**
+
+| Moment | Ce qui se passe |
+|---|---|
+| Jour 1 | Firebase actif silencieusement, essai déclenché |
+| Semaine 6 | Notification douce "Plus que 7 jours gratuits" |
+| Semaine 7 | Invite à s'abonner — si refus, Firebase désactivé, local reste fonctionnel |
+| Après paiement | Abonnement actif, renouvellement mensuel automatique |
+
+**Paiement : à choisir entre Stripe et LemonSqueezy**
+
+Pas d'Apple/Google store → pas de commission 30%.
+
+| | Stripe | LemonSqueezy |
+|---|---|---|
+| Commission | 1,5% + 0,25€ → ~1,71€ net/mois | ~5% → ~1,89€ net/mois (pas de frais fixe) |
+| TVA européenne | À gérer manuellement (ou TaxJar) | Incluse automatiquement |
+| Webhook backend | Oui — Cloud Function requise | Simplifié |
+| Complexité | Plus élevée | Moindre |
+
+**Décision actée : LemonSqueezy.**
+LemonSqueezy est "Merchant of Record" — c'est légalement eux qui vendent, pas toi. Ils collectent et reversent la TVA dans chaque pays EU automatiquement. Tu reçois l'argent net, sans déclaration TVA à gérer. Stripe exigerait de gérer cette TVA manuellement — trop lourd.
+
+**Contexte : dev salariée en Belgique.**
+Deux taxes distinctes — ne pas confondre :
+- **TVA (21%)** : payée par l'abonné, collectée + reversée par LemonSqueezy. La dev ne la voit jamais.
+- **Impôt sur le revenu** : la dev paie ça sur ce que LemonSqueezy lui verse.
+
+**Décomposition à 2,99€ TTC (TVA belge 21% incluse) :**
+
+| | |
+|---|---|
+| Prix payé par l'abonné | 2,99€ |
+| TVA 21% → LemonSqueezy → fisc | -0,52€ |
+| Commission LemonSqueezy (5%) | -0,12€ |
+| **Revenu brut dev** | **2,35€** |
+
+**Scénario A — Dev salariée (revenus divers, 33% flat)**
+
+| | /user/mois | 50 users | 100 users | 500 users |
+|---|---|---|---|---|
+| Net après LS + TVA | 2,35€ | 117,50€ | 235€ | 1 175€ |
+| Impôt BE 33% | -0,78€ | -38,77€ | -77,55€ | -387,75€ |
+| **Net** | **1,57€** | **78,73€** | **157,45€** | **787,25€** |
+
+Pas de cotisations sociales. Déclaré annuellement sur la fiche fiscale. Solution la plus simple.
+
+**Scénario B — Dev indépendante complémentaire**
+
+| | /user/mois | 50 users | 100 users | 500 users |
+|---|---|---|---|---|
+| Net après LS + TVA | 2,35€ | 117,50€ | 235€ | 1 175€ |
+| Cotisations sociales ~20,5% | -0,48€ | -24,09€ | -48,18€ | -240,88€ |
+| Impôt marginal ~45% | -0,84€ | -42,03€ | -84,07€ | -420,36€ |
+| **Net** | **1,03€** | **51,38€** | **102,75€** | **513,76€** |
+
+Plus de charges mais permet de déduire les frais (Firebase, domaine, matériel). Ne vaut le coup qu'à partir de ~200 users ou si les dépenses déductibles sont significatives.
+
+**Seuils critiques :**
+- **~50 users** → montants fiscalement visibles, à déclarer sérieusement
+- **~500 users** → Firebase dépasse le free tier Storage (5GB), passage au plan Blaze (~quelques €/mois, négligeable)
+- TVA : jamais à gérer (LemonSqueezy s'en charge toujours)
+
+**Verdict :**
+Le scénario A (revenus divers, 33%) est meilleur à ce niveau de revenus — pas de cotisations sociales, déclaration simple. Devenir indépendante n'a de sens qu'à partir de ~600€/mois de revenus bruts ou si les frais déductibles sont significatifs. Note : en revenus divers, aucune dépense n'est déductible (pas d'ordi, pas de Firebase). La déduction frais n'existe qu'en régime indépendante.
+
+**Situation réelle : dev au chômage en Belgique.**
+Ni salariée ni indépendante — les allocations de chômage impliquent une règle spécifique : tout revenu d'activité doit être déclaré à l'ONEM, et une autorisation d'activité accessoire doit être obtenue AVANT d'encaisser le premier euro. Sans ça, risque de récupération des allocations. Démarche : contacter son syndicat (CSC / FGTB / CGSLB) ou l'ONEM directement. À faire avant d'activer LemonSqueezy.
+
+**Prix décidé : 2,99€/mois** avec une version gratuite (fonctionnalités locales uniquement).
+
+**L'anonymat a une limite** : Stripe nécessite un email. Les 7 semaines d'essai fonctionnent en anonyme, mais l'abonnement force la création d'un compte.
+
+---
+
 ## Stack technique
 
 - **Framework** : React 18 + Vite
 - **Routing** : React Router DOM (SPA)
 - **CSS** : Tailwind CSS v3
-- **Stockage** : IndexedDB via `idb` — local, sans backend, sans compte
+- **Stockage local** : IndexedDB via `idb` — données éphémères (stock, planning, liste de courses)
+- **Cloud** : Firebase — hébergement, notifications push, catalogue images, recettes
 - **Structure** : composants découplés, logique dans des hooks custom
+
+### Ce qui est local vs Firebase
+
+| Donnée | Où | Pourquoi |
+|---|---|---|
+| Stock produits + quantités | IndexedDB | Change plusieurs fois/jour |
+| Liste de courses | IndexedDB | Éphémère |
+| Planning meals | IndexedDB | Éphémère |
+| Recettes | Firestore | Valeur durable, survit au changement d'appareil |
+| Catalogue images (nom → URL) | Firestore + Firebase Storage | Mémoire visuelle long terme |
+| Dates d'expiration | Firestore | Nécessaire pour les notifs push hors-app |
+| Subscription push | Firestore | Nécessaire pour les notifs push |
+
+### Firebase — services utilisés
+
+- **Firebase Hosting** — hébergement de la PWA
+- **Firebase Auth** — authentification anonyme + upgrade optionnel
+- **Firestore** — recettes, catalogue images, dates expiration, subscription push
+- **Firebase Storage** — images produits
+- **Firebase Cloud Functions** — job quotidien qui vérifie les expirations et envoie les notifications
+- **FCM (Firebase Cloud Messaging)** — delivery des push notifications
+
+**Coût :** free tier suffisant pour une app personnelle (< 500 utilisateurs).
 
 ### Migration IndexedDB — périmètre
 
@@ -139,8 +289,8 @@ Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent 
 |------|---------|
 | `src/db.js` | ✅ Fait |
 | `useRecipes` | ✅ Fait — champ `position` ajouté pour préserver l'ordre drag-and-drop |
-| `useStore` | ⏳ À faire |
-| `useMeals` | ⏳ À faire — transaction atomique meals + products |
+| `useStore` | ✅ Fait — `productsRef` pour callbacks temporaires stables ; `refreshProducts` prêt pour `useMeals` |
+| `useMeals` | ⏳ À faire — transaction atomique meals + products ; suppression des callbacks |
 
 ### Hooks
 
@@ -323,13 +473,40 @@ Trois boutons larges : **Frigo** (défaut frais) · **Congélateur** · **Placar
 
 ---
 
+## Authentification
+
+### Principe : anonyme par défaut, upgrade optionnel
+
+L'utilisatrice ne voit aucun écran de connexion au premier lancement. Firebase crée silencieusement un compte anonyme lié à l'appareil. Elle peut choisir de "sauvegarder" ses données en se connectant — ce point d'entrée est uniquement dans le **MenuDrawer**, discret, jamais intrusif.
+
+### Flux
+
+1. **Premier lancement** → compte anonyme automatique, aucune action requise
+2. **Elle veut sauvegarder** → tap "Sauvegarder mes données" dans le menu → choix de méthode
+3. **Elle change d'appareil** → se reconnecte → données récupérées
+
+### Méthodes d'authentification disponibles
+
+- **Google Sign-In** — un tap, pas de mot de passe, fonctionne sur tous les appareils
+- **Magic link email** — lien cliquable envoyé par mail, pas de mot de passe à retenir
+- **Passkeys (Face ID / empreinte)** — le plus TDAH-friendly : biométrie, zéro saisie, synchro via iCloud Keychain ou Google Password Manager
+
+### Ce qu'on ne fait pas
+
+- Pas d'email + mot de passe — trop de friction pour le persona
+- Pas d'écran d'onboarding obligatoire
+- Pas de "créer un compte" visible au démarrage
+- Pas de forçage de connexion à aucun moment
+
+---
+
 ## Ce qu'on ne fait PAS en v1
 
 - Pas de liste de courses générée automatiquement
 - Pas de score nutritionnel
 - Pas de partage / multi-utilisateur
-- Pas de synchronisation cloud
 - Pas de profil ou préférences alimentaires
 - Pas d'IA pour la suggestion de recette
+- Pas de monétisation active en v1
 
 **L'objectif unique de la v1 : elle ouvre l'app et sait quoi manger ce soir en moins de 10 secondes.**

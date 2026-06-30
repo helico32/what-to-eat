@@ -1,21 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { dbPromise } from '../db'
 import { initialProducts } from '../data/products'
 
-const KEYS = {
-  products:     'wte-products',
-  shoppingList: 'wte-shopping',
-}
-
-function load(key, fallback) {
-  try {
-    const stored = localStorage.getItem(key)
-    return stored ? JSON.parse(stored) : fallback
-  } catch {
-    return fallback
-  }
-}
-
-// One-time migration: daysLeft (number) → expiryDate (ISO string)
+// Migration one-time : les anciens produits utilisaient daysLeft (nombre de jours)
+// à la place de expiryDate (date ISO). On convertit au chargement si besoin.
 function migrateProducts(products) {
   return products.map(p => {
     if ('expiryDate' in p) return p
@@ -26,113 +14,204 @@ function migrateProducts(products) {
   })
 }
 
-function persist(key, data) {
-  try { localStorage.setItem(key, JSON.stringify(data)) } catch {}
-}
-
 export function useStore() {
-  const [products,     setProducts]     = useState(() => migrateProducts(load(KEYS.products, initialProducts)))
-  const [shoppingList, setShoppingList] = useState(() => load(KEYS.shoppingList, []))
+  const [products,     setProducts]     = useState([])
+  const [shoppingList, setShoppingList] = useState([])
 
-  const setAndPersistProducts = (updater) => {
-    setProducts(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      persist(KEYS.products, next)
-      return next
-    })
+  // Ref synchronisée avec products à chaque render.
+  // Permet aux callbacks stables (useCallback sans deps) de toujours lire l'état courant.
+  const productsRef = useRef([])
+  productsRef.current = products
+
+  useEffect(() => {
+    async function load() {
+      const db = await dbPromise
+
+      // --- Produits ---
+      const stored = await db.getAll('products')
+      if (stored.length === 0) {
+        // Premier lancement : on seed avec les produits par défaut.
+        const seeded = initialProducts.map((p, i) => ({ ...p, position: i }))
+        const tx = db.transaction('products', 'readwrite')
+        for (const p of seeded) tx.store.put(p)
+        await tx.done
+        setProducts(seeded)
+      } else {
+        // Migration daysLeft → expiryDate si des produits sont encore à l'ancien format.
+        // Si rien n'a changé, needsWrite est false et on évite une écriture inutile.
+        const migrated = migrateProducts(stored)
+        const needsWrite = migrated.some((p, i) => p !== stored[i])
+        if (needsWrite) {
+          const tx = db.transaction('products', 'readwrite')
+          for (const p of migrated) tx.store.put(p)
+          await tx.done
+        }
+        setProducts([...migrated].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+      }
+
+      // --- Liste de courses ---
+      const shopping = await db.getAll('shoppingList')
+      setShoppingList([...shopping].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+    }
+    load()
+  }, [])
+
+  // Relit les produits depuis IndexedDB.
+  // Appelé par useMeals après une transaction qui modifie le store 'products' directement.
+  const refreshProducts = async () => {
+    const db = await dbPromise
+    const stored = await db.getAll('products')
+    setProducts([...stored].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
   }
 
-  const setAndPersistShopping = (updater) => {
-    setShoppingList(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      persist(KEYS.shoppingList, next)
-      return next
-    })
+  // --- Produits ---
+
+  const addProduct = async (product) => {
+    const newProduct = { ...product, id: Date.now(), position: products.length }
+    setProducts(prev => [...prev, newProduct])
+    const db = await dbPromise
+    await db.put('products', newProduct)
   }
 
-  const addProduct = useCallback((product) => {
-    setAndPersistProducts(prev => [...prev, { ...product, id: Date.now() }])
-  }, [])
+  const deleteProduct = async (id) => {
+    setProducts(prev => prev.filter(p => p.id !== id))
+    const db = await dbPromise
+    await db.delete('products', id)
+  }
 
-  const deleteProduct = useCallback((id) => {
-    setAndPersistProducts(prev => prev.filter(p => p.id !== id))
-  }, [])
+  const decrementProduct = async (id) => {
+    const product = products.find(p => p.id === id)
+    if (!product) return
+    const nextQty = (product.qty ?? 1) - 1
+    const db = await dbPromise
+    if (nextQty > 0) {
+      const updated = { ...product, qty: nextQty }
+      setProducts(prev => prev.map(p => p.id === id ? updated : p))
+      await db.put('products', updated)
+    } else {
+      setProducts(prev => prev.filter(p => p.id !== id))
+      await db.delete('products', id)
+    }
+  }
 
-  const decrementProduct = useCallback((id) => {
-    setAndPersistProducts(prev => prev.reduce((acc, p) => {
-      if (p.id !== id) return [...acc, p]
-      const next = (p.qty ?? 1) - 1
-      return next > 0 ? [...acc, { ...p, qty: next }] : acc
-    }, []))
-  }, [])
+  const incrementProduct = async (id) => {
+    const product = products.find(p => p.id === id)
+    if (!product) return
+    const updated = { ...product, qty: (product.qty ?? 1) + 1 }
+    setProducts(prev => prev.map(p => p.id === id ? updated : p))
+    const db = await dbPromise
+    await db.put('products', updated)
+  }
 
-  const incrementProduct = useCallback((id) => {
-    setAndPersistProducts(prev =>
-      prev.map(p => p.id === id ? { ...p, qty: (p.qty ?? 1) + 1 } : p)
-    )
-  }, [])
+  const reorderProducts = async (newList) => {
+    // On assigne une position à chaque produit selon son nouvel index.
+    const withPositions = newList.map((p, i) => ({ ...p, position: i }))
+    setProducts(withPositions)
+    const db = await dbPromise
+    const tx = db.transaction('products', 'readwrite')
+    for (const p of withPositions) tx.store.put(p)
+    await tx.done
+  }
 
-  const addToShoppingList = useCallback((product) => {
-    setAndPersistShopping(prev => {
-      const existing = prev.find(p => p.id === product.id)
-      if (existing) return prev
-      return [...prev, { id: product.id, name: product.name, emoji: product.emoji ?? null, image: product.image ?? null, qty: 1, checked: false }]
-    })
-  }, [])
+  // --- Liste de courses ---
 
-  const toggleShoppingItem = useCallback((id) => {
-    setAndPersistShopping(prev =>
-      prev.map(p => p.id === id ? { ...p, checked: !p.checked } : p)
-    )
-  }, [])
+  const addToShoppingList = async (product) => {
+    if (shoppingList.some(p => p.id === product.id)) return
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      emoji: product.emoji ?? null,
+      image: product.image ?? null,
+      qty: 1,
+      checked: false,
+      position: shoppingList.length,
+    }
+    setShoppingList(prev => [...prev, newItem])
+    const db = await dbPromise
+    await db.put('shoppingList', newItem)
+  }
 
-  const removeFromShoppingList = useCallback((id) => {
-    setAndPersistShopping(prev => prev.filter(p => p.id !== id))
-  }, [])
+  const toggleShoppingItem = async (id) => {
+    const item = shoppingList.find(p => p.id === id)
+    if (!item) return
+    const updated = { ...item, checked: !item.checked }
+    setShoppingList(prev => prev.map(p => p.id === id ? updated : p))
+    const db = await dbPromise
+    await db.put('shoppingList', updated)
+  }
 
-  const decrementShoppingItem = useCallback((id) => {
-    setAndPersistShopping(prev => prev.reduce((acc, p) => {
-      if (p.id !== id) return [...acc, p]
-      const next = (p.qty ?? 1) - 1
-      return next > 0 ? [...acc, { ...p, qty: next }] : acc
-    }, []))
-  }, [])
+  const removeFromShoppingList = async (id) => {
+    setShoppingList(prev => prev.filter(p => p.id !== id))
+    const db = await dbPromise
+    await db.delete('shoppingList', id)
+  }
 
-  const incrementShoppingItem = useCallback((id) => {
-    setAndPersistShopping(prev =>
-      prev.map(p => p.id === id ? { ...p, qty: (p.qty ?? 1) + 1 } : p)
-    )
-  }, [])
+  const decrementShoppingItem = async (id) => {
+    const item = shoppingList.find(p => p.id === id)
+    if (!item) return
+    const nextQty = (item.qty ?? 1) - 1
+    const db = await dbPromise
+    if (nextQty > 0) {
+      const updated = { ...item, qty: nextQty }
+      setShoppingList(prev => prev.map(p => p.id === id ? updated : p))
+      await db.put('shoppingList', updated)
+    } else {
+      setShoppingList(prev => prev.filter(p => p.id !== id))
+      await db.delete('shoppingList', id)
+    }
+  }
 
-  const clearCheckedItems = useCallback(() => {
-    setAndPersistShopping(prev => prev.filter(p => !p.checked))
-  }, [])
+  const incrementShoppingItem = async (id) => {
+    const item = shoppingList.find(p => p.id === id)
+    if (!item) return
+    const updated = { ...item, qty: (item.qty ?? 1) + 1 }
+    setShoppingList(prev => prev.map(p => p.id === id ? updated : p))
+    const db = await dbPromise
+    await db.put('shoppingList', updated)
+  }
 
-  const reorderShoppingList = useCallback((newList) => {
-    setAndPersistShopping(() => newList)
-  }, [])
+  const clearCheckedItems = async () => {
+    const checkedIds = shoppingList.filter(p => p.checked).map(p => p.id)
+    setShoppingList(prev => prev.filter(p => !p.checked))
+    const db = await dbPromise
+    const tx = db.transaction('shoppingList', 'readwrite')
+    for (const id of checkedIds) tx.store.delete(id)
+    await tx.done
+  }
 
-  const reorderProducts = useCallback((newList) => {
-    setAndPersistProducts(() => newList)
-  }, [])
+  const reorderShoppingList = async (newList) => {
+    const withPositions = newList.map((p, i) => ({ ...p, position: i }))
+    setShoppingList(withPositions)
+    const db = await dbPromise
+    const tx = db.transaction('shoppingList', 'readwrite')
+    for (const p of withPositions) tx.store.put(p)
+    await tx.done
+  }
 
-  // Decrease qty by n — keeps row even if it reaches 0 (for meal planning)
+  // Ces trois fonctions sont encore appelées par useMeals via callbacks (App.jsx).
+  // Elles seront supprimées quand useMeals sera migré et utilisera sa propre transaction.
+  // useCallback sans deps + productsRef : référence stable qui lit toujours l'état courant.
   const decreaseQty = useCallback((id, n) => {
-    setAndPersistProducts(prev =>
-      prev.map(p => p.id === id ? { ...p, qty: Math.max(0, (p.qty ?? 1) - n) } : p)
-    )
+    const p = productsRef.current.find(p => p.id === id)
+    if (!p) return
+    const updated = { ...p, qty: Math.max(0, (p.qty ?? 1) - n) }
+    setProducts(prev => prev.map(pr => pr.id === id ? updated : pr))
+    dbPromise.then(db => db.put('products', updated))
   }, [])
 
-  // Increase qty by n — used when returning items from a meal
   const increaseQty = useCallback((id, n) => {
-    setAndPersistProducts(prev =>
-      prev.map(p => p.id === id ? { ...p, qty: (p.qty ?? 0) + n } : p)
-    )
+    const p = productsRef.current.find(p => p.id === id)
+    if (!p) return
+    const updated = { ...p, qty: (p.qty ?? 0) + n }
+    setProducts(prev => prev.map(pr => pr.id === id ? updated : pr))
+    dbPromise.then(db => db.put('products', updated))
   }, [])
 
-  // Remove product only if its qty is 0 — called when confirming a fully eaten meal
   const removeIfZero = useCallback((id) => {
-    setAndPersistProducts(prev => prev.filter(p => !(p.id === id && (p.qty ?? 0) === 0)))
+    const p = productsRef.current.find(p => p.id === id)
+    if (!p || (p.qty ?? 0) !== 0) return
+    setProducts(prev => prev.filter(pr => pr.id !== id))
+    dbPromise.then(db => db.delete('products', id))
   }, [])
 
   return {
@@ -153,5 +232,6 @@ export function useStore() {
     decreaseQty,
     increaseQty,
     removeIfZero,
+    refreshProducts,
   }
 }
