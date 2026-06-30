@@ -6,6 +6,9 @@ import { useMeals }                from './features/meals/useMeals'
 import { useNotifications }        from './features/notifications/useNotifications'
 import { useAuth }                 from './features/auth/useAuth'
 import PlanPage                    from './features/auth/PlanPage'
+import MentionsLegales             from './features/legal/MentionsLegales'
+import Confidentialite             from './features/legal/Confidentialite'
+import Conditions                  from './features/legal/Conditions'
 import HomePage                    from './features/products/HomePage'
 import MenuDrawer                  from './components/MenuDrawer'
 import ListePage                   from './features/shopping/ListePage'
@@ -134,6 +137,11 @@ export default function App() {
             onSignInWithGoogle={signInWithGoogle}
           />
         } />
+
+        {/* ── Pages légales ── */}
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/confidentialite"  element={<Confidentialite />} />
+        <Route path="/conditions"       element={<Conditions />} />
 
         {/* ── Planning repas ── */}
         <Route path="/planning" element={

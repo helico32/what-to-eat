@@ -9,7 +9,7 @@ function CartIcon() {
 
 export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount }) {
   return (
-    <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-3 border-b border-ink-primary">
+    <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md pt-4 px-4 pb-3 border-b border-ink-primary">
       <div className="flex items-center">
         {/* Hamburger */}
         <button onClick={onMenu} aria-label="Menu" className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">

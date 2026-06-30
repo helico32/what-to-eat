@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 function CheckIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-forest flex-shrink-0 mt-0.5">
@@ -81,11 +83,6 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
 
         <div className="px-4 pt-4 pb-16 flex flex-col gap-4">
 
-          <p className="font-body text-[15px] text-ink-secondary text-center px-2">
-            L'app fonctionne entièrement sans compte.<br />
-            L'abonnement ajoute les rappels et la sauvegarde.
-          </p>
-
           {/* ── Plan payant ── */}
           <div className="rounded-xl border-2 border-forest bg-canvas-card p-5 flex flex-col gap-4">
             <div className="flex items-baseline justify-between">
@@ -154,6 +151,16 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
               Continuer sans compte
             </button>
           </div>
+
+          {/* ── Liens légaux ── */}
+          <p className="font-body text-[12px] text-ink-secondary text-center leading-relaxed">
+            En continuant, tu acceptes nos{' '}
+            <Link to="/conditions" className="underline underline-offset-2">Conditions générales</Link>
+            {' '}et notre{' '}
+            <Link to="/confidentialite" className="underline underline-offset-2">Politique de confidentialité</Link>.
+            <br />
+            <Link to="/mentions-legales" className="underline underline-offset-2 mt-1 inline-block">Mentions légales</Link>
+          </p>
 
         </div>
       </div>
