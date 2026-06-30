@@ -44,9 +44,7 @@ Avant de `git add` un fichier — nouveau ou modifié — vérifier qu'il ne dev
 **La dette technique se documente ici.**
 Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "Points de vigilance".
 
----
-
-### Points de vigilance actuels
+### Points de vigilance
 
 - **`RepasGroup`** (dans `MealGroupsList.jsx`) : rename + delete confirm + collapse en un seul composant. À surveiller si ça grossit encore.
 - **Cohérence stock / planning** : résolue par la migration IndexedDB — `useMeals` modifie le store `products` dans la même transaction que le store `meals`. Plus de risque d'état incohérent.
@@ -73,8 +71,6 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 **Ce qui ne fonctionne pas** : elle oublie ce qui est dans son frigo, ne sait pas quoi cuisiner, et les produits longue durée (barres de céréales, éponges, sodas) disparaissent de sa mémoire.
 
----
-
 ### Persona TDAH — fiche de référence UX
 
 À utiliser pour évaluer chaque décision d'interface. Poser la question : *"est-ce que ce persona passe cet écran sans friction ?"*
@@ -99,11 +95,9 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - Zéro écran de réglages exposé à l'utilisatrice
 - Le texte confirme ce que l'icône montre — icône seule = risque d'invisibilité
 
----
+### User journeys — tests à faire
 
-## User journeys — tests à faire
-
-### Journey 1 — "Merde, les framboises"
+#### Journey 1 — "Merde, les framboises"
 
 **Contexte** : mardi soir 18h30, elle rentre, ouvre le frigo, voit les framboises achetées il y a 3 jours via Too Good To Go.
 
@@ -115,9 +109,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 **Ce qu'on vérifie** : le badge est lisible d'un coup d'œil, mealMode est compréhensible sans apprentissage, le stock diminue après confirmation.
 
----
-
-### Journey 2 — "Je fais les courses demain"
+#### Journey 2 — "Je fais les courses demain"
 
 **Contexte** : dimanche matin, elle sait qu'elle va au marché.
 
@@ -144,260 +136,158 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **Suggestion, pas planification** : une recette ce soir, pas un menu de la semaine.
 - **KISS** : pas de fonctionnalité sans usage concret. Trois lignes de code valent mieux qu'une abstraction prématurée.
 - **Mobile first** : on conçoit et code pour petit écran en premier. Pas de layout desktop à adapter — l'app est max-w-[430px], pensée pour le pouce, pas pour la souris.
-- **Accessibilité** : on suit les bonnes pratiques WCAG — contrastes suffisants, cibles tactiles ≥ 44px, labels explicites sur les boutons icônes (`title`, `aria-label`), hiérarchie de titres cohérente, focus visible.
+- **Accessibilité** : on suit les bonnes pratiques WCAG — contrastes suffisants, cibles tactiles ≥ 44px, labels explicites sur les boutons icônes (`aria-label`), hiérarchie de titres cohérente, focus visible.
 
 ---
 
-## Statut du projet
+## Architecture
 
-**V1 — PWA avec notifications push. Gratuite, en test.**
-L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne passe à l'étape suivante que quand la précédente est stable.
+### Navigation
 
-### Ce que l'app fait déjà ✅
+- **Header** (fixe haut) : titre (→ retour Urgent), bouton `+`, icône panier (badge items non cochés), menu hamburger
+- **MenuDrawer** : tiroir global accessible depuis le hamburger — accès tabs + pages
+- **TabBar** : onglets de stock sous le header (visible page `/` seulement)
 
-- **Installable sur l'écran d'accueil** — se lance en plein écran, sans barre d'URL, comme une app native
-- **Fonctionne hors-ligne** — après le premier chargement, l'app tourne sans connexion (Service Worker + cache)
-- **Données locales persistantes** — stock, planning, liste de courses survivent aux rechargements (IndexedDB)
-- **Zéro compte requis** — aucune inscription, aucun mot de passe, aucune friction au premier lancement
-- **Auth anonyme** — Firebase crée silencieusement un uid par appareil dès le chargement ✅
-- **Bouton radio "Alertes"** dans le menu — toujours visible, 3 états : `○ Activer les alertes` / `● Alertes activées` / `× Alertes bloquées`. Stocke le token FCM dans Firestore (notif active dès que la Cloud Function est déployée)
-- **Ajout rapide** — le `+` ouvre un bottom sheet minimal (nom + location) sans photo ni date. Lien "Avec photo / date →" escalade vers le flux complet (`AddModal`)
-- **Badge "⚠ sans date"** — les produits frigo sans `expiryDate` affichent un badge tappable dans la liste
-- **Picker date inline** — taper le badge ouvre un `<input type="date">` dans la ligne, sauvegarde immédiatement en IndexedDB via `updateExpiryDate`
+### Routes
 
-### Roadmap — 5 étapes
+| Route | Page |
+|-------|------|
+| `/` | Accueil (tabs + stock) |
+| `/liste` | Liste de courses |
+| `/recettes` | Recettes sauvegardées |
+| `/recettes/new` | Formulaire ajout recette |
+| `/recettes/:id` | Détail / édition recette |
+| `/planning` | Planning de repas (7 jours) |
 
-**Étape 1 — Finir la migration IndexedDB** ✅
-- ~~Migrer `useMeals` (dernière hook restante)~~ ✅
-- ~~Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`~~ ✅
-- ~~Fix bug id collision `addProduct` (forEach + Date.now())~~ ✅
-- ~~Corriger les `aria-label` manquants ou `title` (inutile sur mobile) sur tous les boutons icônes de l'app~~ ✅
+### Onglets (page `/`)
 
-**Étape 2 — PWA** ✅
-- ~~Icône (192×192 et 512×512)~~ ✅
-- ~~`vite-plugin-pwa` + manifest + Service Worker~~ ✅
-- ~~Déploiement sur Firebase Hosting~~ ✅ — https://what-to-eat-angelab.web.app
+| Onglet | Contenu |
+|--------|---------|
+| 🔴 Urgent | Vue par défaut. Repas prévus du jour + produits frigo triés par urgence + proposition recette |
+| 🧊 Frigo | Tous les produits frigo, compteur |
+| ❄️ Congél | Produits congélateur, compteur |
+| 📦 Placards | Produits longue durée, compteur |
+| Tout | Liste complète |
 
-**Étape 3 — Notifications push** ← on est là
+Tous les onglets sauf Urgent : bouton tri manuel (drag-and-drop) activable.
 
-#### Ce qui est codé ✅
+### Vue "Urgent" (accueil)
 
-| Fichier | Rôle |
-|---|---|
-| `src/firebase.js` | Init SDK (auth, db, messaging) |
-| `src/sw.js` | Service Worker custom : précache Workbox + écoute FCM en arrière-plan |
-| `vite.config.js` | Basculé en mode `injectManifest` → utilise `src/sw.js` |
-| `src/features/notifications/useNotifications.js` | Auth anonyme silencieuse + demande permission + token FCM → Firestore |
-| `functions/index.js` | Cloud Function planifiée (9h/j) : vérifie expirations → envoie notif |
-| `firestore.rules` | Sécurité : chaque user lit/écrit uniquement ses propres données |
-| `App.jsx` | Routeur pur — hooks partagés (`useStore`, `useMeals`, `useRecipes`, `useNotifications`), état partagé (`tab`, `sorting`), `MenuDrawer` |
-| `features/products/HomePage.jsx` | Page `/` : état local (search, mealMode, showAdd), liste produits, modals ajout, proposition recette |
-| `MenuDrawer.jsx` | Bouton "Activer les alertes" (affiché si permission pas encore accordée) |
+1. **Repas prévus aujourd'hui** (`PlannedMealsSection`) : affiché uniquement si des repas existent pour aujourd'hui — même composant que `/planning`, contexte today.
+2. **Liste prioritaire** : produits frigo triés par date, badges colorés.
+   - Mode repas (bouton couvert 🍴) : active un picker inline pour affecter un produit à un repas du jour.
+3. **Proposition de repas** : carte recette aléatoire avec bouton ⇄.
 
-#### Ce qui reste à faire
+### Actions sur les produits (stock)
 
-**Passer en Blaze pour activer les notifications**
-1. Firebase console → https://console.firebase.google.com/project/what-to-eat-angelab/usage/details → Upgrade
-2. Définir un budget alert à **5€** dès la page d'upgrade (email envoyé à 50%, 90%, 100%)
-3. `firebase deploy --only functions`
+Chaque ligne produit expose directement :
+- **🛒** → confirmation inline → ajoute à la liste de courses
+- **✕** → confirmation inline → supprime du stock
+- **+/−** → incrémente / décrémente la quantité
+- **Mode repas** (onglet Urgent) : bouton 🍴 dans la `SectionLabel` active l'ajout au planning
 
-**Tester les notifications sur téléphone**
-- Ouvrir l'app installée (PWA ajoutée à l'écran d'accueil)
-- Menu → bouton radio "Activer les alertes" → accepter la permission
-- Vérifier dans Firestore console qu'un document `/users/{uid}` apparaît avec un `fcmToken`
-- Si le bouton affiche "Alertes bloquées" : réglages du navigateur → autoriser les notifications pour ce site
+Pas de modal intermédiaire : les confirmations apparaissent dans la ligne.
 
-**Note navigateurs mobiles**
-- iOS : notifications push PWA nécessitent iOS 16.4+ et l'app installée via Safari (pas Chrome/Firefox)
-- Android Chrome : fonctionne directement
+### Ajout d'un produit
 
-**Protection anti-abus (à faire à l'étape 4)**
-L'auth anonyme laisse n'importe quel chargement créer un uid. Le budget alert à 5€ est le filet de sécurité immédiat. La vraie protection viendra avec **App Check** (étape 4) — vérifie que les requêtes viennent de l'app et pas d'un script.
+**Étape 1 — Source**
 
-#### ⚠️ Note sur `injectManifest`
+Le `+` du header ouvre `QuickAddSheet` (nom + emplacement, minimaliste). Un lien "Avec photo / date →" escalade vers `AddModal` (flux complet).
 
-On est passé du mode `generateSW` (SW auto-généré) au mode `injectManifest` (on fournit `src/sw.js`, le plugin y injecte la liste Workbox). Ce changement est nécessaire pour que FCM puisse enregistrer son listener `onBackgroundMessage` dans le SW. Un SW purement Workbox-généré n'a pas accès au code FCM.
+`AddModal` — grille 2×2 :
+- **Galerie** : photo déjà prise
+- **Screenshot** : import direct d'un screenshot Happy Hour
+- **Code-barres** : produits emballés standards
+- **Saisie rapide** : champ texte + icône générique
 
-#### Installer l'app sur son téléphone
+**Étape 2 — Détails**
 
-**Sur iPhone / iPad (Safari obligatoire)**
-1. Ouvrir https://what-to-eat-angelab.web.app dans **Safari** (pas Chrome, pas Firefox — Apple bloque les PWA sur les autres navigateurs)
-2. Appuyer sur l'icône **Partager** (carré avec une flèche vers le haut) en bas de l'écran
-3. Faire défiler et choisir **"Sur l'écran d'accueil"**
-4. Confirmer avec **"Ajouter"**
-→ L'app apparaît sur l'écran d'accueil comme une app normale, se lance en plein écran sans barre Safari.
+| Champ | Comportement |
+|-------|-------------|
+| **Nom** | Pré-rempli par l'IA depuis la photo |
+| **Quantité** | Boutons +/−, défaut : 1 |
+| **Date de péremption** | Pills : Demain / 3 jours / 1 semaine / 1 mois / Pas de date |
 
-**Sur Android (Chrome)**
-1. Ouvrir https://what-to-eat-angelab.web.app dans **Chrome**
-2. Chrome affiche automatiquement une bannière "Ajouter à l'écran d'accueil" — appuyer dessus
-3. Si la bannière n'apparaît pas : menu ⋮ (trois points en haut à droite) → **"Ajouter à l'écran d'accueil"**
-→ L'app s'installe comme une APK légère, icône sur l'écran d'accueil, plein écran.
+**Étape 3 — Emplacement**
+
+Trois boutons larges : **Frigo** (défaut frais) · **Congélateur** · **Placard**
+
+### Badges de date
+
+| Couleur | Condition |
+|---------|-----------|
+| 🔴 Rouge | ≤ 1 jour |
+| 🟡 Amber | 2–4 jours |
+| 🟢 Vert | ≥ 5 jours |
+| 🔵 Bleu | Congélateur |
+| ⚪ Neutre | Placard |
 
 ---
 
-#### Détail étape 2 — pour la junior
+## Pages
 
-**Le manifest — carte d'identité de l'app**
-Fichier JSON qui dit au navigateur : nom de l'app, icône à afficher sur l'écran d'accueil, couleur de la barre de statut, mode de lancement (plein écran, sans barre d'URL). Sans lui, le navigateur ne propose pas d'installer l'app. Avec lui, Chrome et Safari mobile proposent "Ajouter à l'écran d'accueil".
+### Planning de repas (`/planning` + `useMeals`)
 
-**Le Service Worker — assistant qui tourne en arrière-plan**
-Fichier JavaScript installé dans le navigateur, qui tourne séparément de l'app — même quand elle est fermée. Deux rôles :
-- **Cache (utile maintenant)** : intercepte les requêtes (HTML, CSS, JS, images) et les met en cache. L'app se lance sans connexion.
-- **Notifications push (utile à l'étape 3)** : reçoit les notifications Firebase quand l'app est fermée. Sans Service Worker, les push notifications sont impossibles — le navigateur n'a rien à "réveiller". C'est pour ça qu'on l'installe maintenant.
+**Ce n'est pas un planificateur de menus.** C'est une externalisation de mémoire pour cerveau TDAH.
 
-**`vite-plugin-pwa` — l'outil qui fait le travail**
-Écrire un Service Worker manuellement est complexe (gestion du cache, des versions, des mises à jour). Le plugin le génère automatiquement à chaque `npm run build`. On lui donne la configuration, il produit les fichiers. On n'écrit pas le Service Worker à la main.
+Le problème résolu : l'utilisatrice a du poulet qui expire demain et des courgettes qui expirent dans 3 jours. Sans aide, elle oublie qu'ils existent. Avec le planning, elle "place" le poulet sur aujourd'hui et les courgettes sur demain — pas pour planifier ce qu'elle mange, mais pour **ne pas oublier de les utiliser avant qu'ils périment**.
 
-**Ce qu'on fait concrètement**
-1. `npm install vite-plugin-pwa`
-2. Configurer le plugin dans `vite.config.js` (nom, icônes, couleurs)
-3. `npm run build` → le plugin génère `manifest.webmanifest` + `sw.js`
-4. `firebase deploy` → app en ligne, installable sur téléphone
+La question filtre pour toute nouvelle feature planning : *"est-ce que ça aide à ne pas oublier un produit ?"* Si non, hors scope.
 
-**Étape 3 — Notifications push** (partiellement déployé — en attente plan Blaze)
-- ~~Firebase Anonymous Auth (silencieux, aucune friction)~~ ✅ activé + déployé
-- ~~Service Worker custom (cache + FCM arrière-plan)~~ ✅ déployé
-- ~~Demande de permission notification dans l'app (une seule fois, non bloquante)~~ ✅ déployé
-- ~~Clé VAPID renseignée dans `useNotifications.js`~~ ✅
-- ~~Firestore rules déployées~~ ✅ — chaque user isolé
-- ~~`firebase deploy --only hosting,firestore`~~ ✅ — app en ligne
-- **Cloud Function quotidienne** ⏳ — code prêt, déploiement bloqué par plan Spark. Passer en Blaze (pay-as-you-go, free tier identique) + définir budget alert 5€ → `firebase deploy --only functions`
+Un repas = un produit du stock réservé pour une date. Quand on ajoute un produit au planning, sa quantité en stock diminue immédiatement. À la confirmation (mangé / rangé), le stock est ajusté.
 
-**Étape 4 — Auth upgrade + catalogue images**
+**Structure de données**
 
-Ordre d'implémentation : 4a → 4b → 4c. Chaque sous-étape validée avant la suivante.
+- **`meals`** : `{ id, productId, productSnapshot, qty, date, repasId | null }`
+- **`repas`** : `{ id, name, date }` — groupe nommé (ex. "Déjeuner", "Dîner")
+- Persisté dans IndexedDB (stores `meals` et `repas`)
 
-**4a — Auth : Google Sign-In + Magic Link** ← à faire en premier (prérequis de 4b)
-- Deux méthodes proposées dans MenuDrawer : Google (un tap) + Magic Link (email)
-- **Google** : `linkWithPopup(GoogleAuthProvider)` sur le compte anonyme — préserve l'UID et toutes les données Firestore. Sur nouvel appareil : `signInWithPopup` retrouve le même UID.
-- **Magic Link** : `sendSignInLinkToEmail()` → lien envoyé par Firebase → l'utilisatrice clique → `signInWithEmailLink()` complète la connexion. L'email est sauvegardé dans localStorage entre les deux étapes (requis par Firebase).
-- Point d'entrée : bouton "Sauvegarder mes données" dans MenuDrawer (discret, jamais intrusif)
-- Une fois connectée : affiche l'email dans le menu + option "Se déconnecter"
-- Passkeys : skippés — Firebase Auth ne supporte pas WebAuthn nativement
+**Page `/planning`**
 
-**4b — Recettes dans Firestore** (dépend de 4a)
-- `useRecipes` migré de IndexedDB → `/users/{uid}/recipes/`
-- Migration Option B : au premier sign-in, les recettes IndexedDB locales sont copiées vers Firestore. Ensuite IndexedDB n'est plus utilisé pour les recettes — source unique.
-- Survit au changement d'appareil
+- Sélecteur de jours : 7 jours défilants, point indicateur si repas existants.
+- `MealGroupsList` : affiche les groupes "repas" + les meals sans groupe (label : "Encas").
+- Bouton `+` dans le header : ouvre le picker de produit sans groupe.
+- "Nouveau repas" : crée un groupe nommé via bottom sheet.
 
-**4c — Catalogue images** ⏳ en attente — images gardées en IndexedDB local
+**`MealGroupsList`**
 
-Raison : Firebase Storage est payant au-delà du free tier Blaze. Les images en base64 dans IndexedDB coûtent €0 (stockage local, pas de serveur).
+- Groupes repliables, renommables inline, supprimables (avec confirmation inline).
+- Chaque ligne meal : checkbox + ajustement quantité consommée.
+- Barre flottante bas quand des items sont cochés : **"Mangé"** (jette la qté non cochée) / **"Ranger"** (remet en stock la qté cochée).
+- Aussi utilisé dans `PlannedMealsSection` (vue today sur l'accueil).
 
-**Free tier Blaze (inclus, €0) :**
-- 5 GB de stockage
-- 1 GB de téléchargements/jour
-- 20 000 uploads/jour
+**Actions sur un meal**
 
-**1 utilisatrice en test :** les photos sont redimensionnées à 480px max, JPEG 0.72 dans `AddModal` → ~50–150 KB par image. 50 produits avec photo → ~5 MB total. Elle ouvre l'app 10 fois/jour, charge 50 images → ~7 MB/jour. **Coût : €0.** Largement dans le free tier.
+| Action | Effet |
+|--------|-------|
+| Cocher + "Mangé" | Confirme la consommation, retire du planning, supprime du stock si qty = 0 |
+| Cocher + "Ranger" | Remet la quantité en stock, retire du planning |
+| Corbeille (ligne) | Annule le repas, remet toute la quantité en stock |
+| Supprimer le groupe | Annule tous les meals du groupe, remet les quantités en stock |
 
-**À 500 utilisatrices :**
-- Stockage : 500 × 50 × 100 KB = ~2.5 GB → encore dans le free tier
-- Téléchargements : 500 × 10 × 5 MB = 25 GB/jour → dépasse le free tier (1 GB/day gratuit) → ~€2.88/jour au tarif $0.12/GB
+### Recettes (`/recettes`)
 
-À activer quand il y a des revenus pour absorber ce coût. On est loin de 500 users.
+- Recettes sauvegardées localement. Deux exemples pré-chargés au premier lancement.
+- Chaque recette : emoji · nom · temps · chips ingrédients.
+- **Consulter** : tap → détail recette (`/recettes/:id`) avec ingrédients + étapes.
+- **Ajouter** : `/recettes/new` — emoji preset, nom, temps, ingrédients, étapes.
+- **Éditer** : inline sur la page détail.
+- **Favoris** : toggle, favoris remontés en tête.
+- **Réordonner** : drag-and-drop.
+- **Supprimer** : bouton ✕ avec confirmation Oui / Non inline.
+- Ces recettes alimentent la carte "Proposition de repas" (onglet Urgent) : seules les recettes avec au moins un ingrédient en stock sont proposées, triées par ingrédient le plus urgent à consommer. Le bouton ⇄ navigue dans ce pool trié.
 
-**Étape 5 — Monétisation**
-- Contacter ONEM pour autorisation activité accessoire (obligatoire avant)
-- Intégrer LemonSqueezy (7 semaines d'essai → 2,99€/mois)
-- Webhook LemonSqueezy → Cloud Function → statut dans Firestore
-- Désactivation douce Firebase si non-abonné (app locale reste fonctionnelle)
+### Liste de courses (`/liste`)
 
-### Modèle économique futur
-
-**7 semaines gratuites, puis 1,99€/mois.**
-
-Les 7 semaines sont délibérées : le persona TDAH a besoin de ce temps pour construire une habitude et traverser plusieurs cycles d'achat anti-gaspi avant de percevoir la valeur. Un essai de 7 jours serait insuffisant.
-
-**Ce qui reste gratuit pour toujours**
-- L'app locale (IndexedDB) — stock, planning, liste de courses
-- Aucune fonctionnalité de base bloquée
-
-**Ce qui nécessite un abonnement après l'essai**
-- Notifications push hors-app (expiration produits)
-- Synchronisation cross-device
-- Catalogue images personnel
-- Sauvegarde des recettes dans le cloud
-
-**Flux d'essai**
-
-| Moment | Ce qui se passe |
-|---|---|
-| Jour 1 | Firebase actif silencieusement, essai déclenché |
-| Semaine 6 | Notification douce "Plus que 7 jours gratuits" |
-| Semaine 7 | Invite à s'abonner — si refus, Firebase désactivé, local reste fonctionnel |
-| Après paiement | Abonnement actif, renouvellement mensuel automatique |
-
-**Paiement : à choisir entre Stripe et LemonSqueezy**
-
-Pas d'Apple/Google store → pas de commission 30%.
-
-| | Stripe | LemonSqueezy |
-|---|---|---|
-| Commission | 1,5% + 0,25€ → ~1,71€ net/mois | ~5% → ~1,89€ net/mois (pas de frais fixe) |
-| TVA européenne | À gérer manuellement (ou TaxJar) | Incluse automatiquement |
-| Webhook backend | Oui — Cloud Function requise | Simplifié |
-| Complexité | Plus élevée | Moindre |
-
-**Décision actée : LemonSqueezy.**
-LemonSqueezy est "Merchant of Record" — c'est légalement eux qui vendent, pas toi. Ils collectent et reversent la TVA dans chaque pays EU automatiquement. Tu reçois l'argent net, sans déclaration TVA à gérer. Stripe exigerait de gérer cette TVA manuellement — trop lourd.
-
-**Contexte : dev salariée en Belgique.**
-Deux taxes distinctes — ne pas confondre :
-- **TVA (21%)** : payée par l'abonné, collectée + reversée par LemonSqueezy. La dev ne la voit jamais.
-- **Impôt sur le revenu** : la dev paie ça sur ce que LemonSqueezy lui verse.
-
-**Décomposition à 2,99€ TTC (TVA belge 21% incluse) :**
-
-| | |
-|---|---|
-| Prix payé par l'abonné | 2,99€ |
-| TVA 21% → LemonSqueezy → fisc | -0,52€ |
-| Commission LemonSqueezy (5%) | -0,12€ |
-| **Revenu brut dev** | **2,35€** |
-
-**Scénario A — Dev salariée (revenus divers, 33% flat)**
-
-| | /user/mois | 50 users | 100 users | 500 users |
-|---|---|---|---|---|
-| Net après LS + TVA | 2,35€ | 117,50€ | 235€ | 1 175€ |
-| Impôt BE 33% | -0,78€ | -38,77€ | -77,55€ | -387,75€ |
-| **Net** | **1,57€** | **78,73€** | **157,45€** | **787,25€** |
-
-Pas de cotisations sociales. Déclaré annuellement sur la fiche fiscale. Solution la plus simple.
-
-**Scénario B — Dev indépendante complémentaire**
-
-| | /user/mois | 50 users | 100 users | 500 users |
-|---|---|---|---|---|
-| Net après LS + TVA | 2,35€ | 117,50€ | 235€ | 1 175€ |
-| Cotisations sociales ~20,5% | -0,48€ | -24,09€ | -48,18€ | -240,88€ |
-| Impôt marginal ~45% | -0,84€ | -42,03€ | -84,07€ | -420,36€ |
-| **Net** | **1,03€** | **51,38€** | **102,75€** | **513,76€** |
-
-Plus de charges mais permet de déduire les frais (Firebase, domaine, matériel). Ne vaut le coup qu'à partir de ~200 users ou si les dépenses déductibles sont significatives.
-
-**Seuils critiques :**
-- **~50 users** → montants fiscalement visibles, à déclarer sérieusement
-- **~500 users** → Firebase dépasse le free tier Storage (5GB), passage au plan Blaze (~quelques €/mois, négligeable)
-- TVA : jamais à gérer (LemonSqueezy s'en charge toujours)
-
-**Verdict :**
-Le scénario A (revenus divers, 33%) est meilleur à ce niveau de revenus — pas de cotisations sociales, déclaration simple. Devenir indépendante n'a de sens qu'à partir de ~600€/mois de revenus bruts ou si les frais déductibles sont significatifs. Note : en revenus divers, aucune dépense n'est déductible (pas d'ordi, pas de Firebase). La déduction frais n'existe qu'en régime indépendante.
-
-> # ⚠️ DEMANDER AUX NANA DE LA FORMATION COMMENT ELLES FONT
-> Avant toute décision sur la structure juridique, les taxes ou l'ONEM — demander aux autres participantes de la formation comment elles ont géré ça. Quelqu'un a sûrement déjà résolu ce problème.
-
-**Situation réelle : dev au chômage en Belgique.**
-Ni salariée ni indépendante — les allocations de chômage impliquent une règle spécifique : tout revenu d'activité doit être déclaré à l'ONEM, et une autorisation d'activité accessoire doit être obtenue AVANT d'encaisser le premier euro. Sans ça, risque de récupération des allocations. Démarche : contacter son syndicat (CSC / FGTB / CGSLB) ou l'ONEM directement. À faire avant d'activer LemonSqueezy.
-
-**Prix décidé : 2,99€/mois** avec une version gratuite (fonctionnalités locales uniquement).
-
-**L'anonymat a une limite** : Stripe nécessite un email. Les 7 semaines d'essai fonctionnent en anonyme, mais l'abonnement force la création d'un compte.
+- Badge compteur (items non cochés) dans le header, toutes pages.
+- Items cochés en bas, barrés et estompés.
+- Ajout rapide par texte + emoji depuis la page.
+- +/− sur chaque item.
+- "Effacer cochés" + "Ajouter au stock" (avec choix emplacement + date).
 
 ---
 
-## Stack technique
+## Stack & structure technique
 
 - **Framework** : React 18 + Vite
 - **Routing** : React Router DOM (SPA)
@@ -429,7 +319,9 @@ Ni salariée ni indépendante — les allocations de chômage impliquent une rè
 
 **Coût :** free tier suffisant pour une app personnelle (< 500 utilisateurs).
 
-### Migration IndexedDB — périmètre
+### Migration IndexedDB
+
+La migration remplace `localStorage` par IndexedDB dans tous les hooks. Le changement est interne aux hooks — les composants n'ont rien vu.
 
 | Périmètre | Change ? |
 |---|---|
@@ -441,9 +333,9 @@ Ni salariée ni indépendante — les allocations de chômage impliquent une rè
 | `src/db.js` | Nouveau fichier, 5 stores |
 | Callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` | Supprimés — `useMeals` écrit directement dans le store `products` via `db` |
 
-Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent déjà une liste vide au démarrage. Aucune complexité défensive à ajouter.
+Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent déjà une liste vide au démarrage.
 
-#### Avancement
+**Avancement**
 
 | Hook | Migré ? |
 |------|---------|
@@ -482,175 +374,6 @@ src/
 
 ---
 
-## Routes
-
-| Route | Page |
-|-------|------|
-| `/` | Accueil (tabs + stock) |
-| `/liste` | Liste de courses |
-| `/recettes` | Recettes sauvegardées |
-| `/recettes/new` | Formulaire ajout recette |
-| `/recettes/:id` | Détail / édition recette |
-| `/planning` | Planning de repas (7 jours) |
-
----
-
-## Architecture de l'app
-
-### Navigation
-
-- **Header** (fixe haut) : titre (→ retour Urgent), bouton `+`, icône panier (badge items non cochés), menu hamburger
-- **MenuDrawer** : tiroir global accessible depuis le hamburger — accès tabs + pages
-- **TabBar** : onglets de stock sous le header (visible page `/` seulement)
-
-### Onglets (page `/`)
-
-| Onglet | Contenu |
-|--------|---------|
-| 🔴 Urgent | Vue par défaut. Repas prévus du jour + produits frigo triés par urgence + proposition recette |
-| 🧊 Frigo | Tous les produits frigo, compteur |
-| ❄️ Congél | Produits congélateur, compteur |
-| 📦 Placards | Produits longue durée, compteur |
-| Tout | Liste complète |
-
-Tous les onglets sauf Urgent : bouton tri manuel (drag-and-drop) activable.
-
-### Pages full-screen
-
-| Page | Contenu |
-|------|---------|
-| `/liste` | Liste de courses : checkbox, +/−, effacer cochés, ajout rapide, ajouter au stock depuis cochés |
-| `/recettes` | Recettes : CRUD, favoris, réordonnancement |
-| `/planning` | Planning de repas sur 7 jours |
-
----
-
-## Vue "Urgent" (accueil)
-
-1. **Repas prévus aujourd'hui** (`PlannedMealsSection`) : affiché uniquement si des repas existent pour aujourd'hui — même composant que `/planning`, contexte today.
-2. **Liste prioritaire** : produits frigo triés par date, badges colorés.
-   - Mode repas (bouton couvert 🍴) : active un picker inline pour affecter un produit à un repas du jour.
-3. **Proposition de repas** : carte recette aléatoire avec bouton ⇄.
-
----
-
-## Planning de repas (`/planning` + `useMeals`)
-
-### Concept — ce que c'est vraiment
-
-**Ce n'est pas un planificateur de menus.** C'est une externalisation de mémoire pour cerveau TDAH.
-
-Le problème résolu : l'utilisatrice a du poulet qui expire demain et des courgettes qui expirent dans 3 jours. Sans aide, elle oublie qu'ils existent. Avec le planning, elle "place" le poulet sur aujourd'hui et les courgettes sur demain — pas pour planifier ce qu'elle mange, mais pour **ne pas oublier de les utiliser avant qu'ils périment**.
-
-L'acte de glisser un produit sur un jour = externaliser la mémoire dans l'app.
-
-La question filtre pour toute nouvelle feature planning : *"est-ce que ça aide à ne pas oublier un produit ?"* Si non, hors scope.
-
-Un repas = un produit du stock réservé pour une date. Quand on ajoute un produit au planning, sa quantité en stock diminue immédiatement. À la confirmation (mangé / rangé), le stock est ajusté.
-
-### Structure de données
-
-- **`meals`** : `{ id, productId, productSnapshot, qty, date, repasId | null }`
-- **`repas`** : `{ id, name, date }` — groupe nommé (ex. "Déjeuner", "Dîner")
-- Persisté dans `wte-meals` et `wte-repas` (localStorage)
-
-### Page `/planning`
-
-- Sélecteur de jours : 7 jours défilants, point indicateur si repas existants.
-- `MealGroupsList` : affiche les groupes "repas" + les meals sans groupe (label : "Encas").
-- Bouton `+` dans le header : ouvre le picker de produit sans groupe.
-- "Nouveau repas" : crée un groupe nommé via bottom sheet.
-
-### `MealGroupsList`
-
-- Groupes repliables, renommables inline, supprimables (avec confirmation inline).
-- Chaque ligne meal : checkbox + ajustement quantité consommée.
-- Barre flottante bas quand des items sont cochés : **"Mangé"** (jette la qté non cochée) / **"Ranger"** (remet en stock la qté cochée).
-- Aussi utilisé dans `PlannedMealsSection` (vue today sur l'accueil).
-
-### Actions sur un meal
-
-| Action | Effet |
-|--------|-------|
-| Cocher + "Mangé" | Confirme la consommation, retire du planning, supprime du stock si qty = 0 |
-| Cocher + "Ranger" | Remet la quantité en stock, retire du planning |
-| Corbeille (ligne) | Annule le repas, remet toute la quantité en stock |
-| Supprimer le groupe | Annule tous les meals du groupe, remet les quantités en stock |
-
----
-
-## Actions sur les produits (stock)
-
-Chaque ligne produit expose directement :
-- **🛒** → confirmation inline → ajoute à la liste de courses
-- **✕** → confirmation inline → supprime du stock
-- **+/−** → incrémente / décrémente la quantité
-- **Mode repas** (onglet Urgent) : bouton 🍴 dans la `SectionLabel` active l'ajout au planning
-
-Pas de modal intermédiaire : les confirmations apparaissent dans la ligne.
-
----
-
-## Parcours utilisateur — Ajout d'un produit
-
-### Étape 1 — Source de l'image
-
-Grille 2×2 :
-- **Galerie** : photo déjà prise
-- **Screenshot** : import direct d'un screenshot Happy Hour
-- **Code-barres** : produits emballés standards
-- **Saisie rapide** : champ texte + icône générique (→ placard par défaut)
-
-### Étape 2 — Détails du produit
-
-| Champ | Comportement |
-|-------|-------------|
-| **Nom** | Pré-rempli par l'IA depuis la photo |
-| **Quantité** | Boutons +/−, défaut : 1 |
-| **Date de péremption** | Pills : Demain / 3 jours / 1 semaine / 1 mois / Pas de date |
-
-### Étape 3 — Emplacement
-
-Trois boutons larges : **Frigo** (défaut frais) · **Congélateur** · **Placard**
-
----
-
-## Badges de date
-
-| Couleur | Condition |
-|---------|-----------|
-| 🔴 Rouge | ≤ 1 jour |
-| 🟡 Amber | 2–4 jours |
-| 🟢 Vert | ≥ 5 jours |
-| 🔵 Bleu | Congélateur |
-| ⚪ Neutre | Placard |
-
----
-
-## Page Recettes (`/recettes`)
-
-- Recettes sauvegardées localement. Deux exemples pré-chargés au premier lancement.
-- Chaque recette : emoji · nom · temps · chips ingrédients.
-- **Consulter** : tap → détail recette (`/recettes/:id`) avec ingrédients + étapes.
-- **Ajouter** : `/recettes/new` — emoji preset, nom, temps, ingrédients, étapes.
-- **Éditer** : inline sur la page détail.
-- **Favoris** : toggle, favoris remontés en tête.
-- **Réordonner** : drag-and-drop.
-- **Supprimer** : bouton ✕ avec confirmation Oui / Non inline.
-- Ces recettes alimentent la carte "Proposition de repas" (onglet Urgent) : seules les recettes avec au moins un ingrédient en stock sont proposées, triées par ingrédient le plus urgent à consommer. Le bouton ⇄ navigue dans ce pool trié.
-
----
-
-## Liste de courses (`/liste`)
-
-- Badge compteur (items non cochés) dans le header, toutes pages.
-- Items cochés en bas, barrés et estompés.
-- Ajout rapide par texte + emoji depuis la page.
-- +/− sur chaque item.
-- "Effacer cochés" + "Ajouter au stock" (avec choix emplacement + date).
-
----
-
 ## Authentification
 
 ### Principe : anonyme par défaut, upgrade optionnel
@@ -663,11 +386,11 @@ L'utilisatrice ne voit aucun écran de connexion au premier lancement. Firebase 
 2. **Elle veut sauvegarder** → tap "Sauvegarder mes données" dans le menu → choix de méthode
 3. **Elle change d'appareil** → se reconnecte → données récupérées
 
-### Méthodes d'authentification disponibles
+### Méthodes (étape 4a)
 
 - **Google Sign-In** — un tap, pas de mot de passe, fonctionne sur tous les appareils
 - **Magic link email** — lien cliquable envoyé par mail, pas de mot de passe à retenir
-- **Passkeys (Face ID / empreinte)** — le plus TDAH-friendly : biométrie, zéro saisie, synchro via iCloud Keychain ou Google Password Manager
+- ~~Passkeys~~ — skippés : Firebase Auth ne supporte pas WebAuthn nativement
 
 ### Ce qu'on ne fait pas
 
@@ -678,25 +401,239 @@ L'utilisatrice ne voit aucun écran de connexion au premier lancement. Firebase 
 
 ---
 
+## Statut & roadmap
+
+**V1 — PWA avec notifications push. Gratuite, en test.**
+L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne passe à l'étape suivante que quand la précédente est stable.
+
+### Ce que l'app fait ✅
+
+- **Installable sur l'écran d'accueil** — se lance en plein écran, sans barre d'URL, comme une app native
+- **Fonctionne hors-ligne** — après le premier chargement, l'app tourne sans connexion (Service Worker + cache)
+- **Données locales persistantes** — stock, planning, liste de courses survivent aux rechargements (IndexedDB)
+- **Zéro compte requis** — aucune inscription, aucun mot de passe, aucune friction au premier lancement
+- **Auth anonyme** — Firebase crée silencieusement un uid par appareil dès le chargement ✅
+- **Bouton radio "Alertes"** dans le menu — toujours visible, 3 états : `○ Activer les alertes` / `● Alertes activées` / `× Alertes bloquées`. Stocke le token FCM dans Firestore (notif active dès que la Cloud Function est déployée)
+- **Ajout rapide** — le `+` ouvre un bottom sheet minimal (nom + location) sans photo ni date. Lien "Avec photo / date →" escalade vers le flux complet (`AddModal`)
+- **Badge "⚠ sans date"** — les produits frigo sans `expiryDate` affichent un badge tappable dans la liste
+- **Picker date inline** — taper le badge ouvre un `<input type="date">` dans la ligne, sauvegarde immédiatement en IndexedDB via `updateExpiryDate`
+
+### Roadmap — 5 étapes
+
+**Étape 1 — Migration IndexedDB** ✅
+- ~~Migrer `useMeals` (dernière hook restante)~~ ✅
+- ~~Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`~~ ✅
+- ~~Fix bug id collision `addProduct` (forEach + Date.now())~~ ✅
+- ~~Corriger les `aria-label` manquants sur tous les boutons icônes~~ ✅
+
+**Étape 2 — PWA** ✅
+- ~~Icône (192×192 et 512×512)~~ ✅
+- ~~`vite-plugin-pwa` + manifest + Service Worker~~ ✅
+- ~~Déploiement sur Firebase Hosting~~ ✅ — https://what-to-eat-angelab.web.app
+
+#### Détail étape 2 — pour la junior
+
+**Le manifest — carte d'identité de l'app**
+Fichier JSON qui dit au navigateur : nom de l'app, icône à afficher sur l'écran d'accueil, couleur de la barre de statut, mode de lancement (plein écran, sans barre d'URL). Sans lui, le navigateur ne propose pas d'installer l'app. Avec lui, Chrome et Safari mobile proposent "Ajouter à l'écran d'accueil".
+
+**Le Service Worker — assistant qui tourne en arrière-plan**
+Fichier JavaScript installé dans le navigateur, qui tourne séparément de l'app — même quand elle est fermée. Deux rôles :
+- **Cache (utile maintenant)** : intercepte les requêtes (HTML, CSS, JS, images) et les met en cache. L'app se lance sans connexion.
+- **Notifications push (utile à l'étape 3)** : reçoit les notifications Firebase quand l'app est fermée. Sans Service Worker, les push notifications sont impossibles — le navigateur n'a rien à "réveiller". C'est pour ça qu'on l'installe maintenant.
+
+**`vite-plugin-pwa` — l'outil qui fait le travail**
+Écrire un Service Worker manuellement est complexe (gestion du cache, des versions, des mises à jour). Le plugin le génère automatiquement à chaque `npm run build`. On lui donne la configuration, il produit les fichiers. On n'écrit pas le Service Worker à la main.
+
+**Note sur `injectManifest`**
+On est passé du mode `generateSW` (SW auto-généré) au mode `injectManifest` (on fournit `src/sw.js`, le plugin y injecte la liste Workbox). Ce changement est nécessaire pour que FCM puisse enregistrer son listener `onBackgroundMessage` dans le SW. Un SW purement Workbox-généré n'a pas accès au code FCM.
+
+**Étape 3 — Notifications push** ← on est là
+
+| Fichier | Rôle |
+|---|---|
+| `src/firebase.js` | Init SDK (auth, db, messaging) |
+| `src/sw.js` | Service Worker custom : précache Workbox + écoute FCM en arrière-plan |
+| `vite.config.js` | Basculé en mode `injectManifest` → utilise `src/sw.js` |
+| `src/features/notifications/useNotifications.js` | Auth anonyme silencieuse + demande permission + token FCM → Firestore |
+| `functions/index.js` | Cloud Function planifiée (9h/j) : vérifie expirations → envoie notif |
+| `firestore.rules` | Sécurité : chaque user lit/écrit uniquement ses propres données |
+| `App.jsx` | Routeur pur — hooks partagés (`useStore`, `useMeals`, `useRecipes`, `useNotifications`), état partagé (`tab`, `sorting`), `MenuDrawer` |
+| `features/products/HomePage.jsx` | Page `/` : état local (search, mealMode, showAdd), liste produits, modals ajout, proposition recette |
+| `MenuDrawer.jsx` | Bouton "Activer les alertes" (affiché si permission pas encore accordée) |
+
+- ~~Firebase Anonymous Auth (silencieux, aucune friction)~~ ✅ activé + déployé
+- ~~Service Worker custom (cache + FCM arrière-plan)~~ ✅ déployé
+- ~~Demande de permission notification dans l'app (une seule fois, non bloquante)~~ ✅ déployé
+- ~~Clé VAPID renseignée dans `useNotifications.js`~~ ✅
+- ~~Firestore rules déployées~~ ✅ — chaque user isolé
+- ~~`firebase deploy --only hosting,firestore`~~ ✅ — app en ligne
+- **Cloud Function quotidienne** ⏳ — code prêt, déploiement bloqué par plan Spark. Passer en Blaze + budget alert 5€ → `firebase deploy --only functions`
+
+**Passer en Blaze pour activer les notifications**
+1. Firebase console → https://console.firebase.google.com/project/what-to-eat-angelab/usage/details → Upgrade
+2. Définir un budget alert à **5€** dès la page d'upgrade (email envoyé à 50%, 90%, 100%)
+3. `firebase deploy --only functions`
+
+**Tester les notifications sur téléphone**
+- Ouvrir l'app installée (PWA ajoutée à l'écran d'accueil)
+- Menu → bouton radio "Activer les alertes" → accepter la permission
+- Vérifier dans Firestore console qu'un document `/users/{uid}` apparaît avec un `fcmToken`
+- Si le bouton affiche "Alertes bloquées" : réglages du navigateur → autoriser les notifications pour ce site
+
+**Note navigateurs mobiles**
+- iOS : notifications push PWA nécessitent iOS 16.4+ et l'app installée via Safari (pas Chrome/Firefox)
+- Android Chrome : fonctionne directement
+
+**Protection anti-abus (à faire à l'étape 4)**
+L'auth anonyme laisse n'importe quel chargement créer un uid. Le budget alert à 5€ est le filet de sécurité immédiat. La vraie protection viendra avec **App Check** (étape 4) — vérifie que les requêtes viennent de l'app et pas d'un script.
+
+**Installer l'app sur son téléphone**
+
+*Sur iPhone / iPad (Safari obligatoire)*
+1. Ouvrir https://what-to-eat-angelab.web.app dans **Safari** (pas Chrome, pas Firefox — Apple bloque les PWA sur les autres navigateurs)
+2. Appuyer sur l'icône **Partager** (carré avec une flèche vers le haut) en bas de l'écran
+3. Faire défiler et choisir **"Sur l'écran d'accueil"**
+4. Confirmer avec **"Ajouter"**
+
+*Sur Android (Chrome)*
+1. Ouvrir https://what-to-eat-angelab.web.app dans **Chrome**
+2. Chrome affiche automatiquement une bannière "Ajouter à l'écran d'accueil" — appuyer dessus
+3. Si la bannière n'apparaît pas : menu ⋮ → **"Ajouter à l'écran d'accueil"**
+
+**Étape 4 — Auth upgrade + Firestore recettes**
+
+Ordre : 4a → 4b → 4c. Chaque sous-étape validée avant la suivante.
+
+**4a — Auth : Google Sign-In + Magic Link** ← à faire en premier (prérequis de 4b)
+- Deux méthodes dans MenuDrawer : Google (un tap) + Magic Link (email)
+- **Google** : `linkWithPopup(GoogleAuthProvider)` sur le compte anonyme — préserve l'UID et toutes les données Firestore. Sur nouvel appareil : `signInWithPopup` retrouve le même UID.
+- **Magic Link** : `sendSignInLinkToEmail()` → lien envoyé par Firebase → l'utilisatrice clique → `signInWithEmailLink()` complète la connexion. L'email est sauvegardé dans localStorage entre les deux étapes (requis par Firebase).
+- Point d'entrée : bouton "Sauvegarder mes données" dans MenuDrawer (discret, jamais intrusif)
+- Une fois connectée : affiche l'email dans le menu + option "Se déconnecter"
+- Passkeys : skippés — Firebase Auth ne supporte pas WebAuthn nativement
+
+**4b — Recettes dans Firestore** (dépend de 4a)
+- `useRecipes` migré de IndexedDB → `/users/{uid}/recipes/`
+- Migration Option B : au premier sign-in, les recettes IndexedDB locales sont copiées vers Firestore. Ensuite IndexedDB n'est plus utilisé pour les recettes — source unique.
+- Survit au changement d'appareil
+
+**4c — Catalogue images** ⏳ en attente — images gardées en IndexedDB local
+
+Raison : Firebase Storage est payant au-delà du free tier Blaze. Les images en base64 dans IndexedDB coûtent €0.
+
+Free tier Blaze (inclus, €0) : 5 GB stockage · 1 GB téléchargements/jour · 20 000 uploads/jour
+
+1 utilisatrice en test : photos redimensionnées à 480px max, JPEG 0.72 → ~50–150 KB/image. 50 produits avec photo → ~5 MB total. 10 ouvertures/jour, 50 images → ~7 MB/jour. **Coût : €0.** À activer quand il y a des revenus (500 users = ~€2.88/jour de téléchargements).
+
+**Étape 5 — Monétisation**
+- Contacter ONEM pour autorisation activité accessoire (obligatoire avant)
+- Intégrer LemonSqueezy (7 semaines d'essai → 2,99€/mois)
+- Webhook LemonSqueezy → Cloud Function → statut dans Firestore
+- Désactivation douce Firebase si non-abonné (app locale reste fonctionnelle)
+
+---
+
+## Modèle économique
+
+**7 semaines gratuites, puis 2,99€/mois.**
+
+Les 7 semaines sont délibérées : le persona TDAH a besoin de ce temps pour construire une habitude et traverser plusieurs cycles d'achat anti-gaspi avant de percevoir la valeur. Un essai de 7 jours serait insuffisant.
+
+**Ce qui reste gratuit pour toujours**
+- L'app locale (IndexedDB) — stock, planning, liste de courses
+- Aucune fonctionnalité de base bloquée
+
+**Ce qui nécessite un abonnement après l'essai**
+- Notifications push hors-app (expiration produits)
+- Synchronisation cross-device
+- Catalogue images personnel
+- Sauvegarde des recettes dans le cloud
+
+**Flux d'essai**
+
+| Moment | Ce qui se passe |
+|---|---|
+| Jour 1 | Firebase actif silencieusement, essai déclenché |
+| Semaine 6 | Notification douce "Plus que 7 jours gratuits" |
+| Semaine 7 | Invite à s'abonner — si refus, Firebase désactivé, local reste fonctionnel |
+| Après paiement | Abonnement actif, renouvellement mensuel automatique |
+
+**Décision actée : LemonSqueezy** (pas Stripe)
+
+Pas d'Apple/Google store → pas de commission 30%.
+
+| | Stripe | LemonSqueezy |
+|---|---|---|
+| Commission | 1,5% + 0,25€ → ~1,71€ net/mois | ~5% → ~1,89€ net/mois (pas de frais fixe) |
+| TVA européenne | À gérer manuellement (ou TaxJar) | Incluse automatiquement |
+| Webhook backend | Oui — Cloud Function requise | Simplifié |
+| Complexité | Plus élevée | Moindre |
+
+LemonSqueezy est "Merchant of Record" — c'est légalement eux qui vendent, pas toi. Ils collectent et reversent la TVA dans chaque pays EU automatiquement. Tu reçois l'argent net, sans déclaration TVA à gérer.
+
+**Décomposition à 2,99€ TTC (TVA belge 21% incluse)**
+
+| | |
+|---|---|
+| Prix payé par l'abonné | 2,99€ |
+| TVA 21% → LemonSqueezy → fisc | -0,52€ |
+| Commission LemonSqueezy (5%) | -0,12€ |
+| **Revenu brut dev** | **2,35€** |
+
+**Scénario A — Dev en revenus divers (33% flat)**
+
+| | /user/mois | 50 users | 100 users | 500 users |
+|---|---|---|---|---|
+| Net après LS + TVA | 2,35€ | 117,50€ | 235€ | 1 175€ |
+| Impôt BE 33% | -0,78€ | -38,77€ | -77,55€ | -387,75€ |
+| **Net** | **1,57€** | **78,73€** | **157,45€** | **787,25€** |
+
+Pas de cotisations sociales. Déclaré annuellement sur la fiche fiscale. Solution la plus simple.
+
+**Scénario B — Dev indépendante complémentaire**
+
+| | /user/mois | 50 users | 100 users | 500 users |
+|---|---|---|---|---|
+| Net après LS + TVA | 2,35€ | 117,50€ | 235€ | 1 175€ |
+| Cotisations sociales ~20,5% | -0,48€ | -24,09€ | -48,18€ | -240,88€ |
+| Impôt marginal ~45% | -0,84€ | -42,03€ | -84,07€ | -420,36€ |
+| **Net** | **1,03€** | **51,38€** | **102,75€** | **513,76€** |
+
+Plus de charges mais permet de déduire les frais (Firebase, domaine, matériel). Ne vaut le coup qu'à partir de ~200 users ou si les dépenses déductibles sont significatives.
+
+**Seuils critiques**
+- **~50 users** → montants fiscalement visibles, à déclarer sérieusement
+- **~500 users** → Firebase peut dépasser le free tier Storage (5GB)
+- TVA : jamais à gérer (LemonSqueezy s'en charge toujours)
+
+**Verdict :** le scénario A (revenus divers, 33%) est meilleur à ce niveau — pas de cotisations sociales, déclaration simple. Devenir indépendante n'a de sens qu'à partir de ~600€/mois bruts ou si les frais déductibles sont significatifs. En revenus divers, aucune dépense n'est déductible.
+
+> # ⚠️ DEMANDER AUX NANA DE LA FORMATION COMMENT ELLES FONT
+> Avant toute décision sur la structure juridique, les taxes ou l'ONEM — demander aux autres participantes de la formation comment elles ont géré ça. Quelqu'un a sûrement déjà résolu ce problème.
+
+**Situation réelle : dev au chômage en Belgique.**
+Ni salariée ni indépendante — les allocations de chômage impliquent une règle spécifique : tout revenu d'activité doit être déclaré à l'ONEM, et une autorisation d'activité accessoire doit être obtenue AVANT d'encaisser le premier euro. Sans ça, risque de récupération des allocations. Démarche : contacter son syndicat (CSC / FGTB / CGSLB) ou l'ONEM directement. À faire avant d'activer LemonSqueezy.
+
+**L'anonymat a une limite** : les 7 semaines d'essai fonctionnent en anonyme, mais l'abonnement force la création d'un compte.
+
+---
+
 ## SEO & métadonnées
 
-### Ce qui est fait ✅
-
+**Fait ✅**
 - `<title>What to eat</title>` — présent
 - `lang="fr"` sur `<html>` — correct
 - Google Fonts avec `preconnect` — performances optimisées
-- `maximum-scale=1.0` **supprimé** — était une violation WCAG 1.4.4 (bloque le zoom utilisateur) et pénalisait le référencement mobile
+- `maximum-scale=1.0` **supprimé** — était une violation WCAG 1.4.4 (bloque le zoom utilisateur)
 
-### Ce qui manque — à faire à l'étape PWA
+**À faire**
 
-Ces éléments n'ont pas d'impact critique avant la mise en ligne publique. On les ajoute au moment du déploiement Firebase Hosting (étape 2).
-
-**Meta description** (impact SEO direct)
+Meta description (impact SEO direct) :
 ```html
 <meta name="description" content="Gère ton frigo, réduis le gaspillage. Suis tes dates de péremption et reçois des rappels avant qu'un produit ne soit perdu." />
 ```
 
-**Open Graph** (prévisualisations WhatsApp, Messenger, Twitter)
+Open Graph (prévisualisations WhatsApp, Messenger, Twitter) :
 ```html
 <meta property="og:title" content="What to eat" />
 <meta property="og:description" content="Gère ton frigo, réduis le gaspillage." />
@@ -705,17 +642,7 @@ Ces éléments n'ont pas d'impact critique avant la mise en ligne publique. On l
 <meta property="og:type" content="website" />
 ```
 
-**PWA & mobile** (nécessite l'icône et le manifest)
-```html
-<link rel="manifest" href="/manifest.webmanifest" />
-<meta name="theme-color" content="#F5EFE7" />
-<link rel="icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" href="/icon-192.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-```
-
-**Note fonts** : Google Fonts en `<link>` bloque légèrement le rendu initial. À l'étape PWA, envisager de passer les fonts en self-hosted (fichiers locaux) pour éviter la requête externe et améliorer le score Lighthouse.
+Note fonts : Google Fonts en `<link>` bloque légèrement le rendu initial. Envisager de passer les fonts en self-hosted pour améliorer le score Lighthouse.
 
 ---
 

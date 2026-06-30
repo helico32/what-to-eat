@@ -4,6 +4,7 @@ import { useStore }                from './features/products/useStore'
 import { useRecipes }              from './features/recipes/useRecipes'
 import { useMeals }                from './features/meals/useMeals'
 import { useNotifications }        from './features/notifications/useNotifications'
+import { useAuth }                 from './features/auth/useAuth'
 import HomePage                    from './features/products/HomePage'
 import MenuDrawer                  from './components/MenuDrawer'
 import ListePage                   from './features/shopping/ListePage'
@@ -23,6 +24,7 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false)
 
   const { permission, requestPermission } = useNotifications()
+  const { isAnonymous, authEmail, authLoading, signInWithGoogle, signOut } = useAuth()
 
   const mealsStore = useMeals({
     onProductsChanged: store.refreshProducts,
@@ -156,6 +158,11 @@ export default function App() {
           onClose={() => setShowMenu(false)}
           notifPermission={permission}
           onRequestNotif={requestPermission}
+          isAnonymous={isAnonymous}
+          authEmail={authEmail}
+          authLoading={authLoading}
+          onSignInWithGoogle={signInWithGoogle}
+          onSignOut={signOut}
         />
       )}
     </div>

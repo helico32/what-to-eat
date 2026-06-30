@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
-import { signInAnonymously }  from 'firebase/auth'
 import { doc, setDoc }        from 'firebase/firestore'
 import { getToken }           from 'firebase/messaging'
 import { auth, db, messaging } from '../../firebase'
 
 // VAPID key — Project Settings → Cloud Messaging → Web Push certificates
-// À remplacer par ta clé une fois générée dans la console Firebase.
 const VAPID_KEY = 'BFSLKtUDETGyxCH_e9k4MzrBSu0q6BpYQO9STjemrJS61nab-qwOwq4S6GCATswnkzvyLyamRQLkDz-J2FTr9iI'
 
 // Certains navigateurs mobiles n'exposent pas l'API Notification du tout.
@@ -14,13 +12,7 @@ const notifSupported = typeof Notification !== 'undefined'
 export function useNotifications() {
   const [permission, setPermission] = useState(notifSupported ? Notification.permission : 'unsupported')
 
-  // Authentification anonyme silencieuse dès le montage.
-  // Crée un uid persistant par appareil sans demander d'email ni de mot de passe.
-  useEffect(() => {
-    signInAnonymously(auth).catch(() => {
-      // Pas de console.error — l'app fonctionne sans auth.
-    })
-  }, [])
+  // L'auth anonyme est gérée par useAuth — useNotifications ne s'en occupe plus.
 
   // Demande la permission push + enregistre le token FCM dans Firestore.
   // Appelé par un bouton explicite dans l'UI — pas de demande automatique au chargement.
