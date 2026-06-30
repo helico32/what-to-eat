@@ -9,6 +9,7 @@ import SearchEmpty                 from '../../components/SearchEmpty'
 import RecipeCard                  from '../recipes/RecipeCard'
 import ProductRow                  from './ProductRow'
 import AddModal                    from './AddModal'
+import QuickAddSheet               from './QuickAddSheet'
 import PlannedMealsSection         from '../meals/PlannedMealsSection'
 
 function SortIcon() {
@@ -96,10 +97,9 @@ const getSectionLabel = (tab) => ({
   tout:    'Tout',
 }[tab])
 
-export default function HomePage({ store, mealsStore, recipes, uncheckedCount, onMenu, tab, onTabChange }) {
+export default function HomePage({ store, mealsStore, recipes, uncheckedCount, onMenu, tab, onTabChange, sorting, onSortingChange }) {
   const navigate = useNavigate()
-  const [showAdd,  setShowAdd]  = useState(false)
-  const [sorting,  setSorting]  = useState(false)
+  const [showAdd,  setShowAdd]  = useState(null) // null | 'quick' | 'full'
   const [search,   setSearch]   = useState('')
   const [mealMode, setMealMode] = useState(false)
 
@@ -111,7 +111,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
 
   const handleTabChange = (t) => {
     onTabChange(t)
-    setSorting(false)
+    onSortingChange(false)
     setMealMode(false)
   }
 
@@ -144,8 +144,8 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
   return (
     <>
       <Header
-        onTitleClick={() => { onTabChange('urgent'); setSorting(false) }}
-        onAdd={() => setShowAdd(true)}
+        onTitleClick={() => { onTabChange('urgent'); onSortingChange(false) }}
+        onAdd={() => setShowAdd('quick')}
         onMenu={onMenu}
         onCart={() => navigate('/liste')}
         cartCount={uncheckedCount}
@@ -173,7 +173,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
         <SectionLabel
           label={q ? `Résultats pour "${search.trim()}"` : getSectionLabel(tab)}
           count={viewProducts.length}
-          onSort={!q && tab !== 'urgent' ? () => setSorting(s => !s) : undefined}
+          onSort={!q && tab !== 'urgent' ? () => onSortingChange(s => !s) : undefined}
           sorting={sorting}
           onMealMode={!q && tab === 'urgent' ? () => setMealMode(m => !m) : undefined}
           mealMode={mealMode}
@@ -197,6 +197,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
                 onIncrement={() => store.incrementProduct(p.id)}
                 onAddToCart={() => store.addToShoppingList(p)}
                 onAddToMeal={(qty) => handleAddToMeal(p, qty)}
+                onUpdateExpiry={store.updateExpiryDate}
                 mealMode={mealMode}
                 canDrag={canDrag}
                 isDragging={activeIndex === index}
@@ -222,10 +223,17 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
         )}
       </main>
 
-      {showAdd && (
+      {showAdd === 'quick' && (
+        <QuickAddSheet
+          onClose={() => setShowAdd(null)}
+          onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
+          onFullAdd={() => setShowAdd('full')}
+        />
+      )}
+      {showAdd === 'full' && (
         <AddModal
-          onClose={() => setShowAdd(false)}
-          onAdd={(p) => { store.addProduct(p); setShowAdd(false) }}
+          onClose={() => setShowAdd(null)}
+          onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
           products={store.products}
         />
       )}

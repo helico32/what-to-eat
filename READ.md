@@ -190,7 +190,8 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 | `src/features/notifications/useNotifications.js` | Auth anonyme silencieuse + demande permission + token FCM → Firestore |
 | `functions/index.js` | Cloud Function planifiée (9h/j) : vérifie expirations → envoie notif |
 | `firestore.rules` | Sécurité : chaque user lit/écrit uniquement ses propres données |
-| `App.jsx` | Intègre `useNotifications`, passe les props à `MenuDrawer` |
+| `App.jsx` | Routeur pur — hooks partagés (`useStore`, `useMeals`, `useRecipes`, `useNotifications`), état partagé (`tab`, `sorting`), `MenuDrawer` |
+| `features/products/HomePage.jsx` | Page `/` : état local (search, mealMode, showAdd), liste produits, modals ajout, proposition recette |
 | `MenuDrawer.jsx` | Bouton "Activer les alertes" (affiché si permission pas encore accordée) |
 
 #### Ce qui reste à faire
@@ -428,7 +429,7 @@ Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent 
 ```
 src/
   features/
-    products/       ProductRow, AddModal, useStore, badges
+    products/       HomePage, ProductRow, AddModal, QuickAddSheet, useStore, badges
     meals/          MealGroupsList, MealPlanPage, PlannedMealsSection, useMeals, useMealChecklist
     recipes/        RecipesPage, RecipeCard, RecipeModal, AddRecipeModal, useRecipes, data
     shopping/       ListePage, ShoppingList
