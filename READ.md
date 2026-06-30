@@ -264,10 +264,38 @@ Fichier JavaScript installé dans le navigateur, qui tourne séparément de l'ap
 - **Cloud Function quotidienne** ⏳ — code prêt, déploiement bloqué par plan Spark. Passer en Blaze (pay-as-you-go, free tier identique) + définir budget alert 5€ → `firebase deploy --only functions`
 
 **Étape 4 — Auth upgrade + catalogue images**
-- Google Sign-In, Magic Link, Passkeys dans Firebase Auth
-- Point d'entrée unique : MenuDrawer, discret
-- Catalogue images (nom → URL) dans Firestore + Firebase Storage
-- Recettes sauvegardées dans Firestore (survit au changement d'appareil)
+
+Ordre d'implémentation : 4a → 4b → 4c. Chaque sous-étape validée avant la suivante.
+
+**4a — Auth : Google Sign-In + Magic Link** ← à faire en premier (prérequis de 4b)
+- Deux méthodes proposées dans MenuDrawer : Google (un tap) + Magic Link (email)
+- **Google** : `linkWithPopup(GoogleAuthProvider)` sur le compte anonyme — préserve l'UID et toutes les données Firestore. Sur nouvel appareil : `signInWithPopup` retrouve le même UID.
+- **Magic Link** : `sendSignInLinkToEmail()` → lien envoyé par Firebase → l'utilisatrice clique → `signInWithEmailLink()` complète la connexion. L'email est sauvegardé dans localStorage entre les deux étapes (requis par Firebase).
+- Point d'entrée : bouton "Sauvegarder mes données" dans MenuDrawer (discret, jamais intrusif)
+- Une fois connectée : affiche l'email dans le menu + option "Se déconnecter"
+- Passkeys : skippés — Firebase Auth ne supporte pas WebAuthn nativement
+
+**4b — Recettes dans Firestore** (dépend de 4a)
+- `useRecipes` migré de IndexedDB → `/users/{uid}/recipes/`
+- Migration Option B : au premier sign-in, les recettes IndexedDB locales sont copiées vers Firestore. Ensuite IndexedDB n'est plus utilisé pour les recettes — source unique.
+- Survit au changement d'appareil
+
+**4c — Catalogue images** ⏳ en attente — images gardées en IndexedDB local
+
+Raison : Firebase Storage est payant au-delà du free tier Blaze. Les images en base64 dans IndexedDB coûtent €0 (stockage local, pas de serveur).
+
+**Free tier Blaze (inclus, €0) :**
+- 5 GB de stockage
+- 1 GB de téléchargements/jour
+- 20 000 uploads/jour
+
+**1 utilisatrice en test :** les photos sont redimensionnées à 480px max, JPEG 0.72 dans `AddModal` → ~50–150 KB par image. 50 produits avec photo → ~5 MB total. Elle ouvre l'app 10 fois/jour, charge 50 images → ~7 MB/jour. **Coût : €0.** Largement dans le free tier.
+
+**À 500 utilisatrices :**
+- Stockage : 500 × 50 × 100 KB = ~2.5 GB → encore dans le free tier
+- Téléchargements : 500 × 10 × 5 MB = 25 GB/jour → dépasse le free tier (1 GB/day gratuit) → ~€2.88/jour au tarif $0.12/GB
+
+À activer quand il y a des revenus pour absorber ce coût. On est loin de 500 users.
 
 **Étape 5 — Monétisation**
 - Contacter ONEM pour autorisation activité accessoire (obligatoire avant)
