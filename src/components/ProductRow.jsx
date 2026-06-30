@@ -120,7 +120,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
                 }
               }}
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
-              title="Diminuer"
+              aria-label="Diminuer"
             >
               −
             </button>
@@ -137,7 +137,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
                 }
               }}
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
-              title="Augmenter"
+              aria-label="Augmenter"
             >
               +
             </button>
@@ -168,7 +168,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           <button
             onClick={() => setConfirm(confirm === 'meal' ? null : 'meal')}
             className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === 'meal' ? btnActive : btnDefault}`}
-            title="Ajouter au repas"
+            aria-label="Ajouter au repas"
           >
             <CutleryIcon />
           </button>
@@ -177,7 +177,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
             <button
               onClick={() => setConfirm(confirm === 'cart' ? null : 'cart')}
               className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === 'cart' ? btnActive : btnDefault}`}
-              title="Ajouter à la liste"
+              aria-label="Ajouter à la liste de courses"
             >
               <CartIcon />
             </button>
@@ -185,7 +185,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
               <button
                 onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
                 className={`flex-shrink-0 w-9 h-9 hidden md:flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
-                title="Supprimer"
+                aria-label="Supprimer"
               >
                 <TrashIcon />
               </button>

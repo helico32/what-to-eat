@@ -62,7 +62,9 @@ export function useStore() {
   // --- Produits ---
 
   const addProduct = async (product) => {
-    const newProduct = { ...product, id: Date.now(), position: products.length }
+    // crypto.randomUUID() évite les collisions d'id quand addProduct est appelé
+    // plusieurs fois dans la même milliseconde (ex: ajout groupé depuis la liste de courses).
+    const newProduct = { ...product, id: crypto.randomUUID(), position: products.length }
     setProducts(prev => [...prev, newProduct])
     const db = await dbPromise
     await db.put('products', newProduct)

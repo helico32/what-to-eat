@@ -126,6 +126,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
         {/* Star */}
         <button
           onClick={e => { e.stopPropagation(); onToggleFavorite(recipe.id) }}
+          aria-label={recipe.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
           className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${recipe.favorite ? btnActive : btnDefault}`}
         >
           <StarIcon filled={recipe.favorite} />
@@ -147,6 +148,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
         ) : (
           <button
             onClick={e => { e.stopPropagation(); setConfirm(c => !c) }}
+            aria-label="Supprimer la recette"
             className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold transition-all ${
               confirm ? 'bg-urgent/20 text-urgent border-urgent' : 'bg-canvas-border text-ink-secondary border-ink-primary'
             }`}
@@ -233,6 +235,7 @@ export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRe
               {!q && recipes.length > 1 && (
                 <button
                   onClick={() => setSorting(s => !s)}
+                  aria-label="Trier manuellement"
                   className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
                     sorting ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
                   }`}

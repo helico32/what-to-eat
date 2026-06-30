@@ -86,7 +86,7 @@ function MealRow({ meal, isChecked, rowQty, onToggle, onSetRowQty, onCancel }) {
           <button
             onClick={() => setConfirmRemove(c => !c)}
             className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirmRemove ? btnActive : btnDefault}`}
-            title="Retirer du repas"
+            aria-label="Retirer du repas"
           >
             <TrashIcon />
           </button>
@@ -156,7 +156,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
               <button
                 onClick={commitRename}
                 className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnActive}`}
-                title="Confirmer"
+                aria-label="Confirmer le nouveau nom"
               >
                 <CheckIcon />
               </button>
@@ -171,7 +171,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
                 <button
                   onClick={() => setIsEditing(true)}
                   className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnDefault}`}
-                  title="Renommer"
+                  aria-label="Renommer"
                 >
                   <PencilIcon />
                 </button>
@@ -201,7 +201,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
               <button
                 onClick={onAddItem}
                 className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnDefault}`}
-                title="Ajouter un item"
+                aria-label="Ajouter un ingrédient"
               >
                 <PlusIcon />
               </button>
@@ -210,7 +210,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
               <button
                 onClick={() => setConfirmDelete(true)}
                 className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnDefault}`}
-                title="Supprimer ce repas"
+                aria-label="Supprimer ce repas"
               >
                 <TrashIcon />
               </button>

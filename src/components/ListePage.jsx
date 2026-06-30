@@ -108,6 +108,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
               {!q && (
                 <button
                   onClick={() => setSorting(s => !s)}
+                  aria-label="Trier manuellement"
                   className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
                     sorting ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
                   }`}

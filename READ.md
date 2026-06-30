@@ -117,15 +117,35 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 
 ### Roadmap — 5 étapes
 
-**Étape 1 — Finir la migration IndexedDB** ← on est là
+**Étape 1 — Finir la migration IndexedDB** ✅
 - ~~Migrer `useMeals` (dernière hook restante)~~ ✅
 - ~~Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`~~ ✅
+- ~~Fix bug id collision `addProduct` (forEach + Date.now())~~ ✅
 - Corriger les points UX ouverts (aria-labels, état actif mealMode)
 
-**Étape 2 — PWA**
+**Étape 2 — PWA** ← on est là
 - Icône (192×192 et 512×512)
 - `vite-plugin-pwa` + manifest + Service Worker (`src/sw.js`)
 - Déploiement sur Firebase Hosting
+
+#### Détail étape 2 — pour la junior
+
+**Le manifest — carte d'identité de l'app**
+Fichier JSON qui dit au navigateur : nom de l'app, icône à afficher sur l'écran d'accueil, couleur de la barre de statut, mode de lancement (plein écran, sans barre d'URL). Sans lui, le navigateur ne propose pas d'installer l'app. Avec lui, Chrome et Safari mobile proposent "Ajouter à l'écran d'accueil".
+
+**Le Service Worker — assistant qui tourne en arrière-plan**
+Fichier JavaScript installé dans le navigateur, qui tourne séparément de l'app — même quand elle est fermée. Deux rôles :
+- **Cache (utile maintenant)** : intercepte les requêtes (HTML, CSS, JS, images) et les met en cache. L'app se lance sans connexion.
+- **Notifications push (utile à l'étape 3)** : reçoit les notifications Firebase quand l'app est fermée. Sans Service Worker, les push notifications sont impossibles — le navigateur n'a rien à "réveiller". C'est pour ça qu'on l'installe maintenant.
+
+**`vite-plugin-pwa` — l'outil qui fait le travail**
+Écrire un Service Worker manuellement est complexe (gestion du cache, des versions, des mises à jour). Le plugin le génère automatiquement à chaque `npm run build`. On lui donne la configuration, il produit les fichiers. On n'écrit pas le Service Worker à la main.
+
+**Ce qu'on fait concrètement**
+1. `npm install vite-plugin-pwa`
+2. Configurer le plugin dans `vite.config.js` (nom, icônes, couleurs)
+3. `npm run build` → le plugin génère `manifest.webmanifest` + `sw.js`
+4. `firebase deploy` → app en ligne, installable sur téléphone
 
 **Étape 3 — Notifications push** ← objectif V1
 - Firebase Anonymous Auth (silencieux, aucune friction)
@@ -496,6 +516,47 @@ L'utilisatrice ne voit aucun écran de connexion au premier lancement. Firebase 
 - Pas d'écran d'onboarding obligatoire
 - Pas de "créer un compte" visible au démarrage
 - Pas de forçage de connexion à aucun moment
+
+---
+
+## SEO & métadonnées
+
+### Ce qui est fait ✅
+
+- `<title>What to eat</title>` — présent
+- `lang="fr"` sur `<html>` — correct
+- Google Fonts avec `preconnect` — performances optimisées
+- `maximum-scale=1.0` **supprimé** — était une violation WCAG 1.4.4 (bloque le zoom utilisateur) et pénalisait le référencement mobile
+
+### Ce qui manque — à faire à l'étape PWA
+
+Ces éléments n'ont pas d'impact critique avant la mise en ligne publique. On les ajoute au moment du déploiement Firebase Hosting (étape 2).
+
+**Meta description** (impact SEO direct)
+```html
+<meta name="description" content="Gère ton frigo, réduis le gaspillage. Suis tes dates de péremption et reçois des rappels avant qu'un produit ne soit perdu." />
+```
+
+**Open Graph** (prévisualisations WhatsApp, Messenger, Twitter)
+```html
+<meta property="og:title" content="What to eat" />
+<meta property="og:description" content="Gère ton frigo, réduis le gaspillage." />
+<meta property="og:image" content="https://[domaine]/og-image.png" />
+<meta property="og:url" content="https://[domaine]/" />
+<meta property="og:type" content="website" />
+```
+
+**PWA & mobile** (nécessite l'icône et le manifest)
+```html
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#F5EFE7" />
+<link rel="icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+```
+
+**Note fonts** : Google Fonts en `<link>` bloque légèrement le rendu initial. À l'étape PWA, envisager de passer les fonts en self-hosted (fichiers locaux) pour éviter la requête externe et améliorer le score Lighthouse.
 
 ---
 

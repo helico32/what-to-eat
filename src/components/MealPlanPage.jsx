@@ -115,11 +115,13 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
             <div className="flex items-center gap-4 mb-6">
               <button
                 onClick={() => setQty(q => Math.max(1, q - 1))}
+                aria-label="Diminuer la quantité"
                 className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[16px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
               >−</button>
               <span className="font-body text-[20px] text-ink-primary font-semibold min-w-[32px] text-center">{qty}</span>
               <button
                 onClick={() => setQty(q => Math.min(chosenProduct.qty, q + 1))}
+                aria-label="Augmenter la quantité"
                 className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[16px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
               >+</button>
               <span className="font-body text-[13px] text-ink-secondary">/ {chosenProduct.qty} max</span>

@@ -171,14 +171,20 @@ export default function RecipeModal({ recipes, products, onEdit }) {
 
         <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
-            <button onClick={editing ? () => setEditing(false) : () => navigate(-1)}
-              className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
+            <button
+              onClick={editing ? () => setEditing(false) : () => navigate(-1)}
+              aria-label={editing ? 'Annuler les modifications' : 'Retour'}
+              className="text-ink-secondary w-10 flex items-center"
+            ><ArrowLeft /></button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center truncate px-2">
               {editing ? 'Modifier' : recipe.name}
             </h1>
             {!editing ? (
-              <button onClick={() => setEditing(true)}
-                className="w-10 h-10 flex items-center justify-center text-ink-secondary transition-all">
+              <button
+                onClick={() => setEditing(true)}
+                aria-label="Modifier la recette"
+                className="w-10 h-10 flex items-center justify-center text-ink-secondary transition-all"
+              >
                 <PencilIcon />
               </button>
             ) : <div className="w-10" />}
@@ -226,6 +232,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
                       <div key={i} className="flex gap-3">
                         <button
                           onClick={() => toggleStep(i)}
+                          aria-label={`Étape ${i + 1}${checkedSteps.has(i) ? ' — faite' : ''}`}
                           className={`w-6 h-6 rounded-full border border-ink-primary font-display font-bold text-[14px] flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                             checkedSteps.has(i)
                               ? 'bg-canvas-surface text-ink-secondary'

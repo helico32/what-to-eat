@@ -203,7 +203,7 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
           <>
             <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
               <div className="flex items-center py-3">
-                <button onClick={onClose} className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
+                <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
                 <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
                   Détails de l'article
                 </h1>
@@ -222,6 +222,7 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
                   <img src={image} alt="preview" className="w-full h-full object-cover" />
                   <button
                     onClick={() => setImage(null)}
+                    aria-label="Supprimer la photo"
                     className="absolute top-2 right-2 w-7 h-7 bg-ink-primary/60 text-canvas rounded-full flex items-center justify-center font-bold text-[16px] leading-none"
                   >
                     ×
@@ -376,7 +377,7 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
         {step === 2 && (
           <div className="flex-1 px-5 pt-6 pb-10 flex flex-col gap-3">
             <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-2" />
-            <button onClick={() => setStep(1)} className="text-ink-secondary w-10 mb-1 flex items-center"><ArrowLeft /></button>
+            <button onClick={() => setStep(1)} aria-label="Retour" className="text-ink-secondary w-10 mb-1 flex items-center"><ArrowLeft /></button>
             <p className="font-display font-bold text-[20px] text-ink-primary mb-1">Où le ranger ?</p>
 
             {LOCATIONS.map(l => (

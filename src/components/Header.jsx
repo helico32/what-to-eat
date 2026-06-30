@@ -12,7 +12,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
     <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-3 border-b border-ink-primary">
       <div className="flex items-center">
         {/* Hamburger */}
-        <button onClick={onMenu} className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">
+        <button onClick={onMenu} aria-label="Menu" className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">
           <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
           <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
           <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
@@ -29,7 +29,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
         {/* Right actions */}
         <div className="flex items-center gap-3">
           {cartCount > 0 && (
-            <button onClick={onCart} className="relative w-10 h-10 flex items-center justify-center text-ink-secondary translate-y-1">
+            <button onClick={onCart} aria-label="Liste de courses" className="relative w-10 h-10 flex items-center justify-center text-ink-secondary translate-y-1">
               <CartIcon />
               <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-brand text-ink-primary text-[14px] font-bold rounded-full flex items-center justify-center px-1">
                 {cartCount}
@@ -38,6 +38,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
           )}
           <button
             onClick={onAdd}
+            aria-label="Ajouter un produit"
             className="w-8 h-8 bg-brand text-ink-primary border border-ink-primary rounded-full flex items-center justify-center text-2xl font-light active:scale-95 transition-all shadow-sm"
           >
             +

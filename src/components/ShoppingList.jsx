@@ -252,6 +252,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
             <div className={`flex items-center gap-3 px-4 py-3.5 ${item.checked ? 'bg-canvas-border/40' : ''}`}>
               <button
                 onClick={() => onToggle(item.id)}
+                aria-label={item.checked ? 'Décocher' : 'Cocher'}
                 className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
                   item.checked
                     ? 'bg-forest border-forest text-canvas'
@@ -278,6 +279,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <button
                       onClick={() => onDecrement(item.id)}
+                      aria-label="Diminuer"
                       className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
                     >
                       −
@@ -285,6 +287,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
                     <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">{item.qty}</span>
                     <button
                       onClick={() => onIncrement(item.id)}
+                      aria-label="Augmenter"
                       className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
                     >
                       +
@@ -308,6 +311,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
               ) : (
                 <button
                   onClick={() => setConfirmId(confirmId === item.id ? null : item.id)}
+                  aria-label="Supprimer"
                   className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${
                     confirmId === item.id ? btnActive : btnDefault
                   }`}
