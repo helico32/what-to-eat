@@ -116,6 +116,13 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 **V1 — PWA avec notifications push. Gratuite, en test.**
 L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne passe à l'étape suivante que quand la précédente est stable.
 
+### Ce que l'app fait déjà ✅
+
+- **Installable sur l'écran d'accueil** — se lance en plein écran, sans barre d'URL, comme une app native
+- **Fonctionne hors-ligne** — après le premier chargement, l'app tourne sans connexion (Service Worker + cache)
+- **Données locales persistantes** — stock, planning, liste de courses survivent aux rechargements (IndexedDB)
+- **Zéro compte requis** — aucune inscription, aucun mot de passe, aucune friction au premier lancement
+
 ### Roadmap — 5 étapes
 
 **Étape 1 — Finir la migration IndexedDB** ✅
@@ -124,10 +131,12 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 - ~~Fix bug id collision `addProduct` (forEach + Date.now())~~ ✅
 - ~~Corriger les `aria-label` manquants ou `title` (inutile sur mobile) sur tous les boutons icônes de l'app~~ ✅
 
-**Étape 2 — PWA** ← on est là
-- Icône (192×192 et 512×512)
-- `vite-plugin-pwa` + manifest + Service Worker (`src/sw.js`)
-- Déploiement sur Firebase Hosting
+**Étape 2 — PWA** ✅
+- ~~Icône (192×192 et 512×512)~~ ✅
+- ~~`vite-plugin-pwa` + manifest + Service Worker~~ ✅
+- ~~Déploiement sur Firebase Hosting~~ ✅ — https://what-to-eat-angelab.web.app
+
+**Étape 3 — Notifications push** ← on est là
 
 #### Détail étape 2 — pour la junior
 

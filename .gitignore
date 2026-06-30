@@ -6,6 +6,9 @@ node_modules/
 # Build
 dist/
 
+# Firebase cache local (généré par firebase deploy, inutile en repo)
+.firebase/
+
 # Système
 .DS_Store
 
