@@ -41,18 +41,18 @@ export default function MentionsLegales() {
 
       <Section title="Propriété intellectuelle">
         <p>
-          L'ensemble du contenu de l'application What to eat — code source, design, textes,
-          icônes — est la propriété exclusive d'Angéla Binot. Toute reproduction, même partielle,
-          est interdite sans autorisation écrite préalable.
+          L'ensemble du contenu de l'application What to eat (code source, design, textes, icônes…)
+          restent la propriété de leurs auteurs respectifs et sont soumises à leurs propres licences.
+          Toute reproduction du design ou des textes à des fins commerciales est interdite sans
+          autorisation écrite préalable.
         </p>
       </Section>
 
       <Section title="Responsabilité">
         <p>
           What to eat est un outil d'aide à la gestion alimentaire. Les informations affichées
-          (dates de péremption, quantités) sont saisies par l'utilisatrice et relèvent de sa
-          responsabilité. L'éditrice ne peut être tenue responsable d'une erreur de saisie ou
-          d'une mauvaise interprétation des données.
+          (dates de péremption, quantités) sont saisies par l'utilisateur et relèvent de sa
+          responsabilité.
         </p>
       </Section>
 
@@ -64,7 +64,7 @@ export default function MentionsLegales() {
       </Section>
 
       <p className="text-ink-secondary text-[13px]">
-        Dernière mise à jour : juin 2025
+        Dernière mise à jour : juillet 2026
       </p>
 
     </LegalLayout>

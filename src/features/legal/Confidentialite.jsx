@@ -132,7 +132,7 @@ export default function Confidentialite() {
       </Section>
 
       <p className="text-ink-secondary text-[13px]">
-        Dernière mise à jour : juin 2025
+        Dernière mise à jour : juillet 2026
       </p>
 
     </LegalLayout>
