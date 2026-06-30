@@ -38,6 +38,9 @@ Le storage est IndexedDB (pas localStorage) — nécessaire pour que le Service 
 **L'état distribué est résolu par IndexedDB.**
 Avec une instance `db` partagée, `useMeals` écrit directement dans le store `products` sans passer par `useStore`. Les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` qui couplaient les deux hooks via `App.jsx` disparaissent — remplacés par une transaction directe dans `useMeals`.
 
+**Vérifier le `.gitignore` avant tout staging.**
+Avant de `git add` un fichier — nouveau ou modifié — vérifier qu'il ne devrait pas être ignoré : secrets, fichiers générés, documents privés (comme ce README). En cas de doute, ouvrir `.gitignore` et confirmer.
+
 **La dette technique se documente ici.**
 Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "Points de vigilance".
 
@@ -130,13 +133,22 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent déjà une liste vide au démarrage. Aucune complexité défensive à ajouter.
 
+#### Avancement
+
+| Hook | Migré ? |
+|------|---------|
+| `src/db.js` | ✅ Fait |
+| `useRecipes` | ✅ Fait — champ `position` ajouté pour préserver l'ordre drag-and-drop |
+| `useStore` | ⏳ À faire |
+| `useMeals` | ⏳ À faire — transaction atomique meals + products |
+
 ### Hooks
 
 | Hook | Rôle |
 |------|------|
-| `useStore` | Produits + liste de courses (localStorage) |
+| `useStore` | Produits + liste de courses |
 | `useRecipes` | Recettes : CRUD, favoris, réordonnancement |
-| `useMeals` | Planning de repas : meals + groupes "repas" (localStorage) |
+| `useMeals` | Planning de repas : meals + groupes "repas" |
 | `useMealChecklist` | État checklist dans MealGroupsList (checked, rowQtys, Mangé/Ranger) |
 | `useSortable` | Drag-and-drop dans les listes produits |
 
