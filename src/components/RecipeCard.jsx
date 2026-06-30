@@ -32,10 +32,27 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
     )
   }
 
-  const productNames = new Set(products.map(p => p.name))
+  // Map nom → produit pour retrouver un produit par son nom en O(1) au lieu de O(n)
+  const productMap = new Map(products.map(p => [p.name, p]))
 
-  // Only propose recipes that have at least one ingredient in stock
-  const eligible = recipes.filter(r => r.ingredients.some(ing => productNames.has(ing)))
+  // Retourne le timestamp de péremption le plus proche parmi les ingrédients
+  // d'une recette qui sont en stock. Infinity si aucun ingrédient n'a de date.
+  // Sert à trier : une recette avec un ingrédient qui périme demain passe avant
+  // une recette dont tous les ingrédients périment dans 10 jours.
+  const getMinExpiry = (r) => {
+    const dates = r.ingredients
+      .map(ing => productMap.get(ing)?.expiryDate) // undefined si pas en stock
+      .filter(Boolean)                              // retire les undefined et null
+    if (!dates.length) return Infinity              // pas de date → on la met en dernier
+    return Math.min(...dates.map(d => new Date(d).getTime()))
+  }
+
+  // On garde seulement les recettes avec au moins un ingrédient en stock,
+  // triées par ingrédient le plus urgent à consommer (le plus proche de sa péremption).
+  const eligible = recipes
+    .filter(r => r.ingredients.some(ing => productMap.has(ing)))
+    .sort((a, b) => getMinExpiry(a) - getMinExpiry(b))
+  // Si aucune recette ne matche le stock, on affiche toutes les recettes sans filtre
   const pool = eligible.length > 0 ? eligible : recipes
   const recipe = pool[idx % pool.length]
   const canShuffle = pool.length > 1

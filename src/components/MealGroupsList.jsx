@@ -242,11 +242,15 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
 }
 
 export default function MealGroupsList({ meals, repas, date, onAddItem, onDeleteRepas, onRenameRepas, onNameNoneMeals, onConfirmMeal, onCancelMeal, onCreateRepas }) {
+  // `checked` : Set des ids de meals cochés (l'utilisatrice confirme qu'elle les a mangés)
   const [checked, setChecked] = useState(new Set())
+  // `rowQtys` : objet { [mealId]: qty } pour ajuster la quantité réellement consommée
+  // (si le meal prévoyait 3, elle peut en avoir mangé seulement 2)
   const [rowQtys, setRowQtys] = useState({})
 
   const dayRepas = repas.filter(r => r.date === date)
   const dayMeals = meals.filter(m => m.date === date)
+  // Meals sans groupe de repas nommé — affichés dans un groupe "Sans nom"
   const noneMeals = dayMeals.filter(m => !m.repasId)
   const anyChecked = checked.size > 0
 
@@ -254,9 +258,11 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
     setChecked(prev => {
       const next = new Set(prev)
       if (next.has(meal.id)) {
+        // Décoche : on supprime aussi la quantité ajustée pour ce meal
         next.delete(meal.id)
         setRowQtys(q => { const n = { ...q }; delete n[meal.id]; return n })
       } else {
+        // Coche : on initialise la quantité ajustée à la quantité prévue
         next.add(meal.id)
         setRowQtys(q => ({ ...q, [meal.id]: meal.qty }))
       }
@@ -265,8 +271,10 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
   }
 
   const setRowQty = (meal, val) => {
+    // On borne entre 0 et la quantité max prévue pour ce meal
     const clamped = Math.max(0, Math.min(meal.qty, val))
     if (clamped === 0) {
+      // Si on descend à 0, on décoche le meal automatiquement
       setChecked(prev => { const n = new Set(prev); n.delete(meal.id); return n })
       setRowQtys(q => { const n = { ...q }; delete n[meal.id]; return n })
     } else {
@@ -278,6 +286,8 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
     dayMeals.forEach(meal => {
       if (!checked.has(meal.id)) return
       const qty = rowQtys[meal.id] ?? meal.qty
+      // "Mangé" : on confirme en passant la quantité NON consommée à remettre en stock
+      // ex. prévu 3, mangé 2 → on remet 1 (3 - 2 = 1)
       onConfirmMeal(meal.id, meal.qty - qty)
     })
     setChecked(new Set())
@@ -288,12 +298,14 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
     dayMeals.forEach(meal => {
       if (!checked.has(meal.id)) return
       const qty = rowQtys[meal.id] ?? meal.qty
+      // "Ranger" : on remet toute la quantité ajustée en stock (on n'a pas mangé)
       onConfirmMeal(meal.id, qty)
     })
     setChecked(new Set())
     setRowQtys({})
   }
 
+  // Props communs passés à chaque RepasGroup pour éviter la répétition
   const groupProps = { checked, rowQtys, onToggle: toggleCheck, onSetRowQty: setRowQty, onCancel: onCancelMeal }
   const isEmpty = dayMeals.length === 0 && dayRepas.length === 0
 

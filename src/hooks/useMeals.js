@@ -20,6 +20,9 @@ export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
   const [meals, setMeals] = useState(() => load(KEY, []))
   const [repas, setRepas] = useState(() => load(KEY_REPAS, []))
 
+  // Helper : met à jour le state React ET écrit dans localStorage en même temps.
+  // On passe par le setter fonctionnel de useState pour toujours travailler
+  // sur la valeur la plus récente (évite les bugs de closure avec des appels rapprochés).
   const setAndPersist = (updater) => {
     setMeals(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater
