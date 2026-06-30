@@ -9,7 +9,9 @@ import { useState, useRef } from 'react'
  */
 export function useSortable(items, onReorder) {
   const [activeIndex, setActiveIndex] = useState(null)
-  const [overIndex,   setOverIndex]   = useState(null)
+  // overIndex : l'index survolé pendant le drag (utilisé uniquement en interne pour
+  // déclencher le re-render qui met à jour r.current.to — pas exposé à l'extérieur)
+  const [, setOverIndex] = useState(null)
 
   // Mutable ref so touch callbacks always read fresh values
   const r = useRef({ from: null, to: null })
@@ -77,5 +79,5 @@ export function useSortable(items, onReorder) {
     },
   })
 
-  return { activeIndex, overIndex, rowProps, handleProps }
+  return { activeIndex, rowProps, handleProps }
 }

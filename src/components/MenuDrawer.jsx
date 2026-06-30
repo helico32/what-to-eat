@@ -76,7 +76,6 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
             )
           })}
         </nav>
-      </div>
 
         {notifPermission !== 'granted' && notifPermission !== 'denied' && (
           <>
@@ -94,7 +93,7 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
         )}
       </div>
 
-      <div className="flex-1 bg-ink-primary/30"  />
+      <div className="flex-1 bg-ink-primary/30" />
     </div>
   )
 }

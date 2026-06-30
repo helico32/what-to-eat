@@ -48,7 +48,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
         <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
-            <button onClick={onClose} className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
+            <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
               Ajouter une recette
             </h1>

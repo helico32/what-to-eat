@@ -57,10 +57,8 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
   const recipe = pool[idx % pool.length]
   const canShuffle = pool.length > 1
 
-  const getDays = (name) => {
-    const p = products.find(x => x.name === name)
-    return (p && p.expiryDate != null) ? p.expiryDate : null
-  }
+  // Réutilise productMap (déjà construit au-dessus) pour éviter un find() en O(n) à chaque chip
+  const getDays = (name) => productMap.get(name)?.expiryDate ?? null
 
   return (
     <div className="bg-canvas-card rounded-xl border border-ink-primary mb-4 overflow-hidden">
@@ -111,7 +109,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
             {canShuffle && (
               <button
                 onClick={() => setIdx(i => i + 1)}
-                title="Recette aléatoire"
+                aria-label="Recette aléatoire"
                 className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg flex items-center justify-center active:scale-[.98] transition-all"
               >
                 <ShuffleIcon />
