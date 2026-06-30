@@ -100,6 +100,15 @@ export function useStore() {
     await db.put('products', updated)
   }
 
+  const updateExpiryDate = async (id, date) => {
+    const product = products.find(p => p.id === id)
+    if (!product) return
+    const updated = { ...product, expiryDate: date || null }
+    setProducts(prev => prev.map(p => p.id === id ? updated : p))
+    const db = await dbPromise
+    await db.put('products', updated)
+  }
+
   const reorderProducts = async (newList) => {
     // On assigne une position à chaque produit selon son nouvel index.
     const withPositions = newList.map((p, i) => ({ ...p, position: i }))
@@ -200,6 +209,7 @@ export function useStore() {
     reorderProducts,
     decrementProduct,
     incrementProduct,
+    updateExpiryDate,
     refreshProducts,
   }
 }

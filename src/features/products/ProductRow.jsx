@@ -65,20 +65,22 @@ function DragHandle() {
   )
 }
 
-export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, onAddToMeal, mealMode, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
+export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, onAddToMeal, onUpdateExpiry, mealMode, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
   const badge = getBadge(product.expiryDate, product.location)
-  const [confirm, setConfirm] = useState(null) // null | 'cart' | 'delete' | 'decrement' | 'meal'
-  const [done,    setDone]    = useState(null) // null | 'cart' | 'delete'
+  const [confirm,    setConfirm]    = useState(null)  // null | 'cart' | 'delete' | 'decrement' | 'meal'
+  const [done,       setDone]       = useState(null)  // null | 'cart' | 'delete' | 'meal'
+  const [isDateEdit, setIsDateEdit] = useState(false) // picker de date inline pour les frigo sans date
   const timerRef = useRef()
 
   // qty to add to meal — local state, initialized from product.qty
   const [mealQty, setMealQty] = useState(product.qty ?? 1)
   useEffect(() => { setMealQty(product.qty ?? 1) }, [product.qty])
 
-  // Reset confirm / done when meal mode is toggled
+  // Reset tout quand mealMode change
   useEffect(() => {
     setConfirm(null)
     setDone(null)
+    setIsDateEdit(false)
   }, [mealMode])
 
   const handleConfirm = (type) => {
@@ -144,13 +146,26 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           </div>
         </div>
 
-        {/* Badge */}
-        {badge.label && (
+        {/* Badge date — ou bouton "⚠ sans date" pour les frigo sans date */}
+        {product.location === 'frigo' && !product.expiryDate && !mealMode && !canDrag ? (
+          <button
+            onClick={() => { setConfirm(null); setIsDateEdit(e => !e) }}
+            aria-label="Ajouter une date de péremption"
+            className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[13px] border transition-all ${
+              isDateEdit
+                ? 'bg-brand border-ink-primary text-ink-primary'
+                : 'bg-canvas-surface border-canvas-border text-ink-secondary'
+            }`}
+          >
+            <span className="md:hidden">⚠</span>
+            <span className="hidden md:inline">⚠ sans date</span>
+          </button>
+        ) : badge.label ? (
           <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[14px] ${badge.cls}`}>
             <span className="md:hidden">{badge.label}</span>
             <span className="hidden md:inline">{badge.labelFull}</span>
           </span>
-        )}
+        ) : null}
 
         {canDrag ? (
           <>
@@ -200,6 +215,30 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           <p className="font-body text-[16px] text-forest font-semibold">
             {done === 'cart' ? `✓ Ajouté au panier` : done === 'meal' ? `✓ Ajouté au repas` : `✓ Supprimé`}
           </p>
+        </div>
+      )}
+
+      {/* Picker de date inline — s'ouvre en tapant le badge "⚠ sans date" */}
+      {isDateEdit && (
+        <div className="pb-3 flex items-center gap-2">
+          <input
+            autoFocus
+            type="date"
+            min={new Date().toISOString().split('T')[0]}
+            onChange={e => {
+              if (e.target.value) {
+                onUpdateExpiry(product.id, e.target.value)
+                setIsDateEdit(false)
+              }
+            }}
+            className="flex-1 px-3 py-1.5 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[16px] outline-none focus:border-forest transition-colors"
+          />
+          <button
+            onClick={() => setIsDateEdit(false)}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
+          >
+            Annuler
+          </button>
         </div>
       )}
 

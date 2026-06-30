@@ -14,6 +14,7 @@ import ProductRow               from './features/products/ProductRow'
 import ListePage                from './features/shopping/ListePage'
 import RecipesPage              from './features/recipes/RecipesPage'
 import AddModal                 from './features/products/AddModal'
+import QuickAddSheet            from './features/products/QuickAddSheet'
 import AddRecipeModal           from './features/recipes/AddRecipeModal'
 import SearchBar                from './components/SearchBar'
 import SearchEmpty              from './components/SearchEmpty'
@@ -115,7 +116,7 @@ export default function App() {
   const location = useLocation()
 
   const [tab,      setTab]      = useState('urgent')
-  const [showAdd,  setShowAdd]  = useState(false)
+  const [showAdd,  setShowAdd]  = useState(null) // null | 'quick' | 'full'
   const [showMenu, setShowMenu] = useState(false)
   const [sorting,  setSorting]  = useState(false)
   const [search,   setSearch]   = useState('')
@@ -194,7 +195,7 @@ export default function App() {
           <>
             <Header
               onTitleClick={() => { setTab('urgent'); setSorting(false) }}
-              onAdd={() => setShowAdd(true)}
+              onAdd={() => setShowAdd('quick')}
               onMenu={() => setShowMenu(true)}
               onCart={() => navigate('/liste')}
               cartCount={uncheckedCount}
@@ -247,6 +248,7 @@ export default function App() {
                       onIncrement={() => store.incrementProduct(p.id)}
                       onAddToCart={() => store.addToShoppingList(p)}
                       onAddToMeal={(qty) => handleAddToMeal(p, qty)}
+                      onUpdateExpiry={store.updateExpiryDate}
                       mealMode={mealMode}
                       canDrag={canDrag}
                       isDragging={activeIndex === index}
@@ -272,10 +274,17 @@ export default function App() {
               )}
             </main>
 
-            {showAdd && (
+            {showAdd === 'quick' && (
+              <QuickAddSheet
+                onClose={() => setShowAdd(null)}
+                onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
+                onFullAdd={() => setShowAdd('full')}
+              />
+            )}
+            {showAdd === 'full' && (
               <AddModal
-                onClose={() => setShowAdd(false)}
-                onAdd={(p) => { store.addProduct(p); setShowAdd(false) }}
+                onClose={() => setShowAdd(null)}
+                onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
                 products={store.products}
               />
             )}

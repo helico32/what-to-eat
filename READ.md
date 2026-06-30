@@ -161,6 +161,9 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 - **Zéro compte requis** — aucune inscription, aucun mot de passe, aucune friction au premier lancement
 - **Auth anonyme** — Firebase crée silencieusement un uid par appareil dès le chargement ✅
 - **Bouton radio "Alertes"** dans le menu — toujours visible, 3 états : `○ Activer les alertes` / `● Alertes activées` / `× Alertes bloquées`. Stocke le token FCM dans Firestore (notif active dès que la Cloud Function est déployée)
+- **Ajout rapide** — le `+` ouvre un bottom sheet minimal (nom + location) sans photo ni date. Lien "Avec photo / date →" escalade vers le flux complet (`AddModal`)
+- **Badge "⚠ sans date"** — les produits frigo sans `expiryDate` affichent un badge tappable dans la liste
+- **Picker date inline** — taper le badge ouvre un `<input type="date">` dans la ligne, sauvegarde immédiatement en IndexedDB via `updateExpiryDate`
 
 ### Roadmap — 5 étapes
 
