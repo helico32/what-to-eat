@@ -10,6 +10,12 @@ export default defineConfig({
       // Pas de popup "nouvelle version disponible" — zéro friction pour le persona TDAH.
       registerType: 'autoUpdate',
 
+      // injectManifest : on fournit notre propre SW (src/sw.js) au lieu du SW généré.
+      // Nécessaire pour que FCM puisse intercepter les notifications en arrière-plan.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+
       manifest: {
         name: 'What to eat',
         short_name: 'What to eat',
@@ -25,7 +31,7 @@ export default defineConfig({
         ],
       },
 
-      workbox: {
+      injectManifest: {
         // Met en cache tout ce que Vite génère (JS, CSS, HTML).
         // Les images du dossier public/ sont aussi mises en cache.
         globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico}'],

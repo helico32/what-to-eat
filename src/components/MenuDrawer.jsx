@@ -23,7 +23,9 @@ const PAGES = [
   { id: 'recettes', label: 'Recettes',         Icon: ChefHatIcon },
 ]
 
-export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSelectTab, onSelectPage, onClose }) {
+function BellIcon() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> }
+
+export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSelectTab, onSelectPage, onClose, notifPermission, onRequestNotif }) {
   return (
     <div className="fixed inset-0 z-50 flex" onClick={onClose}>
       <div
@@ -74,6 +76,22 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
             )
           })}
         </nav>
+      </div>
+
+        {notifPermission !== 'granted' && notifPermission !== 'denied' && (
+          <>
+            <div className="h-px bg-ink-primary mx-5 my-5" />
+            <div className="px-3">
+              <button
+                onClick={() => { onRequestNotif(); onClose() }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-[10px] font-body font-semibold text-[16px] transition-all text-left border ${btnDefault}`}
+              >
+                <BellIcon />
+                Activer les alertes
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex-1 bg-ink-primary/30"  />

@@ -3,7 +3,8 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useSortable }   from './hooks/useSortable'
 import { useStore }      from './hooks/useStore'
 import { useRecipes }    from './hooks/useRecipes'
-import { useMeals }      from './hooks/useMeals'
+import { useMeals }           from './hooks/useMeals'
+import { useNotifications }   from './hooks/useNotifications'
 import { sortByUrgency } from './utils/badges'
 import Header               from './components/Header'
 import MenuDrawer           from './components/MenuDrawer'
@@ -119,6 +120,8 @@ export default function App() {
   const [sorting,  setSorting]  = useState(false)
   const [search,   setSearch]   = useState('')
   const [mealMode, setMealMode] = useState(false)
+
+  const { permission, requestPermission } = useNotifications()
 
   const mealsStore = useMeals({
     // Après chaque transaction useMeals qui touche le store 'products',
@@ -362,6 +365,8 @@ export default function App() {
           onSelectTab={(t) => { setTab(t); setSorting(false); navigate('/') }}
           onSelectPage={(p) => navigate(`/${p}`)}
           onClose={() => setShowMenu(false)}
+          notifPermission={permission}
+          onRequestNotif={requestPermission}
         />
       )}
     </div>

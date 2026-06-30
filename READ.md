@@ -98,6 +98,40 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 ---
 
+## User journeys — tests à faire
+
+### Journey 1 — "Merde, les framboises"
+
+**Contexte** : mardi soir 18h30, elle rentre, ouvre le frigo, voit les framboises achetées il y a 3 jours via Too Good To Go.
+
+1. Elle ouvre l'app → onglet Urgent
+2. Elle voit les framboises avec le badge rouge "Aujourd'hui"
+3. Elle tape sur le bouton cutlery (mealMode)
+4. Elle appuie sur la coutellerie à côté des framboises → "Ajouter au repas ?" → Oui
+5. Elle ferme l'app et va cuisiner
+
+**Ce qu'on vérifie** : le badge est lisible d'un coup d'œil, mealMode est compréhensible sans apprentissage, le stock diminue après confirmation.
+
+---
+
+### Journey 2 — "Je fais les courses demain"
+
+**Contexte** : dimanche matin, elle sait qu'elle va au marché.
+
+1. Elle ouvre l'app, tape sur l'icône panier → `/liste`
+2. Elle voit sa liste (vide ou partielle)
+3. Elle appuie sur **+** → ajoute "Yaourt"
+4. Elle revient à l'accueil (tape sur le titre)
+5. Elle va dans l'onglet Placard — voit que les pâtes sont à 1
+6. Elle tape l'icône panier sur les pâtes → "Ajouter à la liste ?" → Oui
+7. Elle retourne sur `/liste` — vérifie que les pâtes sont là
+8. Au marché, elle coche les items au fur et à mesure
+9. Rentrée, elle tape "Ranger les courses" → choisit Frigo → ajoute une date
+
+**Ce qu'on vérifie** : navigation aller-retour home↔liste fluide, ajout rapide fonctionne, flow "ranger après courses" compréhensible.
+
+---
+
 ## Principes de design
 
 - **Local pour le quotidien, Firebase pour la mémoire long terme** : le stock, la liste de courses et le planning restent en IndexedDB local (éphémère, change souvent). Les recettes, le catalogue images et les données de notification vont dans Firebase (valeur durable, survit au changement d'appareil).
@@ -122,6 +156,7 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 - **Fonctionne hors-ligne** — après le premier chargement, l'app tourne sans connexion (Service Worker + cache)
 - **Données locales persistantes** — stock, planning, liste de courses survivent aux rechargements (IndexedDB)
 - **Zéro compte requis** — aucune inscription, aucun mot de passe, aucune friction au premier lancement
+- **Auth anonyme** — Firebase crée silencieusement un uid par appareil dès le chargement (codé, à activer dans la console)
 
 ### Roadmap — 5 étapes
 
@@ -137,6 +172,72 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 - ~~Déploiement sur Firebase Hosting~~ ✅ — https://what-to-eat-angelab.web.app
 
 **Étape 3 — Notifications push** ← on est là
+
+#### Ce qui est codé ✅
+
+| Fichier | Rôle |
+|---|---|
+| `src/firebase.js` | Init SDK (auth, db, messaging) |
+| `src/sw.js` | Service Worker custom : précache Workbox + écoute FCM en arrière-plan |
+| `vite.config.js` | Basculé en mode `injectManifest` → utilise `src/sw.js` |
+| `src/hooks/useNotifications.js` | Auth anonyme silencieuse + demande permission + token FCM → Firestore |
+| `functions/index.js` | Cloud Function planifiée (9h/j) : vérifie expirations → envoie notif |
+| `firestore.rules` | Sécurité : chaque user lit/écrit uniquement ses propres données |
+| `App.jsx` | Intègre `useNotifications`, passe les props à `MenuDrawer` |
+| `MenuDrawer.jsx` | Bouton "Activer les alertes" (affiché si permission pas encore accordée) |
+
+#### Ce qui reste à faire (actions manuelles)
+
+**1. Activer l'authentification anonyme dans Firebase console**
+Firebase console → Authentication → Sign-in method → Anonyme → Activer
+
+**2. Récupérer la clé VAPID**
+Firebase console → Project Settings → Cloud Messaging → Web Push certificates → "Generate key pair"
+Copier la clé et remplacer `'REMPLACER_PAR_VAPID_KEY'` dans `src/hooks/useNotifications.js` ligne 10.
+
+**3. Installer firebase-admin dans les Cloud Functions**
+```
+cd functions && npm install firebase-admin
+```
+
+**4. Builder et tester**
+```
+npm run build
+```
+Vérifier que le build passe sans erreur, notamment que le SW est bien généré avec le manifest injecté.
+
+**5. Déployer**
+```
+firebase deploy
+```
+Déploie le front (Hosting), les règles Firestore, et la Cloud Function.
+
+**6. Tester sur téléphone**
+- Ouvrir l'app installée
+- Ouvrir le menu → "Activer les alertes"
+- Accepter la demande de permission
+- Vérifier dans Firestore console qu'un document `/users/{uid}` apparaît avec un `fcmToken`
+
+#### ⚠️ Note sur `injectManifest`
+
+On est passé du mode `generateSW` (SW auto-généré) au mode `injectManifest` (on fournit `src/sw.js`, le plugin y injecte la liste Workbox). Ce changement est nécessaire pour que FCM puisse enregistrer son listener `onBackgroundMessage` dans le SW. Un SW purement Workbox-généré n'a pas accès au code FCM.
+
+#### Installer l'app sur son téléphone
+
+**Sur iPhone / iPad (Safari obligatoire)**
+1. Ouvrir https://what-to-eat-angelab.web.app dans **Safari** (pas Chrome, pas Firefox — Apple bloque les PWA sur les autres navigateurs)
+2. Appuyer sur l'icône **Partager** (carré avec une flèche vers le haut) en bas de l'écran
+3. Faire défiler et choisir **"Sur l'écran d'accueil"**
+4. Confirmer avec **"Ajouter"**
+→ L'app apparaît sur l'écran d'accueil comme une app normale, se lance en plein écran sans barre Safari.
+
+**Sur Android (Chrome)**
+1. Ouvrir https://what-to-eat-angelab.web.app dans **Chrome**
+2. Chrome affiche automatiquement une bannière "Ajouter à l'écran d'accueil" — appuyer dessus
+3. Si la bannière n'apparaît pas : menu ⋮ (trois points en haut à droite) → **"Ajouter à l'écran d'accueil"**
+→ L'app s'installe comme une APK légère, icône sur l'écran d'accueil, plein écran.
+
+---
 
 #### Détail étape 2 — pour la junior
 
@@ -157,11 +258,14 @@ Fichier JavaScript installé dans le navigateur, qui tourne séparément de l'ap
 3. `npm run build` → le plugin génère `manifest.webmanifest` + `sw.js`
 4. `firebase deploy` → app en ligne, installable sur téléphone
 
-**Étape 3 — Notifications push** ← objectif V1
-- Firebase Anonymous Auth (silencieux, aucune friction)
-- Sync des dates d'expiration vers Firestore
-- Cloud Function quotidienne : vérifie les expirations → envoie push via FCM
-- Demande de permission notification dans l'app (une seule fois, non bloquante)
+**Étape 3 — Notifications push** ← objectif V1 (code terminé, actions manuelles restantes — voir détail ci-dessus)
+- ~~Firebase Anonymous Auth (silencieux, aucune friction)~~ ✅ codé — à activer dans la console
+- ~~Service Worker custom (cache + FCM arrière-plan)~~ ✅
+- ~~Cloud Function quotidienne : vérifie les expirations → envoie push via FCM~~ ✅
+- ~~Demande de permission notification dans l'app (une seule fois, non bloquante)~~ ✅
+- Clé VAPID → à récupérer dans Firebase console et renseigner dans `useNotifications.js`
+- `npm install firebase-admin` dans `functions/`
+- `firebase deploy`
 
 **Étape 4 — Auth upgrade + catalogue images**
 - Google Sign-In, Magic Link, Passkeys dans Firebase Auth

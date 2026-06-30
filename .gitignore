@@ -9,6 +9,9 @@ dist/
 # Firebase cache local (généré par firebase deploy, inutile en repo)
 .firebase/
 
+# Dépendances Cloud Functions (comme node_modules racine)
+functions/node_modules/
+
 # Système
 .DS_Store
 

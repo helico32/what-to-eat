@@ -81,7 +81,7 @@ function PositionInput({ position, total, onMoveTo }) {
 function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canSort, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
   const getDays = (name) => {
     const p = products.find(x => x.name === name)
-    return (p && p.daysLeft !== null) ? p.daysLeft : null
+    return (p && p.expiryDate != null) ? p.expiryDate : null
   }
   const [confirm, setConfirm] = useState(false)
 
