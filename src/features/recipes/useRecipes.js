@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { dbPromise } from '../db'
-import { recipes as defaultRecipes } from '../data/recipes'
+import { dbPromise } from '../../db'
+import { recipes as defaultRecipes } from './data'
 
 export function useRecipes() {
   const [recipes, setRecipes] = useState([])

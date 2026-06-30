@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { dbPromise } from '../db'
-import { initialProducts } from '../data/products'
+import { dbPromise } from '../../db'
+import { initialProducts } from '../../data/products'
 
 // Migration one-time : les anciens produits utilisaient daysLeft (nombre de jours)
 // à la place de expiryDate (date ISO). On convertit au chargement si besoin.

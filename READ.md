@@ -52,7 +52,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **Cohérence stock / planning** : résolue par la migration IndexedDB — `useMeals` modifie le store `products` dans la même transaction que le store `meals`. Plus de risque d'état incohérent.
 - **Pente glissante planning** : le planning n'est PAS un planificateur de menus. C'est une externalisation de mémoire — "je prévois d'utiliser ce produit tel jour avant qu'il périsse". Toute feature qui ressemble à "planifier ses repas" est hors scope. La question à se poser : "est-ce que ça aide à ne pas oublier un produit ?" Si non, on ne le fait pas.
 - **Icône PWA `purpose: 'any maskable'`** : un seul fichier `icon-512.png` sert les deux usages. Sur Android, les icônes maskable sont rognées en cercle — si le sujet de l'icône est trop proche des bords, il sera coupé. À corriger si l'icône est mal rendue après installation : créer un `icon-512-maskable.png` avec plus de marge et séparer les deux entrées dans le manifest.
-- **Auth anonyme + App Check** : l'auth anonyme laisse n'importe quel chargement créer un uid Firestore. Budget alert 5€ = filet immédiat. App Check (étape 4) = vraie protection contre les scripts abusifs.
+- **Auth anonyme + App Check — seul vrai risque de sécurité** : un script peut appeler `signInAnonymously()` en boucle, obtenir 10 000 UIDs anonymes, écrire des documents dans `/users/{uid}/products/`. La Cloud Function à 9h lit **tous** les users → chaque lecture coûte de l'argent sur Blaze. Filet immédiat : budget alert 5€ à activer dès l'upgrade Blaze (avant de lancer `firebase deploy --only functions`). Vraie protection : App Check (étape 4) — vérifie que les requêtes viennent de l'app, pas d'un script. Ne rien coder de plus avant l'étape 4.
 - **Notifications iOS** : les push PWA ne fonctionnent que sur iOS 16.4+, app installée via Safari. Sur iOS plus ancien ou navigateur non-Safari, `Notification` est `'unsupported'` — le bouton radio est masqué.
 - **Cloud Function en attente Blaze** : le code est déployable (`firebase deploy --only functions`) dès que le plan est upgradé. Penser à définir le budget alert avant de confirmer l'upgrade.
 
@@ -184,7 +184,7 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 | `src/firebase.js` | Init SDK (auth, db, messaging) |
 | `src/sw.js` | Service Worker custom : précache Workbox + écoute FCM en arrière-plan |
 | `vite.config.js` | Basculé en mode `injectManifest` → utilise `src/sw.js` |
-| `src/hooks/useNotifications.js` | Auth anonyme silencieuse + demande permission + token FCM → Firestore |
+| `src/features/notifications/useNotifications.js` | Auth anonyme silencieuse + demande permission + token FCM → Firestore |
 | `functions/index.js` | Cloud Function planifiée (9h/j) : vérifie expirations → envoie notif |
 | `firestore.rules` | Sécurité : chaque user lit/écrit uniquement ses propres données |
 | `App.jsx` | Intègre `useNotifications`, passe les props à `MenuDrawer` |
@@ -372,7 +372,7 @@ Ni salariée ni indépendante — les allocations de chômage impliquent une rè
 - **CSS** : Tailwind CSS v3
 - **Stockage local** : IndexedDB via `idb` — données éphémères (stock, planning, liste de courses)
 - **Cloud** : Firebase — hébergement, notifications push, catalogue images, recettes
-- **Structure** : composants découplés, logique dans des hooks custom
+- **Structure** : `features/` par domaine métier, `components/` pour les éléments vraiment partagés, logique dans des hooks custom co-localisés avec leur feature
 
 ### Ce qui est local vs Firebase
 
@@ -420,15 +420,33 @@ Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent 
 | `useStore` | ✅ Fait — `productsRef` pour callbacks temporaires stables ; `refreshProducts` prêt pour `useMeals` |
 | `useMeals` | ✅ Fait — transaction atomique meals + products ; `onProductsChanged` remplace les 3 callbacks |
 
+### Structure des fichiers
+
+```
+src/
+  features/
+    products/       ProductRow, AddModal, useStore, badges
+    meals/          MealGroupsList, MealPlanPage, PlannedMealsSection, useMeals, useMealChecklist
+    recipes/        RecipesPage, RecipeCard, RecipeModal, AddRecipeModal, useRecipes, data
+    shopping/       ListePage, ShoppingList
+    notifications/  useNotifications
+  components/       Header, MenuDrawer, TabBar, SearchBar, SearchEmpty  ← partagés (2+ features)
+  hooks/            useSortable  ← partagé (drag-and-drop multi-features)
+  utils/            styles.js
+  data/             products.js  ← données initiales produits
+  db.js  firebase.js  sw.js  main.jsx  App.jsx
+```
+
 ### Hooks
 
-| Hook | Rôle |
-|------|------|
-| `useStore` | Produits + liste de courses |
-| `useRecipes` | Recettes : CRUD, favoris, réordonnancement |
-| `useMeals` | Planning de repas : meals + groupes "repas" |
-| `useMealChecklist` | État checklist dans MealGroupsList (checked, rowQtys, Mangé/Ranger) |
-| `useSortable` | Drag-and-drop dans les listes produits |
+| Hook | Emplacement | Rôle |
+|------|-------------|------|
+| `useStore` | `features/products/` | Produits + liste de courses |
+| `useRecipes` | `features/recipes/` | Recettes : CRUD, favoris, réordonnancement |
+| `useMeals` | `features/meals/` | Planning de repas : meals + groupes "repas" |
+| `useMealChecklist` | `features/meals/` | État checklist dans MealGroupsList (checked, rowQtys, Mangé/Ranger) |
+| `useSortable` | `hooks/` | Drag-and-drop dans les listes produits |
+| `useNotifications` | `features/notifications/` | Auth anonyme + permission push + token FCM |
 
 ---
 

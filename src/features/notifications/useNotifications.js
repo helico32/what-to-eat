@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { signInAnonymously }  from 'firebase/auth'
 import { doc, setDoc }        from 'firebase/firestore'
 import { getToken }           from 'firebase/messaging'
-import { auth, db, messaging } from '../firebase'
+import { auth, db, messaging } from '../../firebase'
 
 // VAPID key — Project Settings → Cloud Messaging → Web Push certificates
 // À remplacer par ta clé une fois générée dans la console Firebase.

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getIngredientChipBg } from '../utils/badges'
-import { btnActive, btnDefault } from '../utils/styles'
-import { useSortable } from '../hooks/useSortable'
-import Header from './Header'
-import SearchBar from './SearchBar'
-import SearchEmpty from './SearchEmpty'
+import { getIngredientChipBg } from '../products/badges'
+import { btnActive, btnDefault } from '../../utils/styles'
+import { useSortable } from '../../hooks/useSortable'
+import Header from '../../components/Header'
+import SearchBar from '../../components/SearchBar'
+import SearchEmpty from '../../components/SearchEmpty'
 
 function ClockIcon() {
   return (

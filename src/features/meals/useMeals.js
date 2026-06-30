@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { dbPromise } from '../db'
+import { dbPromise } from '../../db'
 
 export function useMeals({ onProductsChanged }) {
   const [meals, setMeals] = useState([])

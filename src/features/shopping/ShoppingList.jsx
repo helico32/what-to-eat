@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useSortable } from '../hooks/useSortable'
-import { btnActive, btnDefault } from '../utils/styles'
+import { useSortable } from '../../hooks/useSortable'
+import { btnActive, btnDefault } from '../../utils/styles'
 
 function FridgeIcon() {
   return (

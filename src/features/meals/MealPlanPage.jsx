@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
-import Header from './Header'
-import SearchBar from './SearchBar'
+import Header from '../../components/Header'
+import SearchBar from '../../components/SearchBar'
 import MealGroupsList from './MealGroupsList'
-import { btnActive, btnDefault } from '../utils/styles'
-import { sortByUrgency, getBadge } from '../utils/badges'
+import { btnActive, btnDefault } from '../../utils/styles'
+import { sortByUrgency, getBadge } from '../products/badges'
 
 function get7Days() {
   return Array.from({ length: 7 }, (_, i) => {

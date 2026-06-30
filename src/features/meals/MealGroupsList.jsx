@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { useMealChecklist } from '../hooks/useMealChecklist'
-import { btnActive, btnDefault } from '../utils/styles'
+import { useMealChecklist } from './useMealChecklist'
+import { btnActive, btnDefault } from '../../utils/styles'
 
 function ChevronIcon({ down }) {
   return (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { getBadge } from '../utils/badges'
-import { btnActive, btnDefault } from '../utils/styles'
+import { getBadge } from './badges'
+import { btnActive, btnDefault } from '../../utils/styles'
 
 function PositionInput({ position, total, onMoveTo }) {
   const [val, setVal] = useState(String(position))

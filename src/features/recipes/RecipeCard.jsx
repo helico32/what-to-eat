@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getIngredientChipBg } from '../utils/badges'
+import { getIngredientChipBg } from '../products/badges'
 
 function ClockIcon() {
   return (

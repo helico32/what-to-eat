@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import ShoppingList from './ShoppingList'
-import Header from './Header'
-import SearchBar from './SearchBar'
-import SearchEmpty from './SearchEmpty'
+import Header from '../../components/Header'
+import SearchBar from '../../components/SearchBar'
+import SearchEmpty from '../../components/SearchEmpty'
 
 function SortIcon() {
   return (
