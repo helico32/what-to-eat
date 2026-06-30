@@ -121,9 +121,9 @@ export default function App() {
   const [mealMode, setMealMode] = useState(false)
 
   const mealsStore = useMeals({
-    onDecreaseQty:  store.decreaseQty,
-    onIncreaseQty:  store.increaseQty,
-    onRemoveIfZero: store.removeIfZero,
+    // Après chaque transaction useMeals qui touche le store 'products',
+    // on relit IndexedDB pour resynchroniser le state React de useStore.
+    onProductsChanged: store.refreshProducts,
   })
 
   const uncheckedCount  = store.shoppingList.filter(i => !i.checked).length

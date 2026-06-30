@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { dbPromise } from '../db'
 import { initialProducts } from '../data/products'
 
@@ -17,11 +17,6 @@ function migrateProducts(products) {
 export function useStore() {
   const [products,     setProducts]     = useState([])
   const [shoppingList, setShoppingList] = useState([])
-
-  // Ref synchronisée avec products à chaque render.
-  // Permet aux callbacks stables (useCallback sans deps) de toujours lire l'état courant.
-  const productsRef = useRef([])
-  productsRef.current = products
 
   useEffect(() => {
     async function load() {
@@ -188,32 +183,6 @@ export function useStore() {
     await tx.done
   }
 
-  // Ces trois fonctions sont encore appelées par useMeals via callbacks (App.jsx).
-  // Elles seront supprimées quand useMeals sera migré et utilisera sa propre transaction.
-  // useCallback sans deps + productsRef : référence stable qui lit toujours l'état courant.
-  const decreaseQty = useCallback((id, n) => {
-    const p = productsRef.current.find(p => p.id === id)
-    if (!p) return
-    const updated = { ...p, qty: Math.max(0, (p.qty ?? 1) - n) }
-    setProducts(prev => prev.map(pr => pr.id === id ? updated : pr))
-    dbPromise.then(db => db.put('products', updated))
-  }, [])
-
-  const increaseQty = useCallback((id, n) => {
-    const p = productsRef.current.find(p => p.id === id)
-    if (!p) return
-    const updated = { ...p, qty: (p.qty ?? 0) + n }
-    setProducts(prev => prev.map(pr => pr.id === id ? updated : pr))
-    dbPromise.then(db => db.put('products', updated))
-  }, [])
-
-  const removeIfZero = useCallback((id) => {
-    const p = productsRef.current.find(p => p.id === id)
-    if (!p || (p.qty ?? 0) !== 0) return
-    setProducts(prev => prev.filter(pr => pr.id !== id))
-    dbPromise.then(db => db.delete('products', id))
-  }, [])
-
   return {
     products,
     shoppingList,
@@ -229,9 +198,6 @@ export function useStore() {
     reorderProducts,
     decrementProduct,
     incrementProduct,
-    decreaseQty,
-    increaseQty,
-    removeIfZero,
     refreshProducts,
   }
 }

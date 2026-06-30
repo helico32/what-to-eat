@@ -57,7 +57,6 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **Cibles tactiles** : les boutons sort/mealMode (`w-8 h-8` = 32px) et le `+` du Header (`w-8 h-8` = 32px) sont en dessous des 44px requis par la règle accessibilité. Décision en suspens : les actions secondaires peuvent-elles rester à 32px ? À trancher.
 - **mealMode — état actif peu lisible** : le changement de fond seul ne suffit pas pour le persona TDAH ("l'état actif d'un bouton doit être indiscutable"). Proposition en attente de go : afficher un label texte à côté de l'icône quand le mode est actif.
 - **Lien urgence → planning absent** : aucun raccourci direct depuis un produit urgent pour le placer sur un jour. Le flux actuel (activer mealMode → taper l'icône → picker) est trop long pour le persona. À creuser.
-- **Produit déjà planifié non signalé** : dans le stock, rien n'indique qu'un produit a déjà été placé dans le planning. Risque de le planifier en double.
 - **Audit `aria-label` complet** : seuls les boutons sort/mealMode ont été mis à jour. Les autres boutons icônes de l'app (corbeille, panier, shuffle, etc.) sont à auditer.
 
 ---
@@ -119,8 +118,8 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 ### Roadmap — 5 étapes
 
 **Étape 1 — Finir la migration IndexedDB** ← on est là
-- Migrer `useMeals` (dernière hook restante)
-- Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`
+- ~~Migrer `useMeals` (dernière hook restante)~~ ✅
+- ~~Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`~~ ✅
 - Corriger les points UX ouverts (aria-labels, état actif mealMode)
 
 **Étape 2 — PWA**
@@ -290,7 +289,7 @@ Loading : IndexedDB local ≈ 50ms. Pas de spinner — les composants affichent 
 | `src/db.js` | ✅ Fait |
 | `useRecipes` | ✅ Fait — champ `position` ajouté pour préserver l'ordre drag-and-drop |
 | `useStore` | ✅ Fait — `productsRef` pour callbacks temporaires stables ; `refreshProducts` prêt pour `useMeals` |
-| `useMeals` | ⏳ À faire — transaction atomique meals + products ; suppression des callbacks |
+| `useMeals` | ✅ Fait — transaction atomique meals + products ; `onProductsChanged` remplace les 3 callbacks |
 
 ### Hooks
 

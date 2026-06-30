@@ -1,85 +1,79 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { dbPromise } from '../db'
 
-const KEY = 'wte-meals'
-const KEY_REPAS = 'wte-repas'
+export function useMeals({ onProductsChanged }) {
+  const [meals, setMeals] = useState([])
+  const [repas, setRepas] = useState([])
 
-function load(key, fallback) {
-  try {
-    const stored = localStorage.getItem(key)
-    return stored ? JSON.parse(stored) : fallback
-  } catch {
-    return fallback
-  }
-}
+  // Chargement initial depuis IndexedDB.
+  useEffect(() => {
+    async function load() {
+      const db = await dbPromise
+      const [storedMeals, storedRepas] = await Promise.all([
+        db.getAll('meals'),
+        db.getAll('repas'),
+      ])
+      setMeals(storedMeals)
+      setRepas(storedRepas)
+    }
+    load()
+  }, [])
 
-function persist(key, data) {
-  try { localStorage.setItem(key, JSON.stringify(data)) } catch {}
-}
-
-export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
-  const [meals, setMeals] = useState(() => load(KEY, []))
-  const [repas, setRepas] = useState(() => load(KEY_REPAS, []))
-
-  // Helper : met à jour le state React ET écrit dans localStorage en même temps.
-  // On passe par le setter fonctionnel de useState pour toujours travailler
-  // sur la valeur la plus récente (évite les bugs de closure avec des appels rapprochés).
-  const setAndPersist = (updater) => {
-    setMeals(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      persist(KEY, next)
-      return next
-    })
+  const addRepas = async (name, date) => {
+    const newRepas = { id: Date.now(), name, date }
+    setRepas(prev => [...prev, newRepas])
+    const db = await dbPromise
+    await db.put('repas', newRepas)
+    return newRepas.id
   }
 
-  const addRepas = useCallback((name, date) => {
+  const renameRepas = async (repasId, newName) => {
+    const current = repas.find(r => r.id === repasId)
+    if (!current) return
+    const updated = { ...current, name: newName }
+    setRepas(prev => prev.map(r => r.id === repasId ? updated : r))
+    const db = await dbPromise
+    await db.put('repas', updated)
+  }
+
+  // Crée un groupe nommé et y rattache tous les meals sans groupe du jour.
+  const nameNoneMeals = async (name, date) => {
     const id = Date.now()
-    setRepas(prev => {
-      const next = [...prev, { id, name, date }]
-      persist(KEY_REPAS, next)
-      return next
-    })
-    return id
-  }, [])
+    const newRepas = { id, name, date }
+    setRepas(prev => [...prev, newRepas])
+    setMeals(prev => prev.map(m => m.date === date && !m.repasId ? { ...m, repasId: id } : m))
+    const db = await dbPromise
+    const tx = db.transaction(['meals', 'repas'], 'readwrite')
+    tx.objectStore('repas').put(newRepas)
+    const allMeals = await tx.objectStore('meals').getAll()
+    for (const m of allMeals) {
+      if (m.date === date && !m.repasId) tx.objectStore('meals').put({ ...m, repasId: id })
+    }
+    await tx.done
+  }
 
-  const renameRepas = useCallback((repasId, newName) => {
-    setRepas(prev => {
-      const next = prev.map(r => r.id === repasId ? { ...r, name: newName } : r)
-      persist(KEY_REPAS, next)
-      return next
-    })
-  }, [])
+  // Supprime un groupe et remet toutes ses quantités en stock.
+  // Transaction atomique : meals + products + repas — tout ou rien.
+  const deleteRepas = async (repasId) => {
+    const toCancel = meals.filter(m => m.repasId === repasId)
+    setMeals(prev => prev.filter(m => m.repasId !== repasId))
+    setRepas(prev => prev.filter(r => r.id !== repasId))
+    const db = await dbPromise
+    const tx = db.transaction(['meals', 'products', 'repas'], 'readwrite')
+    for (const meal of toCancel) {
+      tx.objectStore('meals').delete(meal.id)
+      const p = await tx.objectStore('products').get(meal.productId)
+      if (p) tx.objectStore('products').put({ ...p, qty: (p.qty ?? 0) + meal.qty })
+    }
+    tx.objectStore('repas').delete(repasId)
+    await tx.done
+    if (toCancel.length > 0) onProductsChanged()
+  }
 
-  const nameNoneMeals = useCallback((name, date) => {
-    const id = Date.now()
-    setRepas(prev => {
-      const next = [...prev, { id, name, date }]
-      persist(KEY_REPAS, next)
-      return next
-    })
-    setMeals(prev => {
-      const next = prev.map(m => m.date === date && !m.repasId ? { ...m, repasId: id } : m)
-      persist(KEY, next)
-      return next
-    })
-  }, [])
-
-  const deleteRepas = useCallback((repasId) => {
-    setMeals(prev => {
-      const toCancel = prev.filter(m => m.repasId === repasId)
-      toCancel.forEach(m => onIncreaseQty(m.productId, m.qty))
-      const next = prev.filter(m => m.repasId !== repasId)
-      persist(KEY, next)
-      return next
-    })
-    setRepas(prev => {
-      const next = prev.filter(r => r.id !== repasId)
-      persist(KEY_REPAS, next)
-      return next
-    })
-  }, [onIncreaseQty])
-
-  const addMeal = useCallback((product, qty, date, repasId = null) => {
-    setAndPersist(prev => [...prev, {
+  // Ajoute un produit au planning et diminue immédiatement son stock.
+  // Transaction atomique : meals + products — garantit la cohérence même si l'app crashe.
+  const addMeal = async (product, qty, date, repasId = null) => {
+    const newMeal = {
       id: Date.now(),
       productId: product.id,
       productSnapshot: {
@@ -90,35 +84,52 @@ export function useMeals({ onDecreaseQty, onIncreaseQty, onRemoveIfZero }) {
       qty,
       date,
       repasId: repasId ?? null,
-    }])
-    onDecreaseQty(product.id, qty)
-  }, [onDecreaseQty])
+    }
+    setMeals(prev => [...prev, newMeal])
+    const db = await dbPromise
+    const tx = db.transaction(['meals', 'products'], 'readwrite')
+    tx.objectStore('meals').put(newMeal)
+    const p = await tx.objectStore('products').get(product.id)
+    if (p) tx.objectStore('products').put({ ...p, qty: Math.max(0, (p.qty ?? 1) - qty) })
+    await tx.done
+    onProductsChanged()
+  }
 
-  const confirmMeal = useCallback((mealId, returnQty) => {
-    setMeals(prev => {
-      const meal = prev.find(m => m.id === mealId)
-      if (!meal) return prev
+  // Confirme un meal : "Mangé" (returnQty = 0) ou "Ranger" (returnQty > 0).
+  // - Ranger : remet returnQty en stock.
+  // - Mangé : supprime le produit si sa qty en stock est à 0.
+  const confirmMeal = async (mealId, returnQty) => {
+    const meal = meals.find(m => m.id === mealId)
+    if (!meal) return
+    setMeals(prev => prev.filter(m => m.id !== mealId))
+    const db = await dbPromise
+    const tx = db.transaction(['meals', 'products'], 'readwrite')
+    tx.objectStore('meals').delete(mealId)
+    const p = await tx.objectStore('products').get(meal.productId)
+    if (p) {
       if (returnQty > 0) {
-        onIncreaseQty(meal.productId, returnQty)
-      } else {
-        onRemoveIfZero(meal.productId)
+        tx.objectStore('products').put({ ...p, qty: (p.qty ?? 0) + returnQty })
+      } else if ((p.qty ?? 0) === 0) {
+        tx.objectStore('products').delete(meal.productId)
       }
-      const next = prev.filter(m => m.id !== mealId)
-      persist(KEY, next)
-      return next
-    })
-  }, [onIncreaseQty, onRemoveIfZero])
+    }
+    await tx.done
+    onProductsChanged()
+  }
 
-  const cancelMeal = useCallback((mealId) => {
-    setMeals(prev => {
-      const meal = prev.find(m => m.id === mealId)
-      if (!meal) return prev
-      onIncreaseQty(meal.productId, meal.qty)
-      const next = prev.filter(m => m.id !== mealId)
-      persist(KEY, next)
-      return next
-    })
-  }, [onIncreaseQty])
+  // Annule un meal : remet toute la quantité en stock.
+  const cancelMeal = async (mealId) => {
+    const meal = meals.find(m => m.id === mealId)
+    if (!meal) return
+    setMeals(prev => prev.filter(m => m.id !== mealId))
+    const db = await dbPromise
+    const tx = db.transaction(['meals', 'products'], 'readwrite')
+    tx.objectStore('meals').delete(mealId)
+    const p = await tx.objectStore('products').get(meal.productId)
+    if (p) tx.objectStore('products').put({ ...p, qty: (p.qty ?? 0) + meal.qty })
+    await tx.done
+    onProductsChanged()
+  }
 
   return { meals, repas, addMeal, addRepas, renameRepas, nameNoneMeals, deleteRepas, confirmMeal, cancelMeal }
 }

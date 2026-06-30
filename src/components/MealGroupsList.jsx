@@ -295,6 +295,7 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
           {...groupProps}
           onAddItem={onAddItem ? () => onAddItem('__none__') : undefined}
           onRename={onNameNoneMeals}
+          onDelete={onCancelMeal ? () => noneMeals.forEach(m => onCancelMeal(m.id)) : undefined}
         />
       )}
       {onCreateRepas && (
