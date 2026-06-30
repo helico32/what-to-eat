@@ -45,7 +45,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 
 ### Points de vigilance actuels
 
-- **`MealGroupsList`** fait trop de choses (affichage, état check, rename, confirm delete, logique mangé/rangé). Candidat au découpage si ça grossit encore.
+- **`MealGroupsList`** : logique d'état extraite dans `useMealChecklist`. Le composant ne fait plus que du rendu. À surveiller si `RepasGroup` grossit (rename + delete + collapse en un seul composant).
 - **Cohérence stock / planning** : quand on ajoute un produit au planning, le stock diminue immédiatement. Si l'app crash avant confirmation, le stock est faux. Acceptable en v1, à corriger si on ajoute une sync.
 - **Pente glissante planning** : le planning n'est PAS un planificateur de menus. C'est une externalisation de mémoire — "je prévois d'utiliser ce produit tel jour avant qu'il périsse". Toute feature qui ressemble à "planifier ses repas" est hors scope. La question à se poser : "est-ce que ça aide à ne pas oublier un produit ?" Si non, on ne le fait pas.
 
@@ -58,6 +58,32 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 **Ce qui fonctionne déjà** : elle achète via une app anti-gaspi (ex. Happy Hour) — les visuels l'aident à n'acheter que l'essentiel, et la date de péremption courte la force à manger rapidement et varié.
 
 **Ce qui ne fonctionne pas** : elle oublie ce qui est dans son frigo, ne sait pas quoi cuisiner, et les produits longue durée (barres de céréales, éponges, sodas) disparaissent de sa mémoire.
+
+---
+
+### Persona TDAH — fiche de référence UX
+
+À utiliser pour évaluer chaque décision d'interface. Poser la question : *"est-ce que ce persona passe cet écran sans friction ?"*
+
+**Comportements cognitifs**
+- Scanne les formes et couleurs, ne lit pas les labels
+- Temps d'attention par élément : ~3 secondes avant de passer à autre chose
+- Oublie ce qu'elle cherchait si un obstacle ou une décision apparaît
+- Décision fatigue rapide : max 2 choix par écran, sinon abandon
+- Pas de permanence des objets : ce qui n'est pas visible n'existe pas
+
+**Comportements d'usage**
+- N'explore pas l'interface — n'appuie pas sur des boutons dont elle ne connaît pas l'effet
+- N'utilise pas les réglages, paramètres ou menus avancés
+- Revient toujours à l'écran d'accueil comme point de repère
+- L'urgence est un moteur : une date courte qui clignote, elle réagit
+
+**Règles d'interface qui en découlent**
+- Toute action doit être évidente sans apprentissage
+- L'état actif d'un bouton doit être indiscutable (pas juste un changement de couleur subtil)
+- Les cibles tactiles : minimum 44px (accessibilité + doigt imprécis)
+- Zéro écran de réglages exposé à l'utilisatrice
+- Le texte confirme ce que l'icône montre — icône seule = risque d'invisibilité
 
 ---
 

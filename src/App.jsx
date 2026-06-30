@@ -49,7 +49,8 @@ function SectionLabel({ label, count, onSort, sorting, onMealMode, mealMode }) {
         {onSort && (
           <button
             onClick={onSort}
-            className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
+            aria-label="Trier manuellement"
+            className={`w-8 h-8 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
               sorting ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
             }`}
           >
@@ -59,10 +60,10 @@ function SectionLabel({ label, count, onSort, sorting, onMealMode, mealMode }) {
         {onMealMode && (
           <button
             onClick={onMealMode}
-            className={`w-7 h-7 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
+            aria-label="Planifier un repas"
+            className={`w-8 h-8 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
               mealMode ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
             }`}
-            title="Mode repas"
           >
             <CutleryToggleIcon />
           </button>
