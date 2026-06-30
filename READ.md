@@ -52,6 +52,9 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **Cohérence stock / planning** : résolue par la migration IndexedDB — `useMeals` modifie le store `products` dans la même transaction que le store `meals`. Plus de risque d'état incohérent.
 - **Pente glissante planning** : le planning n'est PAS un planificateur de menus. C'est une externalisation de mémoire — "je prévois d'utiliser ce produit tel jour avant qu'il périsse". Toute feature qui ressemble à "planifier ses repas" est hors scope. La question à se poser : "est-ce que ça aide à ne pas oublier un produit ?" Si non, on ne le fait pas.
 - **Icône PWA `purpose: 'any maskable'`** : un seul fichier `icon-512.png` sert les deux usages. Sur Android, les icônes maskable sont rognées en cercle — si le sujet de l'icône est trop proche des bords, il sera coupé. À corriger si l'icône est mal rendue après installation : créer un `icon-512-maskable.png` avec plus de marge et séparer les deux entrées dans le manifest.
+- **Auth anonyme + App Check** : l'auth anonyme laisse n'importe quel chargement créer un uid Firestore. Budget alert 5€ = filet immédiat. App Check (étape 4) = vraie protection contre les scripts abusifs.
+- **Notifications iOS** : les push PWA ne fonctionnent que sur iOS 16.4+, app installée via Safari. Sur iOS plus ancien ou navigateur non-Safari, `Notification` est `'unsupported'` — le bouton radio est masqué.
+- **Cloud Function en attente Blaze** : le code est déployable (`firebase deploy --only functions`) dès que le plan est upgradé. Penser à définir le budget alert avant de confirmer l'upgrade.
 
 ### À faire
 
@@ -156,7 +159,8 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 - **Fonctionne hors-ligne** — après le premier chargement, l'app tourne sans connexion (Service Worker + cache)
 - **Données locales persistantes** — stock, planning, liste de courses survivent aux rechargements (IndexedDB)
 - **Zéro compte requis** — aucune inscription, aucun mot de passe, aucune friction au premier lancement
-- **Auth anonyme** — Firebase crée silencieusement un uid par appareil dès le chargement (codé, à activer dans la console)
+- **Auth anonyme** — Firebase crée silencieusement un uid par appareil dès le chargement ✅
+- **Bouton radio "Alertes"** dans le menu — toujours visible, 3 états : `○ Activer les alertes` / `● Alertes activées` / `× Alertes bloquées`. Stocke le token FCM dans Firestore (notif active dès que la Cloud Function est déployée)
 
 ### Roadmap — 5 étapes
 
@@ -186,37 +190,25 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 | `App.jsx` | Intègre `useNotifications`, passe les props à `MenuDrawer` |
 | `MenuDrawer.jsx` | Bouton "Activer les alertes" (affiché si permission pas encore accordée) |
 
-#### Ce qui reste à faire (actions manuelles)
+#### Ce qui reste à faire
 
-**1. Activer l'authentification anonyme dans Firebase console**
-Firebase console → Authentication → Sign-in method → Anonyme → Activer
+**Passer en Blaze pour activer les notifications**
+1. Firebase console → https://console.firebase.google.com/project/what-to-eat-angelab/usage/details → Upgrade
+2. Définir un budget alert à **5€** dès la page d'upgrade (email envoyé à 50%, 90%, 100%)
+3. `firebase deploy --only functions`
 
-**2. Récupérer la clé VAPID**
-Firebase console → Project Settings → Cloud Messaging → Web Push certificates → "Generate key pair"
-Copier la clé et remplacer `'REMPLACER_PAR_VAPID_KEY'` dans `src/hooks/useNotifications.js` ligne 10.
-
-**3. Installer firebase-admin dans les Cloud Functions**
-```
-cd functions && npm install firebase-admin
-```
-
-**4. Builder et tester**
-```
-npm run build
-```
-Vérifier que le build passe sans erreur, notamment que le SW est bien généré avec le manifest injecté.
-
-**5. Déployer**
-```
-firebase deploy
-```
-Déploie le front (Hosting), les règles Firestore, et la Cloud Function.
-
-**6. Tester sur téléphone**
-- Ouvrir l'app installée
-- Ouvrir le menu → "Activer les alertes"
-- Accepter la demande de permission
+**Tester les notifications sur téléphone**
+- Ouvrir l'app installée (PWA ajoutée à l'écran d'accueil)
+- Menu → bouton radio "Activer les alertes" → accepter la permission
 - Vérifier dans Firestore console qu'un document `/users/{uid}` apparaît avec un `fcmToken`
+- Si le bouton affiche "Alertes bloquées" : réglages du navigateur → autoriser les notifications pour ce site
+
+**Note navigateurs mobiles**
+- iOS : notifications push PWA nécessitent iOS 16.4+ et l'app installée via Safari (pas Chrome/Firefox)
+- Android Chrome : fonctionne directement
+
+**Protection anti-abus (à faire à l'étape 4)**
+L'auth anonyme laisse n'importe quel chargement créer un uid. Le budget alert à 5€ est le filet de sécurité immédiat. La vraie protection viendra avec **App Check** (étape 4) — vérifie que les requêtes viennent de l'app et pas d'un script.
 
 #### ⚠️ Note sur `injectManifest`
 
@@ -258,14 +250,14 @@ Fichier JavaScript installé dans le navigateur, qui tourne séparément de l'ap
 3. `npm run build` → le plugin génère `manifest.webmanifest` + `sw.js`
 4. `firebase deploy` → app en ligne, installable sur téléphone
 
-**Étape 3 — Notifications push** ← objectif V1 (code terminé, actions manuelles restantes — voir détail ci-dessus)
-- ~~Firebase Anonymous Auth (silencieux, aucune friction)~~ ✅ codé — à activer dans la console
-- ~~Service Worker custom (cache + FCM arrière-plan)~~ ✅
-- ~~Cloud Function quotidienne : vérifie les expirations → envoie push via FCM~~ ✅
-- ~~Demande de permission notification dans l'app (une seule fois, non bloquante)~~ ✅
-- Clé VAPID → à récupérer dans Firebase console et renseigner dans `useNotifications.js`
-- `npm install firebase-admin` dans `functions/`
-- `firebase deploy`
+**Étape 3 — Notifications push** (partiellement déployé — en attente plan Blaze)
+- ~~Firebase Anonymous Auth (silencieux, aucune friction)~~ ✅ activé + déployé
+- ~~Service Worker custom (cache + FCM arrière-plan)~~ ✅ déployé
+- ~~Demande de permission notification dans l'app (une seule fois, non bloquante)~~ ✅ déployé
+- ~~Clé VAPID renseignée dans `useNotifications.js`~~ ✅
+- ~~Firestore rules déployées~~ ✅ — chaque user isolé
+- ~~`firebase deploy --only hosting,firestore`~~ ✅ — app en ligne
+- **Cloud Function quotidienne** ⏳ — code prêt, déploiement bloqué par plan Spark. Passer en Blaze (pay-as-you-go, free tier identique) + définir budget alert 5€ → `firebase deploy --only functions`
 
 **Étape 4 — Auth upgrade + catalogue images**
 - Google Sign-In, Magic Link, Passkeys dans Firebase Auth

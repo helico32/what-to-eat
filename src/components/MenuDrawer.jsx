@@ -77,16 +77,24 @@ export default function MenuDrawer({ activeTab, activePage, shoppingCount, onSel
           })}
         </nav>
 
-        {notifPermission !== 'granted' && notifPermission !== 'denied' && (
+        {notifPermission !== 'unsupported' && (
           <>
             <div className="h-px bg-ink-primary mx-5 my-5" />
             <div className="px-3">
               <button
-                onClick={() => { onRequestNotif(); onClose() }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-[10px] font-body font-semibold text-[16px] transition-all text-left border ${btnDefault}`}
+                onClick={() => { if (notifPermission === 'default') { onRequestNotif(); onClose() } }}
+                disabled={notifPermission === 'granted' || notifPermission === 'denied'}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-[10px] font-body font-semibold text-[16px] transition-all text-left border ${btnDefault} disabled:opacity-60 disabled:cursor-default`}
               >
+                {/* Cercle radio : plein si accordé, vide si en attente, × si refusé */}
+                <span className="w-4 h-4 rounded-full border-2 border-ink-primary flex items-center justify-center flex-shrink-0">
+                  {notifPermission === 'granted' && <span className="w-2 h-2 rounded-full bg-ink-primary" />}
+                  {notifPermission === 'denied'  && <span className="text-[10px] leading-none">×</span>}
+                </span>
                 <BellIcon />
-                Activer les alertes
+                {notifPermission === 'granted' ? 'Alertes activées'
+                : notifPermission === 'denied'  ? 'Alertes bloquées'
+                : 'Activer les alertes'}
               </button>
             </div>
           </>
