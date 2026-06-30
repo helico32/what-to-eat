@@ -67,7 +67,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
       <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
 
         {/* Header */}
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 z-10">
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-4 px-4 pb-0 z-10">
           <div className="flex items-center py-3">
             <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center">
               <ArrowLeft />
@@ -91,9 +91,9 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
             <div className="flex items-baseline justify-between">
               <div>
                 <p className="font-display font-bold text-[22px] text-ink-primary">2,99€ / mois</p>
-                <p className="font-body font-semibold text-[14px] text-forest">7 semaines offertes · sans CB</p>
+                <p className="font-body font-semibold text-[14px] text-forest">7 jours offerts · sans CB</p>
               </div>
-              <span className="bg-forest text-canvas font-body font-bold text-[12px] px-2.5 py-1 rounded-full">
+              <span className="bg-canvas border border-ink-primary px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-secondary">
                 Recommandé
               </span>
             </div>
@@ -112,7 +112,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
               className="w-full flex items-center justify-center gap-3 py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
             >
               <GoogleIcon />
-              Commencer · 7 semaines gratuites
+              Commencer l'essai de 7 jours
             </button>
 
             <p className="font-body text-[12px] text-ink-secondary text-center">
