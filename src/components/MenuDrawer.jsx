@@ -31,7 +31,7 @@ export default function MenuDrawer({
   onSelectTab, onSelectPage, onClose,
   notifPermission, onRequestNotif,
   isAnonymous, authEmail, authLoading,
-  onSignInWithGoogle, onSignOut,
+  onShowPlan, onSignOut,
 }) {
 
   return (
@@ -85,8 +85,8 @@ export default function MenuDrawer({
           })}
         </nav>
 
-        {/* ── Notifications ── */}
-        {notifPermission !== 'unsupported' && (
+        {/* ── Notifications — plan payant uniquement ── */}
+        {!isAnonymous && notifPermission !== 'unsupported' && (
           <>
             <div className="h-px bg-ink-primary mx-5 my-5" />
             <div className="px-3">
@@ -129,10 +129,10 @@ export default function MenuDrawer({
                 </div>
               )}
 
-              {/* Anonymous — Google Sign-In */}
+              {/* Anonymous — ouvre la page de choix de plan */}
               {isAnonymous && (
                 <button
-                  onClick={() => { onSignInWithGoogle(); onClose() }}
+                  onClick={() => { onShowPlan(); onClose() }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-[10px] font-body font-semibold text-[16px] border transition-all ${btnDefault}`}
                 >
                   <GoogleIcon />

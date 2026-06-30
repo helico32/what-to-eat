@@ -5,6 +5,7 @@ import { useRecipes }              from './features/recipes/useRecipes'
 import { useMeals }                from './features/meals/useMeals'
 import { useNotifications }        from './features/notifications/useNotifications'
 import { useAuth }                 from './features/auth/useAuth'
+import PlanPage                    from './features/auth/PlanPage'
 import HomePage                    from './features/products/HomePage'
 import MenuDrawer                  from './components/MenuDrawer'
 import ListePage                   from './features/shopping/ListePage'
@@ -126,6 +127,14 @@ export default function App() {
           />
         } />
 
+        {/* ── Connexion / abonnement ── */}
+        <Route path="/connexion" element={
+          <PlanPage
+            onClose={() => navigate(-1)}
+            onSignInWithGoogle={signInWithGoogle}
+          />
+        } />
+
         {/* ── Planning repas ── */}
         <Route path="/planning" element={
           <MealPlanPage
@@ -161,7 +170,7 @@ export default function App() {
           isAnonymous={isAnonymous}
           authEmail={authEmail}
           authLoading={authLoading}
-          onSignInWithGoogle={signInWithGoogle}
+          onShowPlan={() => navigate('/connexion')}
           onSignOut={signOut}
         />
       )}

@@ -60,6 +60,8 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **mealMode — état actif peu lisible** : le changement de fond seul ne suffit pas pour le persona TDAH ("l'état actif d'un bouton doit être indiscutable"). Proposition en attente de go : afficher un label texte à côté de l'icône quand le mode est actif.
 - **Lien urgence → planning absent** : aucun raccourci direct depuis un produit urgent pour le placer sur un jour. Le flux actuel (activer mealMode → taper l'icône → picker) est trop long pour le persona. À creuser.
 - **Audit `aria-label` complet** : seuls les boutons sort/mealMode ont été mis à jour. Les autres boutons icônes de l'app (corbeille, panier, shuffle, etc.) sont à auditer.
+- **Page "Mon compte" (`/compte`)** : à créer à l'étape 5, quand le statut d'abonnement est disponible dans Firestore. Voir section dédiée dans Pages.
+- **Domaine custom + popup Google** : la popup Google Sign-In affiche le domaine depuis lequel l'utilisatrice lance la connexion. Actuellement : `what-to-eat-angelab.firebaseapp.com`. À changer avant le lancement public — voir section dédiée ci-dessous.
 
 ---
 
@@ -276,6 +278,31 @@ Un repas = un produit du stock réservé pour une date. Quand on ajoute un produ
 - **Réordonner** : drag-and-drop.
 - **Supprimer** : bouton ✕ avec confirmation Oui / Non inline.
 - Ces recettes alimentent la carte "Proposition de repas" (onglet Urgent) : seules les recettes avec au moins un ingrédient en stock sont proposées, triées par ingrédient le plus urgent à consommer. Le bouton ⇄ navigue dans ce pool trié.
+
+### Mon compte (`/compte`)
+
+Page accessible depuis le MenuDrawer une fois connectée (remplace ou complète l'affichage email actuel). À créer à l'étape 5 — le contenu dépend du statut d'abonnement dans Firestore.
+
+**Contenu prévu**
+
+| Section | Détail |
+|---|---|
+| Identité | Prénom + email du compte Google (`user.displayName` + `user.email`) |
+| Statut abonnement | "Essai gratuit — X jours restants" / "Abonnée · 2,99€/mois" / "Abonnement expiré" |
+| Gestion abonnement | Lien vers le portail LemonSqueezy (annulation, factures) — URL fournie par LS |
+| Déconnexion | Bouton "Se déconnecter" — même action que le drawer actuel |
+
+**Ce qu'on ne met pas**
+- Pas de stats (produits sauvés, jours d'utilisation) — aucune donnée collectée, feature hors scope v1
+- Pas de modification du profil — le nom/email viennent de Google, non modifiables ici
+- Pas de suppression de compte — hors scope v1, à envisager si obligation légale RGPD
+
+**Dépendances avant de coder**
+1. `trialStartedAt` écrit dans Firestore au premier sign-in (Step 5)
+2. `isSubscribed` mis à jour par le webhook LemonSqueezy (Step 5)
+3. URL du portail client LemonSqueezy (disponible après création du produit LS)
+
+---
 
 ### Liste de courses (`/liste`)
 
@@ -618,6 +645,51 @@ Plus de charges mais permet de déduire les frais (Firebase, domaine, matériel)
 Ni salariée ni indépendante — les allocations de chômage impliquent une règle spécifique : tout revenu d'activité doit être déclaré à l'ONEM, et une autorisation d'activité accessoire doit être obtenue AVANT d'encaisser le premier euro. Sans ça, risque de récupération des allocations. Démarche : contacter son syndicat (CSC / FGTB / CGSLB) ou l'ONEM directement. À faire avant d'activer LemonSqueezy.
 
 **L'anonymat a une limite** : les 7 semaines d'essai fonctionnent en anonyme, mais l'abonnement force la création d'un compte.
+
+---
+
+## Domaine custom
+
+### Pourquoi c'est important
+
+La popup Google Sign-In affiche le domaine depuis lequel l'utilisatrice lance la connexion. Actuellement elle voit : *"Accéder à l'application what-to-eat-angelab.firebaseapp.com"*. Pour une app commerciale, ce domaine technique brise la confiance et l'image de marque. Il faut un vrai domaine avant tout lancement public.
+
+### Quand le faire
+
+À l'étape 5 — juste avant d'ouvrir les abonnements LemonSqueezy. Le domaine doit être stable avant que des utilisatrices payantes s'inscrivent (changer de domaine après = elles doivent réinstaller la PWA et perdent leurs données IndexedDB locales).
+
+### Comment le faire (dans l'ordre)
+
+**Étape 1 — Acheter un domaine**
+Chez un registrar : Namecheap, OVH, Cloudflare Registrar (le moins cher). Choisir une extension courte : `.app`, `.io`, `.fr`. Exemple : `whattoeat.app`.
+
+**Étape 2 — Connecter le domaine à Firebase Hosting**
+1. Firebase Console → Hosting → ton site → "Add custom domain"
+2. Entrer le domaine (`whattoeat.app`)
+3. Firebase affiche deux enregistrements DNS de type **A** avec ses adresses IP
+4. Aller chez le registrar → DNS settings → ajouter ces deux enregistrements A
+5. Attendre la propagation DNS : 10 minutes à 48h selon le registrar
+6. Firebase détecte automatiquement les enregistrements et provisionne le certificat HTTPS — rien d'autre à faire
+
+**Étape 3 — Autoriser le domaine dans Firebase Auth**
+Firebase Console → Authentication → Settings → Authorized domains → "Add domain" → entrer `whattoeat.app`.
+Sans cette étape, la popup Google est bloquée depuis le nouveau domaine avec une erreur `auth/unauthorized-domain`.
+
+**Étape 4 — Mettre à jour l'écran de consentement Google**
+Google Cloud Console → APIs & Services → OAuth consent screen.
+- "App name" : changer en `What to eat` (c'est le nom affiché en haut de la popup Google)
+- "Authorized domains" : ajouter `whattoeat.app`
+- Sauvegarder — la popup affiche immédiatement le nouveau nom
+
+### Ce que ça change pour la PWA
+
+- L'app, le Service Worker et les notifications push fonctionnent depuis le nouveau domaine
+- Firebase garde `what-to-eat-angelab.web.app` actif en parallèle — les deux URLs fonctionnent
+- **Attention migration** : le Service Worker est lié à l'origine. Les utilisatrices qui ont installé la PWA depuis l'ancienne URL doivent désinstaller et réinstaller. Leurs données IndexedDB locales (stock, planning, liste) sont perdues sur le nouveau domaine — seules les données Firestore (recettes, abonnement) survivent.
+
+### Firebase Hosting vs Vercel
+
+Un domaine custom ne peut pointer que vers une seule destination (DNS). Pour cette app, Firebase Hosting est le bon choix — le SW, FCM et Auth y sont natifs. Vercel peut rester pour les previews de branches de dev, mais le domaine principal va sur Firebase Hosting.
 
 ---
 
