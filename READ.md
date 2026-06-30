@@ -62,6 +62,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **Audit `aria-label` complet** : seuls les boutons sort/mealMode ont été mis à jour. Les autres boutons icônes de l'app (corbeille, panier, shuffle, etc.) sont à auditer.
 - **Page "Mon compte" (`/compte`)** : à créer à l'étape 5, quand le statut d'abonnement est disponible dans Firestore. Voir section dédiée dans Pages.
 - **Domaine custom + popup Google** : la popup Google Sign-In affiche le domaine depuis lequel l'utilisatrice lance la connexion. Actuellement : `what-to-eat-angelab.firebaseapp.com`. À changer avant le lancement public — voir section dédiée ci-dessous.
+- **Uniformiser le design de `/connexion`** : la page a été modifiée itérativement et manque de cohérence visuelle avec le reste de l'app. Passer en revue typographie, espacements, styles des cartes et boutons pour les aligner sur le design system.
 
 ---
 
@@ -160,6 +161,10 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 | `/recettes/new` | Formulaire ajout recette |
 | `/recettes/:id` | Détail / édition recette |
 | `/planning` | Planning de repas (7 jours) |
+| `/connexion` | Choix de plan + Google Sign-In |
+| `/mentions-legales` | Mentions légales |
+| `/confidentialite` | Politique de confidentialité (RGPD) |
+| `/conditions` | Conditions générales (CGU + CGV) |
 
 ### Onglets (page `/`)
 
@@ -381,7 +386,8 @@ src/
     recipes/        RecipesPage, RecipeCard, RecipeModal, AddRecipeModal, useRecipes, data
     shopping/       ListePage, ShoppingList
     notifications/  useNotifications
-    auth/           useAuth
+    auth/           useAuth, PlanPage (/connexion)
+    legal/          LegalLayout, MentionsLegales, Confidentialite, Conditions
   components/       Header, MenuDrawer, TabBar, SearchBar, SearchEmpty  ← partagés (2+ features)
   hooks/            useSortable  ← partagé (drag-and-drop multi-features)
   utils/            styles.js
@@ -648,6 +654,27 @@ Ni salariée ni indépendante — les allocations de chômage impliquent une rè
 
 ---
 
+## Pages légales
+
+Trois pages obligatoires pour un service payant en Belgique, accessibles depuis `/connexion` (liens en bas de page).
+
+| Route | Fichier | Base légale |
+|---|---|---|
+| `/mentions-legales` | `features/legal/MentionsLegales.jsx` | Loi belge du 11 mars 2003 (services société de l'information) |
+| `/confidentialite` | `features/legal/Confidentialite.jsx` | RGPD art. 13 & 14 |
+| `/conditions` | `features/legal/Conditions.jsx` | Code de droit économique Livre VI |
+
+**Contenu couvert**
+- Mentions légales : identité éditrice (Angéla Binot, Bruxelles), hébergeur Firebase/Google Ireland
+- Confidentialité : données collectées (Firebase Auth, Firestore, FCM, Anonymous Auth), sous-traitants (Firebase, LemonSqueezy), droits RGPD, APD comme autorité de recours
+- Conditions : plans gratuit/payant, essai 7 jours sans CB, prix 2,99€ TTC, LemonSqueezy comme Merchant of Record, droit de rétractation non applicable (art. VI.53, 13° CDE), résiliation, juridiction Bruxelles
+
+**Avant le lancement** : remplacer `[EMAIL]` par l'adresse de contact dans les 3 fichiers.
+
+**Architecture partagée** : `LegalLayout.jsx` fournit le header (titre + bouton retour) utilisé par les 3 pages.
+
+---
+
 ## Domaine custom
 
 ### Pourquoi c'est important
@@ -662,6 +689,19 @@ La popup Google Sign-In affiche le domaine depuis lequel l'utilisatrice lance la
 
 **Étape 1 — Acheter un domaine**
 Chez un registrar : Namecheap, OVH, Cloudflare Registrar (le moins cher). Choisir une extension courte : `.app`, `.io`, `.fr`. Exemple : `whattoeat.app`.
+
+**Mettre à jour la version déployée**
+
+Vercel se met à jour automatiquement à chaque push git. Firebase, il faut le déclencher manuellement :
+
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+`npm run build` génère le dossier `dist/`, `firebase deploy --only hosting` l'envoie sur Firebase. Ne pas oublier le `--only hosting` pour ne pas déployer les Cloud Functions par erreur.
+
+---
 
 **Étape 2 — Connecter le domaine à Firebase Hosting**
 1. Firebase Console → Hosting → ton site → "Add custom domain"

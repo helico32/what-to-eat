@@ -69,7 +69,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
       <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
 
         {/* Header */}
-        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-4 px-4 pb-0 z-10">
+        <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 z-10">
           <div className="flex items-center py-3">
             <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center">
               <ArrowLeft />
