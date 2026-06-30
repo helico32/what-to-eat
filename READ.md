@@ -51,6 +51,7 @@ Pas dans des TODO dans le code. Pas dans des tickets. Dans ce fichier, section "
 - **`RepasGroup`** (dans `MealGroupsList.jsx`) : rename + delete confirm + collapse en un seul composant. À surveiller si ça grossit encore.
 - **Cohérence stock / planning** : résolue par la migration IndexedDB — `useMeals` modifie le store `products` dans la même transaction que le store `meals`. Plus de risque d'état incohérent.
 - **Pente glissante planning** : le planning n'est PAS un planificateur de menus. C'est une externalisation de mémoire — "je prévois d'utiliser ce produit tel jour avant qu'il périsse". Toute feature qui ressemble à "planifier ses repas" est hors scope. La question à se poser : "est-ce que ça aide à ne pas oublier un produit ?" Si non, on ne le fait pas.
+- **Icône PWA `purpose: 'any maskable'`** : un seul fichier `icon-512.png` sert les deux usages. Sur Android, les icônes maskable sont rognées en cercle — si le sujet de l'icône est trop proche des bords, il sera coupé. À corriger si l'icône est mal rendue après installation : créer un `icon-512-maskable.png` avec plus de marge et séparer les deux entrées dans le manifest.
 
 ### À faire
 
@@ -121,7 +122,7 @@ L'objectif est de valider l'usage avec une utilisatrice TDAH réelle. On ne pass
 - ~~Migrer `useMeals` (dernière hook restante)~~ ✅
 - ~~Supprimer les callbacks `onDecreaseQty` / `onIncreaseQty` / `onRemoveIfZero` de `App.jsx`~~ ✅
 - ~~Fix bug id collision `addProduct` (forEach + Date.now())~~ ✅
-- Corriger les points UX ouverts (aria-labels, état actif mealMode)
+- ~~Corriger les `aria-label` manquants ou `title` (inutile sur mobile) sur tous les boutons icônes de l'app~~ ✅
 
 **Étape 2 — PWA** ← on est là
 - Icône (192×192 et 512×512)
@@ -246,6 +247,9 @@ Plus de charges mais permet de déduire les frais (Firebase, domaine, matériel)
 
 **Verdict :**
 Le scénario A (revenus divers, 33%) est meilleur à ce niveau de revenus — pas de cotisations sociales, déclaration simple. Devenir indépendante n'a de sens qu'à partir de ~600€/mois de revenus bruts ou si les frais déductibles sont significatifs. Note : en revenus divers, aucune dépense n'est déductible (pas d'ordi, pas de Firebase). La déduction frais n'existe qu'en régime indépendante.
+
+> # ⚠️ DEMANDER AUX NANA DE LA FORMATION COMMENT ELLES FONT
+> Avant toute décision sur la structure juridique, les taxes ou l'ONEM — demander aux autres participantes de la formation comment elles ont géré ça. Quelqu'un a sûrement déjà résolu ce problème.
 
 **Situation réelle : dev au chômage en Belgique.**
 Ni salariée ni indépendante — les allocations de chômage impliquent une règle spécifique : tout revenu d'activité doit être déclaré à l'ONEM, et une autorisation d'activité accessoire doit être obtenue AVANT d'encaisser le premier euro. Sans ça, risque de récupération des allocations. Démarche : contacter son syndicat (CSC / FGTB / CGSLB) ou l'ONEM directement. À faire avant d'activer LemonSqueezy.

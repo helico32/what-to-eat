@@ -60,11 +60,17 @@ export function useMeals({ onProductsChanged }) {
     setRepas(prev => prev.filter(r => r.id !== repasId))
     const db = await dbPromise
     const tx = db.transaction(['meals', 'products', 'repas'], 'readwrite')
-    for (const meal of toCancel) {
-      tx.objectStore('meals').delete(meal.id)
-      const p = await tx.objectStore('products').get(meal.productId)
-      if (p) tx.objectStore('products').put({ ...p, qty: (p.qty ?? 0) + meal.qty })
-    }
+    // On lit tous les produits en parallèle AVANT d'écrire quoi que ce soit.
+    // Évite le risque d'auto-commit IndexedDB entre deux awaits dans la même transaction :
+    // avec Promise.all, toutes les requêtes get() sont en vol simultanément,
+    // la transaction reste ouverte, puis on écrit en une seule passe sans await.
+    const products = await Promise.all(
+      toCancel.map(meal => tx.objectStore('products').get(meal.productId))
+    )
+    for (const meal of toCancel) tx.objectStore('meals').delete(meal.id)
+    products.forEach((p, i) => {
+      if (p) tx.objectStore('products').put({ ...p, qty: (p.qty ?? 0) + toCancel[i].qty })
+    })
     tx.objectStore('repas').delete(repasId)
     await tx.done
     if (toCancel.length > 0) onProductsChanged()
