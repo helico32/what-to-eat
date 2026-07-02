@@ -95,6 +95,7 @@ export default function ProductRow({
   return (
     <div
       {...rowProps}
+      {...(editMode && canDrag ? handleProps : {})}
       className={`transition-opacity ${isDragging ? 'opacity-40' : ''}`}
     >
       {/* Ligne principale */}
@@ -168,15 +169,6 @@ export default function ProductRow({
         {/* Bouton unique — poubelle en editMode, action (repas/courses) sinon */}
         {editMode ? (
           <>
-            {/* Mobile : handle drag — même pattern que ShoppingList */}
-            {canDrag && (
-              <div
-                {...handleProps}
-                className="md:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center text-ink-secondary cursor-grab active:cursor-grabbing touch-none"
-              >
-                <DragHandle />
-              </div>
-            )}
             <button
               onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
               className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}

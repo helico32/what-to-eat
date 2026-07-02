@@ -103,7 +103,7 @@ const getView = (tab, products) => {
 }
 
 const getSectionLabel = (tab) => ({
-  urgent:  'À utiliser en priorité',
+  urgent:  'Priorité',
   frigo:   'Frigo',
   congel:  'Congélateur',
   placard: 'Placard',
