@@ -1,27 +1,18 @@
-import { useState, useCallback }  from 'react'
-import { useNavigate }             from 'react-router-dom'
-import { useSortable }             from '../../hooks/useSortable'
-import { sortByUrgency }           from './badges'
-import Header                      from '../../components/Header'
-import TabBar                      from '../../components/TabBar'
-import SearchBar                   from '../../components/SearchBar'
-import SearchEmpty                 from '../../components/SearchEmpty'
-import RecipeCard                  from '../recipes/RecipeCard'
-import ProductRow                  from './ProductRow'
-import AddModal                    from './AddModal'
-import QuickAddSheet               from './QuickAddSheet'
-import PlannedMealsSection         from '../meals/PlannedMealsSection'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate }                       from 'react-router-dom'
+import { useSortable }                       from '../../hooks/useSortable'
+import { sortByUrgency }                     from './badges'
+import Header                                from '../../components/Header'
+import TabBar                                from '../../components/TabBar'
+import SearchBar                             from '../../components/SearchBar'
+import SearchEmpty                           from '../../components/SearchEmpty'
+import RecipeCard                            from '../recipes/RecipeCard'
+import ProductRow                            from './ProductRow'
+import AddModal                              from './AddModal'
+import QuickAddSheet                         from './QuickAddSheet'
+import PlannedMealsSection                   from '../meals/PlannedMealsSection'
 
-function SortIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m21 16-4 4-4-4"/><path d="M17 20V4"/>
-      <path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>
-    </svg>
-  )
-}
-
-function CutleryToggleIcon() {
+function CutleryIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
@@ -31,32 +22,54 @@ function CutleryToggleIcon() {
   )
 }
 
-function SectionLabel({ label, count, onSort, sorting, onMealMode, mealMode }) {
+function CartIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+  )
+}
+
+function EditIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+  )
+}
+
+// Les deux toggles vivent toujours dans la SectionLabel, peu importe l'onglet.
+// — actionMode toggle : montre l'icône opposée au mode actif (icon = ce vers quoi on switche)
+// — editMode toggle   : icône crayon, highlighted quand actif
+function SectionLabel({ label, count, actionMode, onToggleAction, editMode, onToggleEdit }) {
+  const hasToggles = !!onToggleAction
+  const btnBase   = 'w-9 h-9 flex items-center justify-center rounded-full border border-ink-primary transition-all'
+  const btnNormal = 'bg-canvas-border text-ink-primary hover:bg-brand'
+  const btnOn     = 'bg-brand text-ink-primary'
+
   return (
     <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">
-        <p className="font-display font-semibold text-[15px] text-ink-primary">{label}</p>
-        {onSort && (
-          <button
-            onClick={onSort}
-            aria-label="Trier manuellement"
-            className={`w-8 h-8 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
-              sorting ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
-            }`}
-          >
-            <SortIcon />
-          </button>
-        )}
-        {onMealMode && (
-          <button
-            onClick={onMealMode}
-            aria-label="Planifier un repas"
-            className={`w-8 h-8 flex items-center justify-center rounded-full border border-ink-primary transition-all ${
-              mealMode ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand'
-            }`}
-          >
-            <CutleryToggleIcon />
-          </button>
+      <div className="flex items-center gap-4">
+        <p className="font-display font-semibold text-[17px] text-ink-primary">{label}</p>
+        {hasToggles && (
+          <>
+            <button
+              onClick={onToggleAction}
+              aria-label={actionMode === 'meal' ? 'Passer en mode courses' : 'Passer en mode repas'}
+              className={`${btnBase} ${btnNormal}`}
+            >
+              {actionMode === 'meal' ? <CartIcon /> : <CutleryIcon />}
+            </button>
+            <button
+              onClick={onToggleEdit}
+              aria-label={editMode ? 'Quitter le mode modifier' : 'Modifier'}
+              className={`${btnBase} ${editMode ? btnOn : btnNormal}`}
+            >
+              <EditIcon />
+            </button>
+          </>
         )}
       </div>
       {count !== undefined && (
@@ -82,9 +95,9 @@ function EmptyState({ icon, title }) {
 }
 
 const getView = (tab, products) => {
-  if (tab === 'urgent') return sortByUrgency(products.filter(p => p.location === 'frigo'))
-  if (tab === 'frigo')  return products.filter(p => p.location === 'frigo')
-  if (tab === 'congel') return products.filter(p => p.location === 'congel')
+  if (tab === 'urgent')  return sortByUrgency(products.filter(p => p.location === 'frigo'))
+  if (tab === 'frigo')   return products.filter(p => p.location === 'frigo')
+  if (tab === 'congel')  return products.filter(p => p.location === 'congel')
   if (tab === 'placard') return products.filter(p => p.location === 'placard')
   return products
 }
@@ -97,28 +110,32 @@ const getSectionLabel = (tab) => ({
   tout:    'Tout',
 }[tab])
 
-export default function HomePage({ store, mealsStore, recipes, uncheckedCount, onMenu, tab, onTabChange, sorting, onSortingChange }) {
+export default function HomePage({ store, mealsStore, recipes, uncheckedCount, onMenu, tab, onTabChange }) {
   const navigate = useNavigate()
-  const [showAdd,  setShowAdd]  = useState(null) // null | 'quick' | 'full'
-  const [search,   setSearch]   = useState('')
-  const [mealMode, setMealMode] = useState(false)
+  const [showAdd,    setShowAdd]    = useState(null)    // null | 'quick' | 'full'
+  const [search,     setSearch]     = useState('')
+  // Urgent → repas par défaut, autres onglets → courses par défaut
+  const [actionMode, setActionMode] = useState('meal')  // 'meal' | 'cart'
+  const [editMode,   setEditMode]   = useState(false)
+
+  // Réinitialise les modes à chaque changement d'onglet (TabBar ou MenuDrawer)
+  useEffect(() => {
+    setActionMode(tab === 'urgent' ? 'meal' : 'cart')
+    setEditMode(false)
+  }, [tab])
 
   const q            = search.trim().toLowerCase()
   const viewProducts = q
     ? store.products.filter(p => p.name.toLowerCase().includes(q))
     : getView(tab, store.products)
-  const canDrag      = !q && tab !== 'urgent' && sorting
-
-  const handleTabChange = (t) => {
-    onTabChange(t)
-    onSortingChange(false)
-    setMealMode(false)
-  }
 
   const handleAddToMeal = useCallback((product, qty) => {
     const today = new Date().toISOString().split('T')[0]
     mealsStore.addMeal(product, qty, today)
   }, [mealsStore])
+
+  // Drag non-urgent : réordonnancement via PositionInput sur desktop
+  const canDrag = !q && tab !== 'urgent'
 
   const onReorderProducts = useCallback((reorderedView) => {
     const ids = new Set(reorderedView.map(p => p.id))
@@ -144,13 +161,13 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
   return (
     <>
       <Header
-        onTitleClick={() => { onTabChange('urgent'); onSortingChange(false) }}
+        onTitleClick={() => onTabChange('urgent')}
         onAdd={() => setShowAdd('quick')}
         onMenu={onMenu}
         onCart={() => navigate('/liste')}
         cartCount={uncheckedCount}
       />
-      <TabBar active={tab} onChange={handleTabChange} />
+      <TabBar active={tab} onChange={onTabChange} />
 
       <SearchBar
         value={search}
@@ -173,10 +190,10 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
         <SectionLabel
           label={q ? `Résultats pour "${search.trim()}"` : getSectionLabel(tab)}
           count={viewProducts.length}
-          onSort={!q && tab !== 'urgent' ? () => onSortingChange(s => !s) : undefined}
-          sorting={sorting}
-          onMealMode={!q && tab === 'urgent' ? () => setMealMode(m => !m) : undefined}
-          mealMode={mealMode}
+          actionMode={actionMode}
+          onToggleAction={() => setActionMode(m => m === 'meal' ? 'cart' : 'meal')}
+          editMode={editMode}
+          onToggleEdit={() => setEditMode(m => !m)}
         />
 
         {viewProducts.length === 0 ? (
@@ -198,7 +215,8 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
                 onAddToCart={() => store.addToShoppingList(p)}
                 onAddToMeal={(qty) => handleAddToMeal(p, qty)}
                 onUpdateExpiry={store.updateExpiryDate}
-                mealMode={mealMode}
+                actionMode={actionMode}
+                editMode={editMode}
                 canDrag={canDrag}
                 isDragging={activeIndex === index}
                 rowProps={canDrag ? rowProps(index) : {}}

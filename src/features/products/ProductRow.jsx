@@ -21,7 +21,7 @@ function PositionInput({ position, total, onMoveTo }) {
       onChange={e => setVal(e.target.value)}
       onBlur={commit}
       onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border border-ink-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -45,16 +45,6 @@ function CartIcon() {
   )
 }
 
-function CutleryIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-      <path d="M7 2v20"/>
-      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
-    </svg>
-  )
-}
-
 function DragHandle() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -65,29 +55,35 @@ function DragHandle() {
   )
 }
 
-export default function ProductRow({ product, onDelete, onDecrement, onIncrement, onAddToCart, onAddToMeal, onUpdateExpiry, mealMode, canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
+function CutleryIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+      <path d="M7 2v20"/>
+      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+    </svg>
+  )
+}
+
+// actionMode : 'meal' | 'cart' — contrôlé par le toggle global dans SectionLabel
+// editMode   : boolean         — contrôlé par le toggle global dans SectionLabel
+// canDrag    : true sur les tabs non-urgent hors recherche
+export default function ProductRow({
+  product, onDelete, onDecrement, onIncrement, onAddToCart, onAddToMeal, onUpdateExpiry,
+  actionMode, editMode,
+  canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo,
+}) {
   const badge = getBadge(product.expiryDate, product.location)
-  const [confirm,    setConfirm]    = useState(null)  // null | 'cart' | 'delete' | 'decrement' | 'meal'
-  const [done,       setDone]       = useState(null)  // null | 'cart' | 'delete' | 'meal'
-  const [isDateEdit, setIsDateEdit] = useState(false) // picker de date inline pour les frigo sans date
+  const [confirm,    setConfirm]    = useState(null) // null | 'cart' | 'meal' | 'delete' | 'decrement'
+  const [done,       setDone]       = useState(null) // null | 'cart' | 'meal' | 'delete'
+  const [isDateEdit, setIsDateEdit] = useState(false)
   const timerRef = useRef()
 
-  // qty to add to meal — local state, initialized from product.qty
-  const [mealQty, setMealQty] = useState(product.qty ?? 1)
-  useEffect(() => { setMealQty(product.qty ?? 1) }, [product.qty])
-
-  // Reset tout quand mealMode change
-  useEffect(() => {
-    setConfirm(null)
-    setDone(null)
-    setIsDateEdit(false)
-  }, [mealMode])
-
   const handleConfirm = (type) => {
-    if (type === 'cart') onAddToCart()
-    else if (type === 'delete') onDelete()
+    if (type === 'cart')      onAddToCart()
+    else if (type === 'delete')    onDelete()
     else if (type === 'decrement') onDecrement()
-    else if (type === 'meal') onAddToMeal(mealQty)
+    else if (type === 'meal')      onAddToMeal(product.qty)
     setConfirm(null)
     if (type === 'cart' || type === 'delete' || type === 'meal') {
       setDone(type)
@@ -97,9 +93,20 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
   }
 
   return (
-    <div {...rowProps} className={`transition-opacity ${isDragging ? 'opacity-40' : ''}`}>
+    <div
+      {...rowProps}
+      className={`transition-opacity ${isDragging ? 'opacity-40' : ''}`}
+    >
       {/* Ligne principale */}
       <div className="flex items-center gap-3 py-3">
+
+        {/* PositionInput — desktop uniquement, tout à gauche de la row */}
+        {editMode && canDrag && (
+          <div className="hidden md:flex flex-shrink-0">
+            <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
+          </div>
+        )}
+
         {/* Thumbnail */}
         {product.image
           ? <img src={product.image} alt={product.name} className="w-[75px] h-[60px] rounded-lg object-cover flex-shrink-0" />
@@ -108,36 +115,27 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
             </div>
         }
 
-        {/* Name + qty controls */}
+        {/* Nom + contrôles quantité */}
         <div className="flex-1 min-w-0">
           <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{product.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <button
               disabled={product.qty === 0}
-              onClick={() => {
-                if (mealMode && product.qty > 0) {
-                  setMealQty(q => Math.max(1, q - 1))
-                } else if (!mealMode) {
-                  product.qty <= 1 ? setConfirm(confirm === 'decrement' ? null : 'decrement') : onDecrement()
-                }
-              }}
+              onClick={() => product.qty <= 1
+                ? setConfirm(confirm === 'decrement' ? null : 'decrement')
+                : onDecrement()
+              }
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
               aria-label="Diminuer"
             >
               −
             </button>
             <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">
-              {mealMode && product.qty > 0 ? mealQty : product.qty}
+              {product.qty}
             </span>
             <button
               disabled={product.qty === 0}
-              onClick={() => {
-                if (mealMode && product.qty > 0) {
-                  setMealQty(q => Math.min(product.qty, q + 1))
-                } else if (!mealMode) {
-                  onIncrement()
-                }
-              }}
+              onClick={onIncrement}
               className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
               aria-label="Augmenter"
             >
@@ -146,8 +144,8 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           </div>
         </div>
 
-        {/* Badge date — ou bouton "⚠ sans date" pour les frigo sans date */}
-        {product.location === 'frigo' && !product.expiryDate && !mealMode && !canDrag ? (
+        {/* Badge date — toujours visible */}
+        {product.location === 'frigo' && !product.expiryDate ? (
           <button
             onClick={() => { setConfirm(null); setIsDateEdit(e => !e) }}
             aria-label="Ajouter une date de péremption"
@@ -167,58 +165,48 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
           </span>
         ) : null}
 
-        {canDrag ? (
+        {/* Bouton unique — poubelle en editMode, action (repas/courses) sinon */}
+        {editMode ? (
           <>
-            <div
-              {...handleProps}
-              className="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center text-ink-primary cursor-grab active:cursor-grabbing touch-none"
-            >
-              <DragHandle />
-            </div>
-            <div className="hidden md:flex flex-shrink-0">
-              <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
-            </div>
-          </>
-        ) : mealMode && product.qty > 0 ? (
-          <button
-            onClick={() => setConfirm(confirm === 'meal' ? null : 'meal')}
-            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === 'meal' ? btnActive : btnDefault}`}
-            aria-label="Ajouter au repas"
-          >
-            <CutleryIcon />
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={() => setConfirm(confirm === 'cart' ? null : 'cart')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === 'cart' ? btnActive : btnDefault}`}
-              aria-label="Ajouter à la liste de courses"
-            >
-              <CartIcon />
-            </button>
-            {product.qty > 0 && (
-              <button
-                onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-                className={`flex-shrink-0 w-9 h-9 hidden md:flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
-                aria-label="Supprimer"
+            {/* Mobile : handle drag — même pattern que ShoppingList */}
+            {canDrag && (
+              <div
+                {...handleProps}
+                className="md:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center text-ink-secondary cursor-grab active:cursor-grabbing touch-none"
               >
-                <TrashIcon />
-              </button>
+                <DragHandle />
+              </div>
             )}
+            <button
+              onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
+              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
+              aria-label="Supprimer"
+            >
+              <TrashIcon />
+            </button>
           </>
+        ) : (
+          <button
+            disabled={actionMode === 'meal' && product.qty === 0}
+            onClick={() => setConfirm(confirm === actionMode ? null : actionMode)}
+            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${confirm === actionMode ? btnActive : btnDefault}`}
+            aria-label={actionMode === 'meal' ? 'Ajouter au repas' : 'Ajouter à la liste de courses'}
+          >
+            {actionMode === 'meal' ? <CutleryIcon /> : <CartIcon />}
+          </button>
         )}
       </div>
 
-      {/* Done feedback */}
+      {/* Feedback succès */}
       {done && (
         <div className="pb-3 flex items-center gap-2">
           <p className="font-body text-[16px] text-forest font-semibold">
-            {done === 'cart' ? `✓ Ajouté au panier` : done === 'meal' ? `✓ Ajouté au repas` : `✓ Supprimé`}
+            {done === 'cart' ? '✓ Ajouté au panier' : done === 'meal' ? '✓ Ajouté au repas' : '✓ Supprimé'}
           </p>
         </div>
       )}
 
-      {/* Picker de date inline — s'ouvre en tapant le badge "⚠ sans date" */}
+      {/* Picker de date inline */}
       {isDateEdit && (
         <div className="pb-3 flex items-center gap-2">
           <input
@@ -252,7 +240,7 @@ export default function ProductRow({ product, onDelete, onDecrement, onIncrement
                 <span className="hidden md:inline">Ajouter "{product.name}" au panier ?</span>
               </>
             ) : confirm === 'meal' ? (
-              `Ajouter ${mealQty} ${product.name} au repas ?`
+              `Ajouter ${product.name} au repas ?`
             ) : confirm === 'decrement' ? (
               `Effacer l'item ?`
             ) : (

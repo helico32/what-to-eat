@@ -24,7 +24,6 @@ export default function App() {
   const location = useLocation()
 
   const [tab,      setTab]      = useState('urgent')
-  const [sorting,  setSorting]  = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
   const { permission, requestPermission } = useNotifications()
@@ -72,8 +71,6 @@ export default function App() {
             onMenu={() => setShowMenu(true)}
             tab={tab}
             onTabChange={setTab}
-            sorting={sorting}
-            onSortingChange={setSorting}
           />
         } />
 
@@ -170,7 +167,7 @@ export default function App() {
           activeTab={tab}
           activePage={activePage}
           shoppingCount={uncheckedCount}
-          onSelectTab={(t) => { setTab(t); setSorting(false); navigate('/') }}
+          onSelectTab={(t) => { setTab(t); navigate('/') }}
           onSelectPage={(p) => navigate(`/${p}`)}
           onClose={() => setShowMenu(false)}
           notifPermission={permission}
