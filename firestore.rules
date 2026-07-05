@@ -3,13 +3,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Chaque utilisateur (authentifié anonymement) ne peut accéder
-    // qu'à son propre document et à ses sous-collections.
+    // Chaque utilisateur ne peut accéder qu'à ses propres données.
+    // request.app.token.valid — vérifie que la requête vient de l'app (App Check),
+    // pas d'un script qui aurait copié la config Firebase publique.
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid
+                         && request.app.token.valid;
 
       match /{subcollection}/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if request.auth != null
+                           && request.auth.uid == uid
+                           && request.app.token.valid;
       }
     }
   }
