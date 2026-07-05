@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { compressImage } from '../../utils/compressImage'
 
 function ArrowLeft() {
   return (
@@ -8,9 +9,29 @@ function ArrowLeft() {
   )
 }
 
+function CameraIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+      <circle cx="12" cy="13" r="3"/>
+    </svg>
+  )
+}
+
+function ImageIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+  )
+}
+
 const EMOJI_PRESETS = ['🍳', '🥘', '🍲', '🥗', '🍜', '🍝', '🫕', '🥙', '🌮', '🍱', '🐟', '🥩']
 
 export default function AddRecipeModal({ onClose, onAdd }) {
+  const [photo,       setPhoto]       = useState(null)
   const [emoji,       setEmoji]       = useState('🍳')
   const [name,        setName]        = useState('')
   const [time,        setTime]        = useState('')
@@ -18,6 +39,15 @@ export default function AddRecipeModal({ onClose, onAdd }) {
   const [steps,       setSteps]       = useState([])
   const [newIng,      setNewIng]      = useState('')
   const [newStep,     setNewStep]     = useState('')
+
+  const cameraRef = useRef()
+  const fileRef   = useRef()
+
+  const handleImage = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    compressImage(file, (dataUrl) => setPhoto(dataUrl))
+  }
 
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 
@@ -34,9 +64,10 @@ export default function AddRecipeModal({ onClose, onAdd }) {
   const handleSubmit = () => {
     if (!name.trim()) return
     onAdd({
+      photo,
       emoji,
-      name: cap(name.trim()),
-      time: time.trim() || '15 min',
+      name:        cap(name.trim()),
+      time:        time.trim() || '15 min',
       ingredients: ingredients.length ? ingredients : [],
       steps:       steps.length       ? steps       : [],
     })
@@ -58,26 +89,64 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
         <div className="flex-1 px-5 pt-5 pb-10">
 
-          {/* Emoji */}
+          {/* Photo ou emoji */}
           <div className="mb-5">
             <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
-              Emoji
+              Photo
             </label>
-            <div className="flex flex-wrap gap-2">
-              {EMOJI_PRESETS.map(e => (
+
+            <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImage} />
+            <input ref={fileRef}   type="file" accept="image/*" className="hidden" onChange={handleImage} />
+
+            {photo ? (
+              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-ink-primary mb-3">
+                <img src={photo} alt="photo recette" className="w-full h-full object-cover" />
                 <button
-                  key={e}
-                  onClick={() => setEmoji(e)}
-                  className={`w-10 h-10 rounded-lg text-xl transition-all ${
-                    emoji === e
-                      ? 'bg-forest shadow-sm'
-                      : 'bg-canvas'
-                  }`}
+                  onClick={() => setPhoto(null)}
+                  aria-label="Supprimer la photo"
+                  className="absolute top-2 right-2 w-7 h-7 bg-ink-primary/60 text-canvas rounded-full flex items-center justify-center font-bold text-[16px] leading-none"
                 >
-                  {e}
+                  ×
                 </button>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => cameraRef.current.click()}
+                    className="flex-1 flex flex-col items-center justify-center gap-2 py-4 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary active:scale-95 transition-all"
+                  >
+                    <CameraIcon />
+                    <span className="font-body text-[12px] font-semibold">Prendre une photo</span>
+                  </button>
+                  <button
+                    onClick={() => fileRef.current.click()}
+                    className="flex-1 flex flex-col items-center justify-center gap-2 py-4 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary active:scale-95 transition-all"
+                  >
+                    <ImageIcon />
+                    <span className="font-body text-[12px] font-semibold">Galerie</span>
+                  </button>
+                </div>
+
+                {/* Emoji — fallback si pas de photo */}
+                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+                  Ou choisir un emoji
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {EMOJI_PRESETS.map(e => (
+                    <button
+                      key={e}
+                      onClick={() => setEmoji(e)}
+                      className={`w-10 h-10 rounded-lg text-xl transition-all ${
+                        emoji === e ? 'bg-forest shadow-sm' : 'bg-canvas'
+                      }`}
+                    >
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Name */}

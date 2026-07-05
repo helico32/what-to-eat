@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { compressImage } from '../../utils/compressImage'
 
 function CameraIcon() {
   return (
@@ -163,21 +164,10 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
   const handleImage = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const url = URL.createObjectURL(file)
-    const img = new Image()
-    img.onload = () => {
-      const MAX = 480
-      const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
-      const canvas = document.createElement('canvas')
-      canvas.width  = Math.round(img.width  * ratio)
-      canvas.height = Math.round(img.height * ratio)
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.72)
+    compressImage(file, (dataUrl) => {
       setImage(dataUrl)
       saveToImageCache(dataUrl)
-      URL.revokeObjectURL(url)
-    }
-    img.src = url
+    })
   }
 
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s

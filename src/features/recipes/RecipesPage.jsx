@@ -91,9 +91,12 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
         className="flex items-center gap-3 p-4 cursor-pointer"
         onClick={() => !canSort && onView(recipe)}
       >
-        {/* Emoji thumbnail */}
-        <div className="w-14 h-14 bg-canvas rounded-md flex items-center justify-center text-3xl flex-shrink-0">
-          {recipe.emoji}
+        {/* Thumbnail — photo ou emoji */}
+        <div className="w-14 h-14 bg-canvas rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center">
+          {recipe.photo
+            ? <img src={recipe.photo} alt="" className="w-full h-full object-cover" />
+            : <span className="text-3xl">{recipe.emoji}</span>
+          }
         </div>
 
         {/* Info */}

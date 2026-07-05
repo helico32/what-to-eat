@@ -63,9 +63,12 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
   return (
     <div className="bg-canvas-card rounded-xl border border-ink-primary mb-4 overflow-hidden">
       <div className="flex">
-        {/* Left: image area */}
-        <div className="w-[130px] flex-shrink-0 bg-canvas flex items-center justify-center text-[56px]">
-          {recipe.emoji}
+        {/* Left: photo ou emoji */}
+        <div className="w-[130px] flex-shrink-0 bg-canvas overflow-hidden flex items-center justify-center">
+          {recipe.photo
+            ? <img src={recipe.photo} alt="" className="w-full h-full object-cover" />
+            : <span className="text-[56px]">{recipe.emoji}</span>
+          }
         </div>
 
         {/* Right: content */}
