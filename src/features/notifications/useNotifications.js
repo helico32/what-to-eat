@@ -14,31 +14,39 @@ export function useNotifications() {
 
   // L'auth anonyme est gérée par useAuth — useNotifications ne s'en occupe plus.
 
-  // Demande la permission push + enregistre le token FCM dans Firestore.
-  // Appelé par un bouton explicite dans l'UI — pas de demande automatique au chargement.
-  const requestPermission = async () => {
-    if (!notifSupported) return
+  // Récupère le token FCM et l'enregistre sous /users/{uid}.
+  // Appelé au clic sur le bouton ET au chargement quand la permission est déjà
+  // accordée — rattrape une sauvegarde échouée ou un token FCM qui a tourné.
+  const saveToken = async () => {
     try {
-      const result = await Notification.requestPermission()
-      setPermission(result)
-      if (result !== 'granted') return
-
-      const token = await getToken(messaging, { vapidKey: VAPID_KEY })
-      const uid   = auth.currentUser?.uid
+      await auth.authStateReady() // attend que l'auth anonyme soit prête
+      const registration = await navigator.serviceWorker.ready
+      const token = await getToken(messaging, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registration,
+      })
+      const uid = auth.currentUser?.uid
       if (!uid || !token) return
-
-      // Stocke le token FCM dans Firestore sous /users/{uid}.
-      // La Cloud Function lira cette collection pour envoyer les notifications.
       await setDoc(
         doc(db, 'users', uid),
         { fcmToken: token, updatedAt: new Date().toISOString() },
         { merge: true },
       )
     } catch (err) {
-      if (import.meta.env.DEV) console.error('[notifications]', err)
-      // Pas de crash — les notifications sont optionnelles.
+      console.error('[notifications]', err)
     }
   }
+
+  const requestPermission = async () => {
+    if (!notifSupported) return
+    const result = await Notification.requestPermission()
+    setPermission(result)
+    if (result === 'granted') await saveToken()
+  }
+
+  useEffect(() => {
+    if (permission === 'granted') saveToken()
+  }, [permission])
 
   return { permission, requestPermission }
 }
