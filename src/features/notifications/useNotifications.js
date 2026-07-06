@@ -34,7 +34,8 @@ export function useNotifications() {
         { fcmToken: token, updatedAt: new Date().toISOString() },
         { merge: true },
       )
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('[notifications]', err)
       // Pas de crash — les notifications sont optionnelles.
     }
   }

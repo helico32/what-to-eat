@@ -60,8 +60,8 @@ const PAID_EXTRAS = [
 
 export default function PlanPage({ onClose, onSignInWithGoogle }) {
   const handlePaid = async () => {
-    await onSignInWithGoogle()
-    onClose()
+    const ok = await onSignInWithGoogle()
+    if (ok) onClose()
   }
 
   return (

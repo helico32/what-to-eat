@@ -7,7 +7,8 @@ import {
   GoogleAuthProvider,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
-import { auth } from '../../firebase'
+import { doc, updateDoc, deleteField } from 'firebase/firestore'
+import { auth, db } from '../../firebase'
 
 // Magic Link retiré : Firebase Dynamic Links est abandonné — le lien ne rouvrirait
 // pas la PWA sur mobile. Google Sign-In est l'unique méthode de connexion.
@@ -37,15 +38,30 @@ export function useAuth() {
       } else {
         await signInWithPopup(auth, googleProvider)
       }
+      return true
     } catch (err) {
       // Le compte Google existe déjà en tant que compte réel — connexion directe
       if (err.code === 'auth/credential-already-in-use') {
-        await signInWithPopup(auth, googleProvider)
+        try {
+          await signInWithPopup(auth, googleProvider)
+          return true
+        } catch (err2) {
+          if (import.meta.env.DEV) console.error('[auth] signInWithPopup fallback', err2)
+        }
+      } else {
+        if (import.meta.env.DEV) console.error('[auth] signInWithGoogle', err)
       }
+      return false
     }
   }
 
-  const signOut = () => firebaseSignOut(auth)
+  const signOut = async () => {
+    const uid = auth.currentUser?.uid
+    if (uid) {
+      await updateDoc(doc(db, 'users', uid), { fcmToken: deleteField() }).catch(() => {})
+    }
+    await firebaseSignOut(auth)
+  }
 
   return {
     user,
