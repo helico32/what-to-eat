@@ -53,7 +53,15 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-40 flex items-end"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      aria-label="Fermer l'ajout rapide"
+    >
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
         className="w-full max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary p-5 pb-10 shadow-lg"
         onClick={e => e.stopPropagation()}
@@ -62,6 +70,7 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
         <p className="font-display font-bold text-[20px] text-ink-primary mb-4">Ajout rapide</p>
 
         <input
+          // eslint-disable-next-line jsx-a11y/no-autofocus -- focus automatique sur le champ principal d'une modale, attendu par l'utilisateur
           autoFocus
           type="text"
           value={name}

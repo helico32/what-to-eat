@@ -53,8 +53,16 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      aria-label="Fermer"
+    >
       <div className="absolute inset-0 bg-ink-primary/30" />
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
         className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg"
         onClick={e => e.stopPropagation()}
@@ -145,8 +153,16 @@ function NewRepasSheet({ onConfirm, onClose }) {
   const submit = () => { if (name.trim()) onConfirm(name.trim()) }
 
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      aria-label="Fermer"
+    >
       <div className="absolute inset-0 bg-ink-primary/30" />
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
         className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg px-5 pb-10"
         onClick={e => e.stopPropagation()}

@@ -67,7 +67,15 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-ink-primary/40" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end bg-ink-primary/40"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      aria-label="Fermer"
+    >
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
         className="w-full max-w-[430px] mx-auto bg-canvas-card rounded-t-[20px] px-5 pt-5 pb-10 shadow-lg"
         onClick={e => e.stopPropagation()}
@@ -161,6 +169,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
 
 function PositionInput({ position, total, onMoveTo }) {
   const [val, setVal] = useState(String(position))
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setVal(String(position)), [position])
 
   const commit = () => {

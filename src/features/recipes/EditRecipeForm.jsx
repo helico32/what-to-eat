@@ -58,14 +58,14 @@ export default function EditRecipeForm({ recipe, onSave, onCancel }) {
 
       {/* Photo ou emoji */}
       <div className="mb-5">
-        <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Photo</label>
+        <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Photo</p>
 
         <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImage} />
         <input ref={fileRef}   type="file" accept="image/*" className="hidden" onChange={handleImage} />
 
         {photo ? (
           <div className="relative w-full h-36 rounded-xl overflow-hidden border border-ink-primary mb-3">
-            <img src={photo} alt="photo recette" className="w-full h-full object-cover" />
+            <img src={photo} alt="" className="w-full h-full object-cover" />
             <button
               onClick={() => setPhoto(null)}
               aria-label="Supprimer la photo"
@@ -94,9 +94,9 @@ export default function EditRecipeForm({ recipe, onSave, onCancel }) {
             </div>
 
             {/* Emoji — fallback si pas de photo */}
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Ou choisir un emoji
-            </label>
+            </p>
             <div className="flex flex-wrap gap-2">
               {EMOJI_PRESETS.map(e => (
                 <button key={e} onClick={() => setEmoji(e)}
@@ -111,21 +111,21 @@ export default function EditRecipeForm({ recipe, onSave, onCancel }) {
 
       {/* Name */}
       <div className="mb-4">
-        <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Nom*</label>
-        <input type="text" name="edit-name" value={name} onChange={e => setName(e.target.value)}
+        <label htmlFor="edit-name" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Nom*</label>
+        <input id="edit-name" type="text" name="edit-name" value={name} onChange={e => setName(e.target.value)}
           className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary outline-none focus:border-forest transition-colors" />
       </div>
 
       {/* Time */}
       <div className="mb-5">
-        <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Temps de préparation</label>
-        <input type="text" name="edit-time" value={time} onChange={e => setTime(e.target.value)} placeholder="ex. 25 min"
+        <label htmlFor="edit-time" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Temps de préparation</label>
+        <input id="edit-time" type="text" name="edit-time" value={time} onChange={e => setTime(e.target.value)} placeholder="ex. 25 min"
           className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
       </div>
 
       {/* Ingredients */}
       <div className="mb-5">
-        <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Ingrédients</label>
+        <label htmlFor="edit-ingredient" className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Ingrédients</label>
         <div className="flex flex-wrap gap-2 mb-2">
           {ingredients.map((ing, i) => (
             <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-ink-primary text-ink-primary rounded-pill font-body text-[14px]">
@@ -135,7 +135,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel }) {
           ))}
         </div>
         <div className="flex gap-2">
-          <input type="text" name="edit-ingredient" value={newIng} onChange={e => setNewIng(e.target.value)}
+          <input id="edit-ingredient" type="text" name="edit-ingredient" value={newIng} onChange={e => setNewIng(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addIngredient()} placeholder="Ajouter un ingrédient"
             className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
           <button onClick={addIngredient} disabled={!newIng.trim()}
@@ -145,7 +145,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel }) {
 
       {/* Steps */}
       <div className="mb-6">
-        <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Étapes</label>
+        <label htmlFor="edit-step" className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Étapes</label>
         <div className="flex flex-col gap-2 mb-2">
           {steps.map((s, i) => (
             <div key={i} className="flex items-start gap-2 p-3 bg-canvas rounded-xl">
@@ -156,7 +156,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel }) {
           ))}
         </div>
         <div className="flex gap-2">
-          <input type="text" name="edit-step" value={newStep} onChange={e => setNewStep(e.target.value)}
+          <input id="edit-step" type="text" name="edit-step" value={newStep} onChange={e => setNewStep(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addStep()} placeholder="Ajouter une étape"
             className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors" />
           <button onClick={addStep} disabled={!newStep.trim()}

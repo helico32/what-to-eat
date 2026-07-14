@@ -56,6 +56,7 @@ function DragHandle() {
 
 function PositionInput({ position, total, onMoveTo }) {
   const [val, setVal] = useState(String(position))
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setVal(String(position)), [position])
 
   const commit = () => {
@@ -89,7 +90,10 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
     <div {...rowProps} className={`bg-canvas-card rounded-xl border border-ink-primary shadow-sm overflow-hidden transition-opacity ${isDragging ? 'opacity-40' : ''}`}>
       <div
         className="flex items-center gap-3 p-4 cursor-pointer"
+        role="button"
+        tabIndex={0}
         onClick={() => !canSort && onView(recipe)}
+        onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && !canSort && onView(recipe)}
       >
         {/* Thumbnail — photo ou emoji */}
         <div className="w-14 h-14 bg-canvas rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -184,7 +188,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
   )
 }
 
-export default function RecipesPage({ recipes, products, onAddRecipe, onDeleteRecipe, onEditRecipe, onToggleFavorite, onReorderRecipes, onClose, onMenu, onCart, cartCount }) {
+export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggleFavorite, onReorderRecipes, onClose, onMenu, onCart, cartCount }) {
   const navigate = useNavigate()
   const [sorting, setSorting] = useState(false)
   const [search, setSearch] = useState('')

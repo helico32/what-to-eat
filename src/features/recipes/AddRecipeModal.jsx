@@ -91,16 +91,16 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Photo ou emoji */}
           <div className="mb-5">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Photo
-            </label>
+            </p>
 
             <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImage} />
             <input ref={fileRef}   type="file" accept="image/*" className="hidden" onChange={handleImage} />
 
             {photo ? (
               <div className="relative w-full h-36 rounded-xl overflow-hidden border border-ink-primary mb-3">
-                <img src={photo} alt="photo recette" className="w-full h-full object-cover" />
+                <img src={photo} alt="" className="w-full h-full object-cover" />
                 <button
                   onClick={() => setPhoto(null)}
                   aria-label="Supprimer la photo"
@@ -129,9 +129,9 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 </div>
 
                 {/* Emoji — fallback si pas de photo */}
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+                <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
                   Ou choisir un emoji
-                </label>
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {EMOJI_PRESETS.map(e => (
                     <button
@@ -151,10 +151,11 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Name */}
           <div className="mb-4">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
+            <label htmlFor="recipe-name" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
               Nom*
             </label>
             <input
+              id="recipe-name"
               type="text"
               name="recipe-name"
               value={name}
@@ -166,10 +167,11 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Time */}
           <div className="mb-5">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
+            <label htmlFor="recipe-time" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
               Temps de préparation
             </label>
             <input
+              id="recipe-time"
               type="text"
               name="recipe-time"
               value={time}
@@ -181,7 +183,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Ingredients */}
           <div className="mb-5">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <label htmlFor="recipe-ingredient" className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Ingrédients
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
@@ -195,6 +197,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             <div className="flex gap-2">
               <input
                 type="text"
+                id="recipe-ingredient"
                 name="recipe-ingredient"
                 value={newIng}
                 onChange={e => setNewIng(e.target.value)}
@@ -214,7 +217,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Steps */}
           <div className="mb-6">
-            <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <label htmlFor="recipe-step" className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
               Étapes
             </label>
             <div className="flex flex-col gap-2 mb-2">
@@ -229,6 +232,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             <div className="flex gap-2">
               <input
                 type="text"
+                id="recipe-step"
                 name="recipe-step"
                 value={newStep}
                 onChange={e => setNewStep(e.target.value)}

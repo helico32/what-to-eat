@@ -52,7 +52,7 @@ export function useSortable(items, onReorder) {
     onDragEnd: commit,
 
     // ── Mobile touch ──
-    onTouchStart: (e) => {
+    onTouchStart: () => {
       r.current.from = index
       setActiveIndex(index)
 

@@ -120,6 +120,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
 
   // Réinitialise les modes à chaque changement d'onglet (TabBar ou MenuDrawer)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActionMode(tab === 'urgent' ? 'meal' : 'cart')
     setEditMode(false)
   }, [tab])

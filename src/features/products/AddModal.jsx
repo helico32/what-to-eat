@@ -52,14 +52,22 @@ function saveToImageCache(base64) {
   try {
     const cache = loadImageCache().filter(img => img !== base64)
     localStorage.setItem(IMG_CACHE_KEY, JSON.stringify([base64, ...cache]))
-  } catch {}
+  } catch { /* ignore localStorage errors */ }
 }
 
 function GallerySheet({ onSelect, onClose }) {
   const images = loadImageCache()
   return (
-    <div className="fixed inset-0 z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      aria-label="Fermer la galerie"
+    >
       <div className="absolute inset-0 bg-ink-primary/30" />
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
         className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary p-5 pb-10 shadow-lg"
         onClick={e => e.stopPropagation()}
@@ -148,7 +156,7 @@ const dateInDays = (n) => {
 
 const todayStr = () => new Date().toISOString().split('T')[0]
 
-export default function AddModal({ onClose, onAdd, products = [] }) {
+export default function AddModal({ onClose, onAdd }) {
   const [step,        setStep]        = useState(1)
   const [name,        setName]        = useState('')
   const [qty,         setQty]         = useState(1)
@@ -256,8 +264,10 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
 
               {/* Champ emoji — visible uniquement si le carré Emoji est actif */}
               <div className={emojiMode ? 'block' : 'hidden'}>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Emoji</label>
+                <label htmlFor="add-emoji" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Emoji</label>
                 <input
+                  id="add-emoji"
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={emojiMode}
                   type="text"
                   value={emoji ?? ''}
@@ -269,8 +279,9 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
 
               {/* Nom */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Nom*</label>
+                <label htmlFor="add-name" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Nom*</label>
                 <input
+                  id="add-name"
                   type="text"
                   name="add-name"
                   value={name}
@@ -282,7 +293,7 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
 
               {/* Quantité */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Quantité</label>
+                <p className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Quantité</p>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQty(q => Math.max(1, q - 1))}
@@ -309,7 +320,7 @@ export default function AddModal({ onClose, onAdd, products = [] }) {
 
               {/* Date de péremption */}
               <div>
-                <label className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Date de péremption</label>
+                <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Date de péremption</p>
                 <div className="flex gap-2 mb-3">
                   {PRESETS.map(p => {
                     const val = dateInDays(p.days)

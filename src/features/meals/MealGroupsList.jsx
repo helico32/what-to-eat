@@ -123,6 +123,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
   const inputRef = useRef()
 
   useEffect(() => { if (isEditing) inputRef.current?.focus() }, [isEditing])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setEditName(name) }, [name])
 
   const commitRename = () => {

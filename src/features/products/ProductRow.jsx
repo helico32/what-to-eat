@@ -4,6 +4,7 @@ import { btnActive, btnDefault } from '../../utils/styles'
 
 function PositionInput({ position, total, onMoveTo }) {
   const [val, setVal] = useState(String(position))
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setVal(String(position)), [position])
 
   const commit = () => {
@@ -45,15 +46,6 @@ function CartIcon() {
   )
 }
 
-function DragHandle() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="4" y1="7"  x2="20" y2="7"/>
-      <line x1="4" y1="12" x2="20" y2="12"/>
-      <line x1="4" y1="17" x2="20" y2="17"/>
-    </svg>
-  )
-}
 
 function CutleryIcon() {
   return (
@@ -202,6 +194,7 @@ export default function ProductRow({
       {isDateEdit && (
         <div className="pb-3 flex items-center gap-2">
           <input
+            // eslint-disable-next-line jsx-a11y/no-autofocus -- focus automatique sur le picker de date ouvert par l'utilisateur
             autoFocus
             type="date"
             min={new Date().toISOString().split('T')[0]}

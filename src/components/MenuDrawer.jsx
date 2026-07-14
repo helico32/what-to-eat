@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { btnActive, btnDefault } from '../utils/styles'
 
 function UrgentIcon()    { return <span className="w-2.5 h-2.5 rounded-full bg-current inline-block" /> }
@@ -35,7 +34,15 @@ export default function MenuDrawer({
 }) {
 
   return (
-    <div className="fixed inset-0 z-50 flex" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+      aria-label="Fermer le menu"
+    >
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
         className="w-[300px] max-w-[80vw] h-full bg-canvas flex flex-col pt-14 pb-10 shadow-lg overflow-y-auto"
         onClick={e => e.stopPropagation()}
