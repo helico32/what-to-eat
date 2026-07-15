@@ -3,6 +3,7 @@ import {
   onAuthStateChanged,
   signInAnonymously,
   signInWithPopup,
+  signInWithCredential,
   linkWithPopup,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
@@ -23,9 +24,13 @@ export function useAuth() {
     return onAuthStateChanged(auth, u => setUser(u ?? null))
   }, [])
 
-  // Auth anonyme silencieuse — crée un uid persistant par appareil sans aucune friction
+  // Auth anonyme silencieuse — crée un uid par appareil, uniquement si personne n'est
+  // déjà connecté. authStateReady() attend que Firebase ait restauré la session existante
+  // avant de décider : évite d'écraser une session Google au rechargement de la page.
   useEffect(() => {
-    signInAnonymously(auth).catch(() => {})
+    auth.authStateReady().then(() => {
+      if (!auth.currentUser) signInAnonymously(auth).catch(() => {})
+    })
   }, [])
 
   // Google Sign-In
@@ -40,13 +45,22 @@ export function useAuth() {
       }
       return true
     } catch (err) {
-      // Le compte Google existe déjà en tant que compte réel — connexion directe
+      // Elle a fermé la popup elle-même — pas une erreur, pas de message à afficher
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        return null
+      }
+      // Le compte Google existe déjà — réutilise le credential du premier popup (déjà accordé
+      // par Google) plutôt qu'ouvrir une deuxième popup (qui serait bloquée par les navigateurs
+      // mobiles car hors geste utilisateur).
       if (err.code === 'auth/credential-already-in-use') {
         try {
-          await signInWithPopup(auth, googleProvider)
-          return true
+          const credential = GoogleAuthProvider.credentialFromError(err)
+          if (credential) {
+            await signInWithCredential(auth, credential)
+            return true
+          }
         } catch (err2) {
-          if (import.meta.env.DEV) console.error('[auth] signInWithPopup fallback', err2)
+          if (import.meta.env.DEV) console.error('[auth] signInWithCredential fallback', err2)
         }
       } else {
         if (import.meta.env.DEV) console.error('[auth] signInWithGoogle', err)
@@ -58,7 +72,9 @@ export function useAuth() {
   const signOut = async () => {
     const uid = auth.currentUser?.uid
     if (uid) {
-      await updateDoc(doc(db, 'users', uid), { fcmToken: deleteField() }).catch(() => {})
+      // Fire and forget — hors ligne, Firestore met l'écriture en file d'attente et la
+      // Promise ne se résout jamais. Sans await, firebaseSignOut est toujours atteint.
+      updateDoc(doc(db, 'users', uid), { fcmToken: deleteField() }).catch(() => {})
     }
     await firebaseSignOut(auth)
   }

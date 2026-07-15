@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 function CheckIcon() {
@@ -59,9 +60,15 @@ const PAID_EXTRAS = [
 ]
 
 export default function PlanPage({ onClose, onSignInWithGoogle }) {
+  const [error, setError] = useState(null)
+
   const handlePaid = async () => {
-    const ok = await onSignInWithGoogle()
-    if (ok) onClose()
+    setError(null) // remet à zéro avant chaque tentative
+    const result = await onSignInWithGoogle()
+    if (result === true) onClose()
+    // null = elle a fermé la popup — rien à faire
+    // false = vraie erreur — on affiche un message
+    if (result === false) setError('La connexion n'a pas abouti. Réessaie.')
   }
 
   return (
@@ -111,6 +118,12 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
               <GoogleIcon />
               Commencer l'essai de 7 jours
             </button>
+
+            {error && (
+              <p role="alert" className="font-body text-[13px] text-urgent text-center">
+                {error}
+              </p>
+            )}
 
             <p className="font-body text-[12px] text-ink-secondary text-center">
               Puis 2,99€/mois. Annulable à tout moment.
