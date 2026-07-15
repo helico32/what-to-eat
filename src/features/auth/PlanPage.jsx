@@ -68,7 +68,8 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
     if (result === true) onClose()
     // null = elle a fermé la popup — rien à faire
     // false = vraie erreur — on affiche un message
-    if (result === false) setError('La connexion n'a pas abouti. Réessaie.')
+    if (result === false) setError('La connexion n\'a pas abouti. Réessaie.')
+      
   }
 
   return (
