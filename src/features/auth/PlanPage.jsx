@@ -223,11 +223,11 @@ export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermiss
           {/* ── Liens légaux ── */}
           <p className="font-body text-[12px] text-ink-primary text-center leading-relaxed">
             En continuant, tu acceptes nos{' '}
-            <Link to="/conditions" className="underline underline-offset-2">Conditions générales</Link>
+            <Link to="/terms" className="underline underline-offset-2">Conditions générales</Link>
             {' '}et notre{' '}
-            <Link to="/confidentialite" className="underline underline-offset-2">Politique de confidentialité</Link>.
+            <Link to="/privacy" className="underline underline-offset-2">Politique de confidentialité</Link>.
             <br />
-            <Link to="/mentions-legales" className="underline underline-offset-2 mt-1 inline-block">Mentions légales</Link>
+            <Link to="/legal-notice" className="underline underline-offset-2 mt-1 inline-block">Mentions légales</Link>
           </p>
 
         </div>

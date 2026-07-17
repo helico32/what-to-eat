@@ -44,7 +44,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
   }
 
   useEffect(() => {
-    if (!recipe) navigate('/recettes', { replace: true })
+    if (!recipe) navigate('/recipes', { replace: true })
   }, [recipe, navigate])
 
   useEffect(() => {

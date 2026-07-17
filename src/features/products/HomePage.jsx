@@ -165,7 +165,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
         onTitleClick={() => onTabChange('urgent')}
         onAdd={() => setShowAdd('quick')}
         onMenu={onMenu}
-        onCart={() => navigate('/liste')}
+        onCart={() => navigate('/list')}
         cartCount={uncheckedCount}
       />
       <TabBar active={tab} onChange={onTabChange} />
@@ -236,7 +236,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
             <RecipeCard
               recipes={recipes}
               products={store.products}
-              onViewRecipe={(r) => navigate(`/recettes/${r.id}`)}
+              onViewRecipe={(r) => navigate(`/recipes/${r.id}`)}
             />
           </div>
         )}

@@ -221,7 +221,7 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
 
         <Header
           onTitleClick={onClose}
-          onAdd={() => navigate('/recettes/new')}
+          onAdd={() => navigate('/recipes/new')}
           onMenu={onMenu}
           onCart={onCart}
           cartCount={cartCount}
@@ -273,7 +273,7 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
                   recipe={r}
                   products={products}
                   onDelete={onDeleteRecipe}
-                  onView={(r) => navigate(`/recettes/${r.id}`)}
+                  onView={(r) => navigate(`/recipes/${r.id}`)}
                   onToggleFavorite={onToggleFavorite}
                   canSort={sorting && !q}
                   isDragging={activeIndex === index}

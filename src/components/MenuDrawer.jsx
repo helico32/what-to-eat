@@ -21,8 +21,8 @@ const TABS = [
 
 const PAGES = [
   { id: 'planning', label: 'Planning repas',   Icon: CalendarIcon },
-  { id: 'liste',    label: 'Liste de courses', Icon: CartIcon    },
-  { id: 'recettes', label: 'Recettes',         Icon: ChefHatIcon },
+  { id: 'list',     label: 'Liste de courses', Icon: CartIcon    },
+  { id: 'recipes',  label: 'Recettes',         Icon: ChefHatIcon },
 ]
 
 export default function MenuDrawer({
@@ -82,7 +82,7 @@ export default function MenuDrawer({
               >
                 <Icon />
                 <span className="flex-1">{label}</span>
-                {id === 'liste' && shoppingCount > 0 && (
+                {id === 'list' && shoppingCount > 0 && (
                   <span className="w-5 h-5 bg-brand text-ink-primary text-[14px] font-bold rounded-full flex items-center justify-center">
                     {shoppingCount}
                   </span>

@@ -35,10 +35,10 @@ export default function App() {
 
   const uncheckedCount = store.shoppingList.filter(i => !i.checked).length
 
-  const activePage = location.pathname === '/liste'
-    ? 'liste'
-    : location.pathname.startsWith('/recettes')
-    ? 'recettes'
+  const activePage = location.pathname === '/list'
+    ? 'list'
+    : location.pathname.startsWith('/recipes')
+    ? 'recipes'
     : location.pathname === '/planning'
     ? 'planning'
     : null
@@ -75,7 +75,7 @@ export default function App() {
         } />
 
         {/* ── Liste de courses ── */}
-        <Route path="/liste" element={
+        <Route path="/list" element={
           <ListePage
             items={store.shoppingList}
             onToggle={store.toggleShoppingItem}
@@ -88,13 +88,13 @@ export default function App() {
             onAddCheckedToStock={handleAddCheckedToStock}
             onClose={() => navigate('/')}
             onMenu={() => setShowMenu(true)}
-            onCart={() => navigate('/liste')}
+            onCart={() => navigate('/list')}
             cartCount={uncheckedCount}
           />
         } />
 
         {/* ── Recettes ── */}
-        <Route path="/recettes" element={
+        <Route path="/recipes" element={
           <RecipesPage
             recipes={recipes}
             products={store.products}
@@ -105,21 +105,21 @@ export default function App() {
             onReorderRecipes={reorderRecipes}
             onClose={() => navigate('/')}
             onMenu={() => setShowMenu(true)}
-            onCart={() => navigate('/liste')}
+            onCart={() => navigate('/list')}
             cartCount={uncheckedCount}
           />
         } />
 
         {/* ── Ajouter une recette ── */}
-        <Route path="/recettes/new" element={
+        <Route path="/recipes/new" element={
           <AddRecipeModal
-            onClose={() => navigate('/recettes')}
-            onAdd={(r) => { addRecipe(r); navigate('/recettes') }}
+            onClose={() => navigate('/recipes')}
+            onAdd={(r) => { addRecipe(r); navigate('/recipes') }}
           />
         } />
 
         {/* ── Détail recette ── */}
-        <Route path="/recettes/:id" element={
+        <Route path="/recipes/:id" element={
           <RecipeModal
             recipes={recipes}
             products={store.products}
@@ -128,7 +128,7 @@ export default function App() {
         } />
 
         {/* ── Connexion / abonnement ── */}
-        <Route path="/connexion" element={
+        <Route path="/login" element={
           <PlanPage
             onClose={() => navigate(-1)}
             onSignInWithGoogle={signInWithGoogle}
@@ -138,9 +138,9 @@ export default function App() {
         } />
 
         {/* ── Pages légales ── */}
-        <Route path="/mentions-legales" element={<MentionsLegales />} />
-        <Route path="/confidentialite"  element={<Confidentialite />} />
-        <Route path="/conditions"       element={<Conditions />} />
+        <Route path="/legal-notice" element={<MentionsLegales />} />
+        <Route path="/privacy"      element={<Confidentialite />} />
+        <Route path="/terms"        element={<Conditions />} />
 
         {/* ── Planning repas ── */}
         <Route path="/planning" element={
@@ -157,7 +157,7 @@ export default function App() {
             onCancelMeal={mealsStore.cancelMeal}
             onClose={() => navigate('/')}
             onMenu={() => setShowMenu(true)}
-            onCart={() => navigate('/liste')}
+            onCart={() => navigate('/list')}
             cartCount={uncheckedCount}
           />
         } />
@@ -177,7 +177,7 @@ export default function App() {
           isAnonymous={isAnonymous}
           authEmail={authEmail}
           authLoading={authLoading}
-          onShowPlan={() => navigate('/connexion')}
+          onShowPlan={() => navigate('/login')}
           onSignOut={signOut}
         />
       )}
