@@ -1,7 +1,6 @@
 import { initializeApp }                       from 'firebase/app'
 import { getAuth }                             from 'firebase/auth'
 import { getFirestore }                        from 'firebase/firestore'
-import { getMessaging }                        from 'firebase/messaging'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 
 // Ces valeurs sont publiques — la sécurité est assurée par les règles Firestore,
@@ -15,7 +14,7 @@ const firebaseConfig = {
   appId:             '1:135887887805:web:b52ff2886497f81eca46d4',
 }
 
-const app = initializeApp(firebaseConfig)
+export const app = initializeApp(firebaseConfig)
 
 // En dev local, localhost n'est pas un vrai domaine — reCAPTCHA ne peut pas valider.
 // Ce token de debug remplace le token reCAPTCHA uniquement en local.
@@ -31,6 +30,7 @@ initializeAppCheck(app, {
   isTokenAutoRefreshEnabled: true,
 })
 
-export const auth      = getAuth(app)
-export const db        = getFirestore(app)
-export const messaging = getMessaging(app)
+export const auth = getAuth(app)
+export const db   = getFirestore(app)
+// messaging n'est pas initialisé ici — chargé dynamiquement dans saveToken()
+// uniquement après acceptation de la permission, pas au démarrage de l'app.

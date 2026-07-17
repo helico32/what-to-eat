@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { doc, setDoc }        from 'firebase/firestore'
-import { getToken }           from 'firebase/messaging'
-import { auth, db, messaging } from '../../firebase'
+import { auth, db, app }      from '../../firebase'
 
 // VAPID key — Project Settings → Cloud Messaging → Web Push certificates
 const VAPID_KEY = 'BFSLKtUDETGyxCH_e9k4MzrBSu0q6BpYQO9STjemrJS61nab-qwOwq4S6GCATswnkzvyLyamRQLkDz-J2FTr9iI'
@@ -17,6 +16,10 @@ async function saveToken() {
   try {
     await auth.authStateReady() // attend que l'auth anonyme soit prête
     const registration = await navigator.serviceWorker.ready
+    // Import dynamique : firebase/messaging ne charge que si l'utilisatrice
+    // a accordé la permission — pas au démarrage de l'app.
+    const { getMessaging, getToken } = await import('firebase/messaging')
+    const messaging = getMessaging(app)
     const token = await getToken(messaging, {
       vapidKey: VAPID_KEY,
       serviceWorkerRegistration: registration,
