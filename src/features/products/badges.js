@@ -6,17 +6,18 @@ const computeDaysLeft = (expiryDate) => {
 
 // Returns { cls: '...', label: '...' } for product urgency badges
 export function getBadge(expiryDate, location) {
-  if (location === 'congel')  return { cls: 'bg-transparent text-ink-secondary border border-ink-secondary/50', label: '❄️', labelFull: '❄️' }
-  if (location === 'placard') return { cls: 'bg-transparent text-ink-secondary border border-ink-secondary/50', label: '📦', labelFull: '📦' }
+  if (location === 'congel')  return { cls: 'bg-transparent text-ink-primary border border-ink-primary/50', label: '❄️', labelFull: '❄️' }
+  if (location === 'placard') return { cls: 'bg-transparent text-ink-primary border border-ink-primary/50', label: '📦', labelFull: '📦' }
   const daysLeft = computeDaysLeft(expiryDate)
-  if (daysLeft === null)      return { cls: '', label: '', labelFull: '' }
-  if (daysLeft <= 0)  return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: `${daysLeft} j`, labelFull: `${daysLeft} jour${Math.abs(daysLeft) !== 1 ? 's' : ''}` }
-  if (daysLeft === 1) return { cls: 'bg-urgent/30 text-ink-secondary border border-urgent', label: '1',           labelFull: '1 jour' }
-  if (daysLeft <= 4)  return { cls: 'bg-brand/30 text-ink-secondary border border-brand',   label: `${daysLeft} j`, labelFull: `${daysLeft} jours` }
-  return                     { cls: 'bg-canvas-border text-ink-secondary border border-ink-primary', label: `${daysLeft} j`, labelFull: `${daysLeft} jours` }
+  if (daysLeft === null)      return { cls: 'bg-canvas-border text-ink-primary border border-ink-primary', label: '', labelFull: '' }
+  if (daysLeft < 0)   return { cls: 'bg-ink-primary/30 text-ink-primary border border-ink-primary',   label: `${daysLeft} j`, labelFull: `${daysLeft} jour${Math.abs(daysLeft) !== 1 ? 's' : ''}` }
+  if (daysLeft === 0) return { cls: 'bg-urgent/30 text-ink-primary border border-ink-primary',  label: '0 j',          labelFull: '0 jour' }
+  if (daysLeft === 1) return { cls: 'bg-urgent/30 text-ink-primary border border-ink-primary',  label: '1 j',          labelFull: '1 jour' }
+  if (daysLeft <= 4)  return { cls: 'bg-caution/30 text-ink-primary border border-ink-primary', label: `${daysLeft} j`, labelFull: `${daysLeft} jours` }
+  return                     { cls: 'bg-fresh/30 text-ink-primary border border-ink-primary',   label: `${daysLeft} j`, labelFull: `${daysLeft} jours` }
 }
 
-// For ingredient chips — returns only the background class (text stays ink-secondary)
+// For ingredient chips — returns only the background class (text stays ink-primary)
 export function getIngredientChipBg(expiryDate) {
   const daysLeft = computeDaysLeft(expiryDate)
   if (daysLeft === null) return 'bg-canvas border border-ink-primary'

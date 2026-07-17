@@ -77,7 +77,7 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
           onChange={e => setName(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleAdd()}
           placeholder="Framboises, yaourt, pâtes…"
-          className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors mb-4"
+          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors mb-4"
         />
 
         <div className="flex gap-2 mb-5">
@@ -88,7 +88,7 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
               className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border font-body font-semibold text-[14px] transition-all ${
                 loc === l.id
                   ? 'bg-brand border-ink-primary text-ink-primary'
-                  : 'bg-canvas-surface border-ink-primary text-ink-secondary'
+                  : 'bg-canvas border-ink-primary text-ink-primary'
               }`}
             >
               <l.Icon />
@@ -103,7 +103,7 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
           className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all mb-3 ${
             name.trim()
               ? 'bg-forest text-canvas active:scale-[.98]'
-              : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
+              : 'bg-ink-primary/20 border border-ink-primary text-ink-primary cursor-not-allowed'
           }`}
         >
           Ajouter
@@ -112,7 +112,7 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
         {/* Escalade vers le flux complet si la personne veut ajouter une photo ou une date */}
         <button
           onClick={() => { onClose(); onFullAdd() }}
-          className="w-full text-center font-body text-[14px] text-ink-secondary py-1"
+          className="w-full text-center font-body text-[14px] text-ink-primary py-1"
         >
           Avec photo / date →
         </button>

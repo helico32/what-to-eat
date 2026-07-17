@@ -2,6 +2,26 @@ import { useState, useEffect, useRef } from 'react'
 import { getBadge } from './badges'
 import { btnActive, btnDefault } from '../../utils/styles'
 
+function SnowflakeIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m10 20-1.25-2.5L6 18"/><path d="M10 4 8.75 6.5 6 6"/><path d="m14 20 1.25-2.5L18 18"/>
+      <path d="m14 4 1.25 2.5L18 6"/><path d="m17 21-3-6h-4"/><path d="m17 3-3 6 1.5 3"/>
+      <path d="M2 12h6.5L10 9"/><path d="m20 10-1.5 2 1.5 2"/><path d="M22 12h-6.5L14 15"/>
+      <path d="m4 10 1.5 2L4 14"/><path d="m7 21 3-6-1.5-3"/><path d="m7 3 3 6h4"/>
+    </svg>
+  )
+}
+
+function PackageIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/>
+      <path d="M12 22V12"/><polyline points="3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/>
+    </svg>
+  )
+}
+
 function PositionInput({ position, total, onMoveTo }) {
   const [val, setVal] = useState(String(position))
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -22,7 +42,7 @@ function PositionInput({ position, total, onMoveTo }) {
       onChange={e => setVal(e.target.value)}
       onBlur={commit}
       onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border border-ink-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-primary font-body font-bold text-[14px] text-center outline-none border border-ink-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -118,18 +138,18 @@ export default function ProductRow({
                 ? setConfirm(confirm === 'decrement' ? null : 'decrement')
                 : onDecrement()
               }
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
               aria-label="Diminuer"
             >
               −
             </button>
-            <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">
+            <span className="font-body text-[14px] text-ink-primary min-w-[20px] text-center">
               {product.qty}
             </span>
             <button
               disabled={product.qty === 0}
               onClick={onIncrement}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary disabled:opacity-30 disabled:pointer-events-none"
               aria-label="Augmenter"
             >
               +
@@ -145,12 +165,20 @@ export default function ProductRow({
             className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[13px] border transition-all ${
               isDateEdit
                 ? 'bg-brand border-ink-primary text-ink-primary'
-                : 'bg-canvas-surface border-canvas-border text-ink-secondary'
+                : 'bg-canvas-border border-ink-primary text-ink-primary'
             }`}
           >
             <span className="md:hidden">⚠</span>
             <span className="hidden md:inline">⚠ sans date</span>
           </button>
+        ) : product.location === 'congel' ? (
+          <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill text-ink-primary ${badge.cls}`}>
+            <SnowflakeIcon />
+          </span>
+        ) : product.location === 'placard' ? (
+          <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill text-ink-primary ${badge.cls}`}>
+            <PackageIcon />
+          </span>
         ) : badge.label ? (
           <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[14px] ${badge.cls}`}>
             <span className="md:hidden">{badge.label}</span>
@@ -204,7 +232,7 @@ export default function ProductRow({
                 setIsDateEdit(false)
               }
             }}
-            className="flex-1 px-3 py-1.5 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[16px] outline-none focus:border-forest transition-colors"
+            className="flex-1 px-3 py-1.5 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] outline-none focus:border-forest transition-colors"
           />
           <button
             onClick={() => setIsDateEdit(false)}
@@ -218,7 +246,7 @@ export default function ProductRow({
       {/* Confirmation inline */}
       {confirm && (
         <div className="pb-3 flex items-center gap-2">
-          <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
+          <p className="flex-1 font-body text-[16px] text-ink-primary truncate">
             {confirm === 'cart' ? (
               <>
                 <span className="md:hidden">Ajouter au panier ?</span>

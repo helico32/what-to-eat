@@ -68,18 +68,18 @@ function MealRow({ meal, isChecked, rowQty, onToggle, onSetRowQty, onCancel }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-body font-semibold text-[15px] text-ink-primary truncate">{meal.productSnapshot.name}</p>
-          <p className="font-body text-[13px] text-ink-secondary">x {meal.qty} prévu{meal.qty > 1 ? 's' : ''}</p>
+          <p className="font-body text-[13px] text-ink-primary">x {meal.qty} prévu{meal.qty > 1 ? 's' : ''}</p>
         </div>
         {isChecked ? (
           <div className="flex items-center gap-1.5 flex-shrink-0">
             <button
               onClick={() => onSetRowQty(meal, rowQty - 1)}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
             >−</button>
             <span className="font-body text-[14px] text-ink-primary font-semibold min-w-[16px] text-center">{rowQty}</span>
             <button
               onClick={() => onSetRowQty(meal, rowQty + 1)}
-              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
             >+</button>
           </div>
         ) : onCancel && (
@@ -94,7 +94,7 @@ function MealRow({ meal, isChecked, rowQty, onToggle, onSetRowQty, onCancel }) {
       </div>
       {confirmRemove && (
         <div className="pt-1 pb-1 flex items-center gap-2">
-          <p className="flex-1 font-body text-[14px] text-ink-secondary truncate">
+          <p className="flex-1 font-body text-[14px] text-ink-primary truncate">
             Retirer "{meal.productSnapshot.name}" ?
           </p>
           <button
@@ -137,14 +137,14 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
     <div className="bg-canvas-card rounded-xl border border-ink-primary mb-3">
       <div className="flex items-center gap-2 px-4 py-3">
         {!isEditing && !confirmDelete && (
-          <button onClick={() => setCollapsed(c => !c)} className="flex-shrink-0 text-ink-secondary">
+          <button onClick={() => setCollapsed(c => !c)} className="flex-shrink-0 text-ink-primary">
             <ChevronIcon down={!collapsed} />
           </button>
         )}
 
         <div className="flex-1 min-w-0 flex items-center gap-2">
           {confirmDelete ? (
-            <p className="font-body text-[15px] text-ink-secondary truncate">Supprimer "{name}" ?</p>
+            <p className="font-body text-[15px] text-ink-primary truncate">Supprimer "{name}" ?</p>
           ) : isEditing ? (
             <>
               <input
@@ -166,7 +166,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
             <>
               <button onClick={() => setCollapsed(c => !c)} className="flex-1 min-w-0 text-left flex items-center gap-1">
                 <p className="font-display font-semibold text-[15px] text-ink-primary truncate">{name}</p>
-                <span className="font-body text-[13px] text-ink-secondary flex-shrink-0">({meals.length})</span>
+                <span className="font-body text-[13px] text-ink-primary flex-shrink-0">({meals.length})</span>
               </button>
               {onRename && (
                 <button
@@ -223,7 +223,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
       {!collapsed && !confirmDelete && (
         <div className="border-t border-ink-primary divide-y divide-ink-primary px-4">
           {meals.length === 0 ? (
-            <p className="py-4 font-body text-[14px] text-ink-secondary text-center">Vide — appuie sur + pour ajouter</p>
+            <p className="py-4 font-body text-[14px] text-ink-primary text-center">Vide — appuie sur + pour ajouter</p>
           ) : (
             meals.map(meal => (
               <MealRow
@@ -261,12 +261,12 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
       <>
         <div className="text-center py-10">
           <span className="text-4xl block mb-3">🍽️</span>
-          <p className="font-body text-[15px] text-ink-secondary">Aucun repas prévu ce jour</p>
+          <p className="font-body text-[15px] text-ink-primary">Aucun repas prévu ce jour</p>
         </div>
         {onCreateRepas && (
           <button
             onClick={onCreateRepas}
-            className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-secondary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-primary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
           >
             <PlusIcon />
             Nouveau repas
@@ -302,7 +302,7 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
       {onCreateRepas && (
         <button
           onClick={onCreateRepas}
-          className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-secondary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-primary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
         >
           <PlusIcon />
           Nouveau repas

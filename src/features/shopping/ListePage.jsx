@@ -39,7 +39,7 @@ function AddItemSheet({ onAdd, onClose }) {
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
       <div
-        className="w-full max-w-[430px] mx-auto bg-canvas-surface rounded-t-[20px] px-5 pt-5 pb-10 shadow-lg"
+        className="w-full max-w-[430px] mx-auto bg-canvas rounded-t-[20px] px-5 pt-5 pb-10 shadow-lg"
         onClick={e => e.stopPropagation()}
       >
         <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-5" />
@@ -50,7 +50,7 @@ function AddItemSheet({ onAdd, onClose }) {
             value={emoji}
             onChange={e => setEmoji(e.target.value)}
             placeholder="🛒"
-            className="w-16 px-3 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[20px] text-center placeholder:text-ink-secondary/40 outline-none focus:border-forest transition-colors"
+            className="w-16 px-3 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[20px] text-center placeholder:text-ink-primary/40 outline-none focus:border-forest transition-colors"
           />
           <div className="flex-1 flex flex-col gap-1">
             <input
@@ -61,7 +61,7 @@ function AddItemSheet({ onAdd, onClose }) {
               onChange={e => setValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && submit()}
               placeholder="ex. Lait, pain..."
-              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
             />
           </div>
         </div>
@@ -69,7 +69,7 @@ function AddItemSheet({ onAdd, onClose }) {
           onClick={submit}
           disabled={!value.trim()}
           className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
-            value.trim() ? 'bg-forest text-canvas active:scale-[.98]' : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
+            value.trim() ? 'bg-forest text-canvas active:scale-[.98]' : 'bg-ink-primary/20 border border-ink-primary text-ink-primary cursor-not-allowed'
           }`}
         >
           Ajouter
@@ -125,7 +125,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
                 </button>
               )}
             </div>
-            <span className="font-body text-[16px] text-ink-secondary">
+            <span className="font-body text-[16px] text-ink-primary">
               {filteredItems.length} article{filteredItems.length > 1 ? 's' : ''}
             </span>
           </div>

@@ -79,7 +79,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
         {/* Header */}
         <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 z-10">
           <div className="flex items-center py-3">
-            <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center">
+            <button onClick={onClose} aria-label="Retour" className="text-ink-primary w-10 flex items-center">
               <ArrowLeft />
             </button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
@@ -98,7 +98,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
                 <p className="font-display font-bold text-[22px] text-ink-primary">2,99€ / mois</p>
                 <p className="font-body font-semibold text-[14px] text-forest">7 jours offerts · sans CB</p>
               </div>
-              <span className="bg-canvas border border-ink-primary px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-secondary">
+              <span className="bg-canvas border border-ink-primary px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-primary">
                 Recommandé
               </span>
             </div>
@@ -126,14 +126,14 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
               </p>
             )}
 
-            <p className="font-body text-[12px] text-ink-secondary text-center">
+            <p className="font-body text-[12px] text-ink-primary text-center">
               Puis 2,99€/mois. Annulable à tout moment.
             </p>
 
             {/* Lien retour pour les utilisatrices qui ont déjà un compte */}
             <button
               onClick={handlePaid}
-              className="font-body text-[13px] text-ink-secondary underline underline-offset-2 text-center"
+              className="font-body text-[13px] text-ink-primary underline underline-offset-2 text-center"
             >
               Déjà un compte ? Se connecter
             </button>
@@ -151,7 +151,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
                 </li>
               ))}
               {FREE_EXCLUDED.map((text) => (
-                <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-secondary">
+                <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
                   <CrossIcon />
                   <span>{text}</span>
                 </li>
@@ -160,14 +160,14 @@ export default function PlanPage({ onClose, onSignInWithGoogle }) {
 
             <button
               onClick={onClose}
-              className="w-full py-3.5 rounded-xl border border-ink-primary font-body font-semibold text-[16px] text-ink-secondary active:scale-[.98] transition-all"
+              className="w-full py-3.5 rounded-xl border border-ink-primary font-body font-semibold text-[16px] text-ink-primary active:scale-[.98] transition-all"
             >
               Continuer sans compte
             </button>
           </div>
 
           {/* ── Liens légaux ── */}
-          <p className="font-body text-[12px] text-ink-secondary text-center leading-relaxed">
+          <p className="font-body text-[12px] text-ink-primary text-center leading-relaxed">
             En continuant, tu acceptes nos{' '}
             <Link to="/conditions" className="underline underline-offset-2">Conditions générales</Link>
             {' '}et notre{' '}

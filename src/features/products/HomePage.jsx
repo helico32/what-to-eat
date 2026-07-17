@@ -73,7 +73,7 @@ function SectionLabel({ label, count, actionMode, onToggleAction, editMode, onTo
         )}
       </div>
       {count !== undefined && (
-        <span className="font-body text-[16px] text-ink-secondary">
+        <span className="font-body text-[16px] text-ink-primary">
           {count} article{count > 1 ? 's' : ''}
         </span>
       )}
@@ -86,7 +86,7 @@ function EmptyState({ icon, title }) {
     <div className="text-center py-16 px-6">
       <span className="text-4xl block mb-3">{icon}</span>
       <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">{title}</h3>
-      <p className="font-body text-[16px] text-ink-secondary inline-flex items-center gap-1.5">
+      <p className="font-body text-[16px] text-ink-primary inline-flex items-center gap-1.5">
         Ajoute-le avec
         <span className="inline-flex items-center justify-center w-5 h-5 bg-brand text-ink-primary rounded-full text-[14px] font-light leading-none">+</span>
       </p>

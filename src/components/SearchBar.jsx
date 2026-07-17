@@ -11,13 +11,13 @@ export default function SearchBar({ value, onChange, placeholder = 'Rechercherâ€
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-9 pr-9 py-2 bg-canvas-surface border border-ink-primary rounded-[10px] font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none"
+          className="w-full pl-9 pr-9 py-2 bg-canvas border border-ink-primary rounded-[10px] font-body text-[16px] text-ink-primary placeholder:text-ink-primary/50 outline-none"
         />
         {value && (
           <button
             onClick={() => onChange('')}
             aria-label="Effacer la recherche"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-secondary text-lg leading-none"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-primary text-lg leading-none"
           >
             Ã—
           </button>

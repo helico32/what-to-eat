@@ -75,7 +75,7 @@ function GallerySheet({ onSelect, onClose }) {
         <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-4" />
         <p className="font-display font-semibold text-[16px] text-ink-primary mb-4">Galerie</p>
         {images.length === 0 ? (
-          <p className="font-body text-[15px] text-ink-secondary">Aucune photo en cache pour l'instant.</p>
+          <p className="font-body text-[15px] text-ink-primary">Aucune photo en cache pour l'instant.</p>
         ) : (
           <div className="grid grid-cols-3 gap-3 max-h-[55vh] overflow-y-auto">
             {images.map((img, i) => (
@@ -201,7 +201,7 @@ export default function AddModal({ onClose, onAdd }) {
           <>
             <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
               <div className="flex items-center py-3">
-                <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
+                <button onClick={onClose} aria-label="Retour" className="text-ink-primary w-10 flex items-center"><ArrowLeft /></button>
                 <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
                   Détails de l'article
                 </h1>
@@ -232,21 +232,21 @@ export default function AddModal({ onClose, onAdd }) {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => { setEmojiMode(false); cameraRef.current.click() }}
-                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary hover:bg-brand active:scale-95 transition-all"
+                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas border border-ink-primary rounded-xl text-ink-primary hover:bg-brand active:scale-95 transition-all"
                 >
                   <CameraIcon />
                   <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Prendre une photo</span>
                 </button>
                 <button
                   onClick={() => { setEmojiMode(false); fileRef.current.click() }}
-                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary hover:bg-brand active:scale-95 transition-all"
+                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas border border-ink-primary rounded-xl text-ink-primary hover:bg-brand active:scale-95 transition-all"
                 >
                   <ImageIcon />
                   <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Ajouter une photo</span>
                 </button>
                 <button
                   onClick={() => { setEmojiMode(false); setShowGallery(true) }}
-                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary hover:bg-brand active:scale-95 transition-all"
+                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas border border-ink-primary rounded-xl text-ink-primary hover:bg-brand active:scale-95 transition-all"
                 >
                   <GridIcon />
                   <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Galerie</span>
@@ -254,7 +254,7 @@ export default function AddModal({ onClose, onAdd }) {
                 <button
                   onClick={() => { setImage(null); setEmojiMode(m => !m) }}
                   className={`aspect-square flex flex-col items-center justify-center gap-2 border rounded-xl active:scale-95 transition-all ${
-                    emojiMode ? 'bg-brand border-ink-primary text-ink-primary' : 'bg-canvas-surface border-ink-primary text-ink-secondary hover:bg-brand'
+                    emojiMode ? 'bg-brand border-ink-primary text-ink-primary' : 'bg-canvas border-ink-primary text-ink-primary hover:bg-brand'
                   }`}
                 >
                   {emoji ? <span className="text-3xl leading-none">{emoji}</span> : <SmileIcon />}
@@ -264,7 +264,7 @@ export default function AddModal({ onClose, onAdd }) {
 
               {/* Champ emoji — visible uniquement si le carré Emoji est actif */}
               <div className={emojiMode ? 'block' : 'hidden'}>
-                <label htmlFor="add-emoji" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Emoji</label>
+                <label htmlFor="add-emoji" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Emoji</label>
                 <input
                   id="add-emoji"
                   // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -273,13 +273,13 @@ export default function AddModal({ onClose, onAdd }) {
                   value={emoji ?? ''}
                   onChange={e => setEmoji(e.target.value || null)}
                   placeholder="😊"
-                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[28px] text-center placeholder:text-ink-secondary/40 outline-none focus:border-forest transition-colors"
+                  className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[28px] text-center placeholder:text-ink-primary/40 outline-none focus:border-forest transition-colors"
                 />
               </div>
 
               {/* Nom */}
               <div>
-                <label htmlFor="add-name" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Nom*</label>
+                <label htmlFor="add-name" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Nom*</label>
                 <input
                   id="add-name"
                   type="text"
@@ -287,17 +287,17 @@ export default function AddModal({ onClose, onAdd }) {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="ex. Framboises"
-                  className="w-full px-4 py-3 bg-canvas-surface border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                  className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
                 />
               </div>
 
               {/* Quantité */}
               <div>
-                <p className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">Quantité</p>
+                <p className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Quantité</p>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQty(q => Math.max(1, q - 1))}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-surface border border-ink-primary text-ink-secondary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas border border-ink-primary text-ink-primary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
                   >−</button>
                   <input
                     type="number"
@@ -313,14 +313,14 @@ export default function AddModal({ onClose, onAdd }) {
                   />
                   <button
                     onClick={() => setQty(q => q + 1)}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-surface border border-ink-primary text-ink-secondary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas border border-ink-primary text-ink-primary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
                   >+</button>
                 </div>
               </div>
 
               {/* Date de péremption */}
               <div>
-                <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">Date de péremption</p>
+                <p className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">Date de péremption</p>
                 <div className="flex gap-2 mb-3">
                   {PRESETS.map(p => {
                     const val = dateInDays(p.days)
@@ -331,7 +331,7 @@ export default function AddModal({ onClose, onAdd }) {
                         className={`flex-1 py-2 rounded-pill font-body font-semibold text-[14px] border transition-all ${
                           expiry === val
                             ? 'bg-brand text-ink-primary border-ink-primary'
-                            : 'bg-canvas-surface text-ink-secondary border-ink-primary'
+                            : 'bg-canvas text-ink-primary border-ink-primary'
                         }`}
                       >
                         {p.label}
@@ -346,7 +346,7 @@ export default function AddModal({ onClose, onAdd }) {
                     value={expiry}
                     min={todayStr()}
                     onChange={e => setExpiry(e.target.value)}
-                    className="w-full px-4 py-6 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[18px] font-semibold outline-none focus:border-forest transition-colors min-h-[64px]"
+                    className="w-full px-4 py-6 bg-canvas border-2 border-ink-primary rounded-xl font-body text-[18px] font-semibold outline-none focus:border-forest transition-colors min-h-[64px]"
                   />
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function AddModal({ onClose, onAdd }) {
                 className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
                   name.trim()
                     ? 'bg-forest text-canvas active:scale-[.98]'
-                    : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
+                    : 'bg-ink-primary/20 border border-ink-primary text-ink-primary cursor-not-allowed'
                 }`}
               >
                 Suivant
@@ -378,7 +378,7 @@ export default function AddModal({ onClose, onAdd }) {
         {step === 2 && (
           <div className="flex-1 px-5 pt-6 pb-10 flex flex-col gap-3">
             <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-2" />
-            <button onClick={() => setStep(1)} aria-label="Retour" className="text-ink-secondary w-10 mb-1 flex items-center"><ArrowLeft /></button>
+            <button onClick={() => setStep(1)} aria-label="Retour" className="text-ink-primary w-10 mb-1 flex items-center"><ArrowLeft /></button>
             <p className="font-display font-bold text-[20px] text-ink-primary mb-1">Où le ranger ?</p>
 
             {LOCATIONS.map(l => (
@@ -388,7 +388,7 @@ export default function AddModal({ onClose, onAdd }) {
                 className={`flex items-center gap-4 p-4 rounded-[10px] border border-ink-primary text-left font-body font-semibold text-[16px] transition-all ${
                   loc === l.id
                     ? 'bg-brand text-ink-primary'
-                    : 'bg-canvas-border text-ink-secondary'
+                    : 'bg-canvas-border text-ink-primary'
                 }`}
               >
                 <l.Icon />

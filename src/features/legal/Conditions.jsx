@@ -17,7 +17,7 @@ export default function Conditions() {
   return (
     <LegalLayout title="Conditions générales">
 
-      <p className="text-ink-secondary text-[13px]">
+      <p className="text-ink-primary text-[13px]">
         Les présentes conditions générales régissent l'utilisation de l'application What to eat
         et la souscription à son abonnement payant. En utilisant l'application, vous acceptez
         ces conditions.
@@ -134,7 +134,7 @@ export default function Conditions() {
         </p>
       </Section>
 
-      <p className="text-ink-secondary text-[13px]">
+      <p className="text-ink-primary text-[13px]">
         Dernière mise à jour : juillet 2026
       </p>
 

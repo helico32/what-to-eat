@@ -79,7 +79,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
         <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
           <div className="flex items-center py-3">
-            <button onClick={onClose} aria-label="Retour" className="text-ink-secondary w-10 flex items-center"><ArrowLeft /></button>
+            <button onClick={onClose} aria-label="Retour" className="text-ink-primary w-10 flex items-center"><ArrowLeft /></button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
               Ajouter une recette
             </h1>
@@ -91,7 +91,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Photo ou emoji */}
           <div className="mb-5">
-            <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <p className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">
               Photo
             </p>
 
@@ -114,14 +114,14 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 <div className="flex gap-2 mb-4">
                   <button
                     onClick={() => cameraRef.current.click()}
-                    className="flex-1 flex flex-col items-center justify-center gap-2 py-4 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary active:scale-95 transition-all"
+                    className="flex-1 flex flex-col items-center justify-center gap-2 py-4 bg-canvas border border-ink-primary rounded-xl text-ink-primary active:scale-95 transition-all"
                   >
                     <CameraIcon />
                     <span className="font-body text-[12px] font-semibold">Prendre une photo</span>
                   </button>
                   <button
                     onClick={() => fileRef.current.click()}
-                    className="flex-1 flex flex-col items-center justify-center gap-2 py-4 bg-canvas-surface border border-ink-primary rounded-xl text-ink-secondary active:scale-95 transition-all"
+                    className="flex-1 flex flex-col items-center justify-center gap-2 py-4 bg-canvas border border-ink-primary rounded-xl text-ink-primary active:scale-95 transition-all"
                   >
                     <ImageIcon />
                     <span className="font-body text-[12px] font-semibold">Galerie</span>
@@ -129,7 +129,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 </div>
 
                 {/* Emoji — fallback si pas de photo */}
-                <p className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+                <p className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">
                   Ou choisir un emoji
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -151,7 +151,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Name */}
           <div className="mb-4">
-            <label htmlFor="recipe-name" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
+            <label htmlFor="recipe-name" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">
               Nom*
             </label>
             <input
@@ -161,13 +161,13 @@ export default function AddRecipeModal({ onClose, onAdd }) {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="ex. Salade de quinoa"
-              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
             />
           </div>
 
           {/* Time */}
           <div className="mb-5">
-            <label htmlFor="recipe-time" className="font-body font-semibold text-[16px] text-ink-secondary mb-1.5 block">
+            <label htmlFor="recipe-time" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">
               Temps de préparation
             </label>
             <input
@@ -177,20 +177,20 @@ export default function AddRecipeModal({ onClose, onAdd }) {
               value={time}
               onChange={e => setTime(e.target.value)}
               placeholder="ex. 25 min"
-              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+              className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
             />
           </div>
 
           {/* Ingredients */}
           <div className="mb-5">
-            <label htmlFor="recipe-ingredient" className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <label htmlFor="recipe-ingredient" className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">
               Ingrédients
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {ingredients.map((ing, i) => (
                 <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-ink-primary text-ink-primary rounded-pill font-body text-[14px]">
                   {ing}
-                  <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-secondary text-[14px] leading-none">×</button>
+                  <button onClick={() => setIngredients(p => p.filter((_, j) => j !== i))} className="text-ink-primary text-[14px] leading-none">×</button>
                 </span>
               ))}
             </div>
@@ -203,12 +203,12 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 onChange={e => setNewIng(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addIngredient()}
                 placeholder="Ajouter un ingrédient"
-                className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
               />
               <button
                 onClick={addIngredient}
                 disabled={!newIng.trim()}
-                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[16px] disabled:opacity-40 transition-all"
+                className="px-3 py-2 bg-[#F9EDDC] text-ink-primary rounded-xl font-body text-[16px] disabled:opacity-40 transition-all"
               >
                 +
               </button>
@@ -217,15 +217,15 @@ export default function AddRecipeModal({ onClose, onAdd }) {
 
           {/* Steps */}
           <div className="mb-6">
-            <label htmlFor="recipe-step" className="font-body font-semibold text-[16px] text-ink-secondary mb-2 block">
+            <label htmlFor="recipe-step" className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">
               Étapes
             </label>
             <div className="flex flex-col gap-2 mb-2">
               {steps.map((s, i) => (
                 <div key={i} className="flex items-start gap-2 p-3 bg-canvas rounded-xl">
-                  <span className="w-5 h-5 bg-canvas-border rounded-full font-display font-bold text-[14px] text-ink-secondary flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  <span className="w-5 h-5 bg-canvas-border rounded-full font-display font-bold text-[14px] text-ink-primary flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
                   <p className="flex-1 font-body text-[16px] text-ink-primary leading-relaxed">{s}</p>
-                  <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-secondary text-[14px] leading-none">×</button>
+                  <button onClick={() => setSteps(p => p.filter((_, j) => j !== i))} className="text-ink-primary text-[14px] leading-none">×</button>
                 </div>
               ))}
             </div>
@@ -238,12 +238,12 @@ export default function AddRecipeModal({ onClose, onAdd }) {
                 onChange={e => setNewStep(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addStep()}
                 placeholder="Ajouter une étape"
-                className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors"
+                className="flex-1 px-3 py-2 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] text-ink-primary placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
               />
               <button
                 onClick={addStep}
                 disabled={!newStep.trim()}
-                className="px-3 py-2 bg-[#F9EDDC] text-ink-secondary rounded-xl font-body text-[16px] disabled:opacity-40 transition-all"
+                className="px-3 py-2 bg-[#F9EDDC] text-ink-primary rounded-xl font-body text-[16px] disabled:opacity-40 transition-all"
               >
                 +
               </button>
@@ -256,7 +256,7 @@ export default function AddRecipeModal({ onClose, onAdd }) {
             className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
               name.trim()
                 ? 'bg-forest text-canvas active:scale-[.98]'
-                : 'bg-ink-secondary/20 border border-ink-primary text-ink-secondary cursor-not-allowed'
+                : 'bg-ink-primary/20 border border-ink-primary text-ink-primary cursor-not-allowed'
             }`}
           >
             Enregistrer

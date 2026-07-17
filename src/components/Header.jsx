@@ -13,9 +13,9 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
       <div className="flex items-center">
         {/* Hamburger */}
         <button onClick={onMenu} aria-label="Menu" className="w-9 h-9 flex flex-col items-center justify-center gap-1.5">
-          <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
-          <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
-          <span className="w-5 h-0.5 bg-ink-secondary rounded-full" />
+          <span className="w-5 h-0.5 bg-ink-primary rounded-full" />
+          <span className="w-5 h-0.5 bg-ink-primary rounded-full" />
+          <span className="w-5 h-0.5 bg-ink-primary rounded-full" />
         </button>
 
         {/* Title */}
@@ -29,7 +29,7 @@ export default function Header({ onTitleClick, onAdd, onMenu, onCart, cartCount 
         {/* Right actions */}
         <div className="flex items-center gap-3">
           {cartCount > 0 && (
-            <button onClick={onCart} aria-label="Liste de courses" className="relative w-10 h-10 flex items-center justify-center text-ink-secondary translate-y-1">
+            <button onClick={onCart} aria-label="Liste de courses" className="relative w-10 h-10 flex items-center justify-center text-ink-primary translate-y-1">
               <CartIcon />
               <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 bg-brand text-ink-primary text-[14px] font-bold rounded-full flex items-center justify-center px-1">
                 {cartCount}

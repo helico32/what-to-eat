@@ -5,13 +5,15 @@ export default {
     extend: {
       colors: {
         // Primary — Orange
-        brand:  '#F5BC6B',
-        urgent: '#F07A34',
+        brand:   '#F5BC6B',
+        urgent:  '#BA0808',
+        caution: '#B44B0D',
+        fresh:   '#315E21',
         // Secondary — Forest Green
         forest: '#263522',
         // Neutrals
-        ink:    { primary: '#5C4D42', secondary: '#5C4D42' },
-        canvas: { DEFAULT: '#FDF8F0', border: '#F9EDDC', surface: '#FDF8F0', card: '#FEFCF9' },
+        ink:    { primary: '#5C4D42' },
+        canvas: { DEFAULT: '#FDF8F0', border: '#F9EDDC', card: '#FEFCF9' },
       },
       fontFamily: {
         display: ['Poppins', 'system-ui', 'sans-serif'],

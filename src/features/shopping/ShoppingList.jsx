@@ -85,7 +85,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
         {step === 1 && (
           <>
             <p className="font-display font-bold text-[16px] text-ink-primary mb-1">Où ranger les courses ?</p>
-            <p className="font-body text-[16px] text-ink-secondary mb-5">
+            <p className="font-body text-[16px] text-ink-primary mb-5">
               {checkedItems.length} article{checkedItems.length > 1 ? 's' : ''} sélectionné{checkedItems.length > 1 ? 's' : ''}
             </p>
             <div className="flex flex-col gap-y-3 mb-6">
@@ -96,7 +96,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                     key={l.id}
                     onClick={() => setLoc(l.id)}
                     className={`flex items-center gap-4 p-4 rounded-[10px] border border-ink-primary text-left transition-all font-body font-semibold text-[16px] ${
-                      isSelected ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-secondary'
+                      isSelected ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary'
                     }`}
                   >
                     <l.Icon />
@@ -116,9 +116,9 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
 
         {step === 2 && (
           <>
-            <button onClick={() => setStep(1)} className="text-ink-secondary text-lg mb-3">←</button>
+            <button onClick={() => setStep(1)} className="text-ink-primary text-lg mb-3">←</button>
             <p className="font-display font-bold text-[16px] text-ink-primary mb-1">Date de péremption</p>
-            <p className="font-body text-[16px] text-ink-secondary mb-5">Optionnel — s'applique à tous les articles</p>
+            <p className="font-body text-[16px] text-ink-primary mb-5">Optionnel — s'applique à tous les articles</p>
 
             <div className="flex gap-2 mb-3">
               {EXPIRY_PRESETS.map(p => {
@@ -130,7 +130,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                     className={`flex-1 py-2 rounded-pill font-body font-semibold text-[16px] border transition-all ${
                       expiry === val
                         ? 'bg-brand text-ink-primary border-brand'
-                        : 'bg-canvas-surface text-ink-secondary border-ink-primary'
+                        : 'bg-canvas text-ink-primary border-ink-primary'
                     }`}
                   >
                     {p.label}
@@ -140,7 +140,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
             </div>
 
             <div className="relative mb-6">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink-secondary">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-ink-primary">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
@@ -150,7 +150,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                 value={expiry}
                 min={todayStr()}
                 onChange={e => setExpiry(e.target.value)}
-                className="w-full pl-11 pr-4 py-5 bg-canvas-surface border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                className="w-full pl-11 pr-4 py-5 bg-canvas border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
               />
             </div>
 
@@ -187,7 +187,7 @@ function PositionInput({ position, total, onMoveTo }) {
       onChange={e => setVal(e.target.value)}
       onBlur={commit}
       onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-primary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -240,7 +240,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
       <div className="text-center py-20">
         <span className="text-4xl block mb-3">🛒</span>
         <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Liste vide</h3>
-        <p className="font-body text-[16px] text-ink-secondary">
+        <p className="font-body text-[16px] text-ink-primary">
           Appuie sur l'icône 🛒 à côté d'un produit.
         </p>
       </div>
@@ -280,7 +280,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
 
               <div className="flex-1 min-w-0">
                 <p className={`font-body text-[16px] font-medium transition-colors ${
-                  item.checked ? 'text-ink-secondary line-through' : 'text-ink-primary'
+                  item.checked ? 'text-ink-primary line-through' : 'text-ink-primary'
                 }`}>
                   {item.name}
                 </p>
@@ -289,15 +289,15 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
                     <button
                       onClick={() => onDecrement(item.id)}
                       aria-label="Diminuer"
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
                     >
                       −
                     </button>
-                    <span className="font-body text-[14px] text-ink-secondary min-w-[20px] text-center">{item.qty}</span>
+                    <span className="font-body text-[14px] text-ink-primary min-w-[20px] text-center">{item.qty}</span>
                     <button
                       onClick={() => onIncrement(item.id)}
                       aria-label="Augmenter"
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
                     >
                       +
                     </button>
@@ -332,7 +332,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
 
             {confirmId === item.id && (
               <div className="pb-3 px-4 flex items-center gap-2">
-                <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
+                <p className="flex-1 font-body text-[16px] text-ink-primary truncate">
                   Supprimer "{item.name}" ?
                 </p>
                 <button
@@ -363,7 +363,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
           </button>
           <button
             onClick={onClearChecked}
-            className="py-3.5 px-4 bg-urgent/10 border border-urgent/20 rounded-xl font-body font-semibold text-[16px] text-urgent transition-colors"
+            className="py-3.5 px-4 bg-urgent/30 border border-urgent/30 rounded-xl font-body font-semibold text-[16px] text-urgent transition-colors"
           >
             Effacer
           </button>

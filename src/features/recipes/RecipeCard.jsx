@@ -27,7 +27,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
   if (!recipes.length) {
     return (
       <div className="bg-canvas-card rounded-xl border border-ink-primary p-5 mb-4 text-center">
-        <p className="font-body text-[16px] text-ink-secondary">Aucune recette — ajoute-en une via Recettes.</p>
+        <p className="font-body text-[16px] text-ink-primary">Aucune recette — ajoute-en une via Recettes.</p>
       </div>
     )
   }
@@ -79,7 +79,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
           </h2>
 
           {/* Time */}
-          <p className="flex items-center gap-1 font-body text-[16px] text-ink-secondary mb-3">
+          <p className="flex items-center gap-1 font-body text-[16px] text-ink-primary mb-3">
             <ClockIcon /> {recipe.time}
           </p>
 
@@ -92,7 +92,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
                 return (
                   <span
                     key={name}
-                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[14px] text-ink-secondary whitespace-nowrap ${chipBg}`}
+                    className={`inline-flex items-center px-2 py-1 rounded-pill font-body text-[14px] text-ink-primary whitespace-nowrap ${chipBg}`}
                   >
                     {name}
                   </span>

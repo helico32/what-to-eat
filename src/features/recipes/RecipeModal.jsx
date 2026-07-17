@@ -64,7 +64,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
             <button
               onClick={editing ? () => setEditing(false) : () => navigate(-1)}
               aria-label={editing ? 'Annuler les modifications' : 'Retour'}
-              className="text-ink-secondary w-10 flex items-center"
+              className="text-ink-primary w-10 flex items-center"
             ><ArrowLeft /></button>
             <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center truncate px-2">
               {editing ? 'Modifier' : recipe.name}
@@ -73,7 +73,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
               <button
                 onClick={() => setEditing(true)}
                 aria-label="Modifier la recette"
-                className="w-10 h-10 flex items-center justify-center text-ink-secondary transition-all"
+                className="w-10 h-10 flex items-center justify-center text-ink-primary transition-all"
               >
                 <PencilIcon />
               </button>
@@ -98,18 +98,18 @@ export default function RecipeModal({ recipes, products, onEdit }) {
             </div>
 
             <div className="px-5 pt-5 pb-16">
-              <p className="flex items-center gap-1 font-body text-[16px] text-ink-secondary mb-5">
+              <p className="flex items-center gap-1 font-body text-[16px] text-ink-primary mb-5">
                 <ClockIcon /> {recipe.time}
               </p>
 
               {recipe.ingredients.length > 0 && (
                 <>
-                  <p className="font-body font-semibold text-[16px] uppercase tracking-widest text-ink-secondary mb-3">Ingrédients</p>
+                  <p className="font-body font-semibold text-[16px] uppercase tracking-widest text-ink-primary mb-3">Ingrédients</p>
                   <div className="flex flex-wrap gap-2 mb-5">
                     {recipe.ingredients.map((name, i) => {
                       const p = products.find(x => x.name === name)
                       return (
-                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-canvas-surface border border-ink-primary text-ink-primary rounded-pill font-body text-[14px]">
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-canvas border border-ink-primary text-ink-primary rounded-pill font-body text-[14px]">
                           {p?.emoji} {name}
                         </span>
                       )
@@ -120,7 +120,7 @@ export default function RecipeModal({ recipes, products, onEdit }) {
 
               {recipe.steps.length > 0 && (
                 <>
-                  <p className="font-body font-semibold text-[16px] uppercase tracking-widest text-ink-secondary mb-4">Préparation</p>
+                  <p className="font-body font-semibold text-[16px] uppercase tracking-widest text-ink-primary mb-4">Préparation</p>
                   <div className="flex flex-col gap-3 mb-6">
                     {recipe.steps.map((step, i) => (
                       <div key={i} className="flex gap-3">
@@ -129,14 +129,14 @@ export default function RecipeModal({ recipes, products, onEdit }) {
                           aria-label={`Étape ${i + 1}${checkedSteps.has(i) ? ' — faite' : ''}`}
                           className={`w-6 h-6 rounded-full border border-ink-primary font-display font-bold text-[14px] flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                             checkedSteps.has(i)
-                              ? 'bg-canvas-surface text-ink-secondary'
+                              ? 'bg-canvas text-ink-primary'
                               : 'bg-forest text-canvas'
                           }`}
                         >
                           {i + 1}
                         </button>
                         <p className={`font-body text-[16px] leading-relaxed transition-colors ${
-                          checkedSteps.has(i) ? 'text-ink-secondary line-through' : 'text-ink-primary'
+                          checkedSteps.has(i) ? 'text-ink-primary line-through' : 'text-ink-primary'
                         }`}>{step}</p>
                       </div>
                     ))}

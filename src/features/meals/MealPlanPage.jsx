@@ -76,7 +76,7 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
               <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un ingrédient…" />
             </div>
             {available.length === 0 ? (
-              <p className="font-body text-[15px] text-ink-secondary px-5 pb-10">Aucun ingrédient trouvé.</p>
+              <p className="font-body text-[15px] text-ink-primary px-5 pb-10">Aucun ingrédient trouvé.</p>
             ) : (
               <div className="overflow-y-auto max-h-[45vh] px-5 pb-10 flex flex-col gap-2">
                 {available.map(p => {
@@ -92,7 +92,7 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-body font-semibold text-[15px] text-ink-primary truncate">{p.name}</p>
-                        <p className="font-body text-[13px] text-ink-secondary">x {p.qty}</p>
+                        <p className="font-body text-[13px] text-ink-primary">x {p.qty}</p>
                       </div>
                       {badge.label && (
                         <span className={`flex-shrink-0 px-2.5 py-1 rounded-pill font-body font-medium text-[14px] ${badge.cls}`}>
@@ -116,7 +116,7 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
               </div>
               <div>
                 <p className="font-display font-semibold text-[16px] text-ink-primary">{chosenProduct.name}</p>
-                <p className="font-body text-[13px] text-ink-secondary">{chosenProduct.qty} disponible{chosenProduct.qty > 1 ? 's' : ''}</p>
+                <p className="font-body text-[13px] text-ink-primary">{chosenProduct.qty} disponible{chosenProduct.qty > 1 ? 's' : ''}</p>
               </div>
             </div>
             <p className="font-body font-semibold text-[15px] text-ink-primary mb-3">Quantité à utiliser</p>
@@ -124,15 +124,15 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
               <button
                 onClick={() => setQty(q => Math.max(1, q - 1))}
                 aria-label="Diminuer la quantité"
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[16px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[16px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
               >−</button>
               <span className="font-body text-[20px] text-ink-primary font-semibold min-w-[32px] text-center">{qty}</span>
               <button
                 onClick={() => setQty(q => Math.min(chosenProduct.qty, q + 1))}
                 aria-label="Augmenter la quantité"
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas-border text-ink-secondary font-bold text-[16px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[16px] border border-ink-primary hover:bg-brand active:scale-90 transition-all"
               >+</button>
-              <span className="font-body text-[13px] text-ink-secondary">/ {chosenProduct.qty} max</span>
+              <span className="font-body text-[13px] text-ink-primary">/ {chosenProduct.qty} max</span>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setStep('pick')} className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}>Retour</button>
@@ -176,7 +176,7 @@ function NewRepasSheet({ onConfirm, onClose }) {
           onChange={e => setName(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && submit()}
           placeholder="ex. Déjeuner, Dîner…"
-          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-secondary/50 outline-none focus:border-forest transition-colors mb-4"
+          className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors mb-4"
         />
         <div className="flex gap-2">
           <button onClick={onClose} className={`flex-1 py-3 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}>Annuler</button>
@@ -228,7 +228,7 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
             <button
               key={date}
               onClick={() => handleDayChange(date)}
-              className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl border border-ink-primary transition-all min-w-[52px] ${active ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-secondary hover:bg-brand/50'}`}
+              className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl border border-ink-primary transition-all min-w-[52px] ${active ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand/50'}`}
             >
               <span className="font-body text-[11px] font-semibold uppercase">{getDayShortLabel(date, i)}</span>
               <span className="font-display font-bold text-[18px] leading-tight">{getDayNumber(date)}</span>

@@ -74,7 +74,7 @@ function PositionInput({ position, total, onMoveTo }) {
       onChange={e => setVal(e.target.value)}
       onBlur={commit}
       onKeyDown={e => e.key === 'Enter' && e.target.blur()}
-      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-secondary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-8 h-8 flex-shrink-0 rounded-full bg-[#F9EDDC] text-ink-primary font-body font-bold text-[14px] text-center outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -113,17 +113,17 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
               {recipe.name}
             </h3>
           </div>
-          <p className="flex items-center gap-1 font-body text-[16px] text-ink-secondary mb-1.5">
+          <p className="flex items-center gap-1 font-body text-[16px] text-ink-primary mb-1.5">
             <ClockIcon /> {recipe.time}
           </p>
           <div className="flex flex-wrap gap-1">
             {recipe.ingredients.slice(0, 3).map((ing, i) => (
-              <span key={i} className={`px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-secondary whitespace-nowrap ${getIngredientChipBg(getDays(ing))}`}>
+              <span key={i} className={`px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-primary whitespace-nowrap ${getIngredientChipBg(getDays(ing))}`}>
                 {ing}
               </span>
             ))}
             {recipe.ingredients.length > 3 && (
-              <span className="px-2 py-0.5 bg-canvas text-ink-secondary rounded-pill font-body text-[14px]">
+              <span className="px-2 py-0.5 bg-canvas text-ink-primary rounded-pill font-body text-[14px]">
                 +{recipe.ingredients.length - 3}
               </span>
             )}
@@ -157,7 +157,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
             onClick={e => { e.stopPropagation(); setConfirm(c => !c) }}
             aria-label="Supprimer la recette"
             className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold transition-all ${
-              confirm ? 'bg-urgent/20 text-urgent border-urgent' : 'bg-canvas-border text-ink-secondary border-ink-primary'
+              confirm ? 'bg-urgent/30 text-urgent border-urgent' : 'bg-canvas-border text-ink-primary border-ink-primary'
             }`}
           >
             <TrashIcon />
@@ -167,7 +167,7 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
 
       {confirm && !canSort && (
         <div className="pb-3 px-4 flex items-center gap-2">
-          <p className="flex-1 font-body text-[16px] text-ink-secondary truncate">
+          <p className="flex-1 font-body text-[16px] text-ink-primary truncate">
             Supprimer « {recipe.name} » ?
           </p>
           <button
@@ -251,7 +251,7 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
                 </button>
               )}
             </div>
-            <span className="font-body text-[16px] text-ink-secondary">
+            <span className="font-body text-[16px] text-ink-primary">
               {filteredRecipes.length} recette{filteredRecipes.length > 1 ? 's' : ''}
             </span>
           </div>
@@ -261,7 +261,7 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
             <div className="text-center py-20">
               <span className="text-4xl block mb-3">🍳</span>
               <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Aucune recette</h3>
-              <p className="font-body text-[16px] text-ink-secondary">
+              <p className="font-body text-[16px] text-ink-primary">
                 Ajoute tes recettes favorites pour les retrouver chaque soir.
               </p>
             </div>)

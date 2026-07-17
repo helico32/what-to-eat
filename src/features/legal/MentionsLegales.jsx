@@ -13,7 +13,7 @@ export default function MentionsLegales() {
   return (
     <LegalLayout title="Mentions légales">
 
-      <p className="text-ink-secondary text-[13px]">
+      <p className="text-ink-primary text-[13px]">
         Conformément à la loi belge du 11 mars 2003 sur certains aspects juridiques des services
         de la société de l'information, les présentes mentions légales sont portées à la connaissance
         des utilisateurs de l'application What to eat.
@@ -63,7 +63,7 @@ export default function MentionsLegales() {
         </p>
       </Section>
 
-      <p className="text-ink-secondary text-[13px]">
+      <p className="text-ink-primary text-[13px]">
         Dernière mise à jour : juillet 2026
       </p>
 

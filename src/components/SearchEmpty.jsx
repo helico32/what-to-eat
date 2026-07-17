@@ -8,7 +8,7 @@ export default function SearchEmpty() {
         <path d="M11 15h.01"/>
       </svg>
       <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Aucun résultat</h3>
-      <p className="font-body text-[16px] text-ink-secondary inline-flex items-center gap-1.5">
+      <p className="font-body text-[16px] text-ink-primary inline-flex items-center gap-1.5">
         Ajoute-le avec 
         <span className="inline-flex items-center justify-center w-5 h-5 bg-brand text-ink-primary rounded-full text-[14px] font-light leading-none">+</span>
       </p>

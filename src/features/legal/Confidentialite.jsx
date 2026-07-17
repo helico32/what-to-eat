@@ -17,7 +17,7 @@ export default function Confidentialite() {
   return (
     <LegalLayout title="Confidentialité">
 
-      <p className="text-ink-secondary text-[13px]">
+      <p className="text-ink-primary text-[13px]">
         Conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679),
         cette politique vous informe de la façon dont vos données personnelles sont collectées,
         utilisées et protégées.
@@ -29,19 +29,19 @@ export default function Confidentialite() {
       </Section>
 
       <Section title="Données collectées">
-        <p className="font-semibold text-[13px] text-ink-secondary uppercase tracking-wide">Via Google Sign-In (plan payant)</p>
+        <p className="font-semibold text-[13px] text-ink-primary uppercase tracking-wide">Via Google Sign-In (plan payant)</p>
         <ul className="flex flex-col gap-1">
           <Li>Adresse email du compte Google</Li>
           <Li>Nom affiché sur le compte Google</Li>
           <Li>Identifiant unique Firebase (UID) — généré par Firebase, différent de votre identifiant Google</Li>
         </ul>
 
-        <p className="font-semibold text-[13px] text-ink-secondary uppercase tracking-wide mt-2">Sans connexion (plan gratuit)</p>
+        <p className="font-semibold text-[13px] text-ink-primary uppercase tracking-wide mt-2">Sans connexion (plan gratuit)</p>
         <ul className="flex flex-col gap-1">
           <Li>Identifiant anonyme Firebase — créé automatiquement sur l'appareil, sans lien avec votre identité</Li>
         </ul>
 
-        <p className="font-semibold text-[13px] text-ink-secondary uppercase tracking-wide mt-2">Données de l'application (stockées dans Firebase Firestore)</p>
+        <p className="font-semibold text-[13px] text-ink-primary uppercase tracking-wide mt-2">Données de l'application (stockées dans Firebase Firestore)</p>
         <ul className="flex flex-col gap-1">
           <Li>Stock de produits (noms, quantités, dates de péremption, emplacement)</Li>
           <Li>Liste de courses</Li>
@@ -51,7 +51,7 @@ export default function Confidentialite() {
           <Li>Date de début d'essai et statut d'abonnement</Li>
         </ul>
 
-        <p className="font-semibold text-[13px] text-ink-secondary uppercase tracking-wide mt-2">Données techniques (collectées automatiquement par Firebase)</p>
+        <p className="font-semibold text-[13px] text-ink-primary uppercase tracking-wide mt-2">Données techniques (collectées automatiquement par Firebase)</p>
         <ul className="flex flex-col gap-1">
           <Li>Adresse IP et données de connexion — collectées par Google Firebase à des fins de sécurité et de stabilité du service</Li>
         </ul>
@@ -131,7 +131,7 @@ export default function Confidentialite() {
         </ul>
       </Section>
 
-      <p className="text-ink-secondary text-[13px]">
+      <p className="text-ink-primary text-[13px]">
         Dernière mise à jour : juillet 2026
       </p>
 
