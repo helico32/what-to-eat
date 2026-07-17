@@ -17,6 +17,15 @@ function CrossIcon() {
   )
 }
 
+function BellIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  )
+}
+
 function ArrowLeft() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -59,18 +68,63 @@ const PAID_EXTRAS = [
   'Tout le plan gratuit inclus',
 ]
 
-export default function PlanPage({ onClose, onSignInWithGoogle }) {
+export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermission, permission = 'default' }) {
   const [error, setError] = useState(null)
+  const [step, setStep] = useState('plan') // 'plan' | 'success'
 
   const handlePaid = async () => {
     setError(null) // remet à zéro avant chaque tentative
     const result = await onSignInWithGoogle()
-    if (result === true) onClose()
+    if (result === true) setStep('success')
     // null = elle a fermé la popup — rien à faire
     // false = vraie erreur — on affiche un message
     if (result === false) setError('La connexion n\'a pas abouti. Réessaie.')
-      
   }
+
+  if (step === 'success') return (
+    <div className="fixed inset-0 z-40 bg-canvas flex flex-col items-center justify-center px-6 gap-8">
+      <div className="max-w-[430px] w-full flex flex-col items-center gap-8">
+
+        {/* Confirmation */}
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="w-14 h-14 rounded-full bg-fresh/30 border border-ink-primary flex items-center justify-center">
+            <CheckIcon />
+          </div>
+          <h1 className="font-display font-bold text-[22px] text-ink-primary">
+            Tes données sont sauvegardées
+          </h1>
+          <p className="font-body text-[15px] text-ink-primary">
+            Tu peux changer de téléphone sans rien perdre.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="w-full flex flex-col gap-3">
+          {/* Bouton radio — même pattern que MenuDrawer */}
+          <button
+            onClick={() => { if (permission === 'default') onRequestPermission() }}
+            disabled={permission === 'granted' || permission === 'denied'}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-ink-primary bg-canvas-card font-body font-semibold text-[16px] text-ink-primary disabled:opacity-60 disabled:cursor-default"
+          >
+            <span className="w-4 h-4 rounded-full border-2 border-ink-primary flex items-center justify-center flex-shrink-0">
+              {permission === 'granted' && <span className="w-2 h-2 rounded-full bg-ink-primary" />}
+              {permission === 'denied'  && <span className="text-[10px] leading-none">×</span>}
+            </span>
+            <BellIcon />
+            {permission === 'granted' ? 'Alertes activées' : permission === 'denied' ? 'Alertes bloquées' : 'Activer les alertes'}
+          </button>
+
+          <button
+            onClick={onClose}
+            className="w-full py-3 font-body text-[15px] text-ink-primary text-center underline underline-offset-2"
+          >
+            Page d'accueil
+          </button>
+        </div>
+
+      </div>
+    </div>
+  )
 
   return (
     <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto">

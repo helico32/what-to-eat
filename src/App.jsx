@@ -132,6 +132,8 @@ export default function App() {
           <PlanPage
             onClose={() => navigate(-1)}
             onSignInWithGoogle={signInWithGoogle}
+            onRequestPermission={requestPermission}
+            permission={permission}
           />
         } />
 
