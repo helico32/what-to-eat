@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { dbPromise } from '../../db'
-import { initialProducts } from '../../data/products'
 import { auth, db as firestore } from '../../firebase'
 import { doc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore'
 
@@ -72,11 +71,7 @@ export function useStore() {
       const stored = await idb.getAll('products')
       let finalProducts
       if (stored.length === 0) {
-        const seeded = initialProducts.map((p, i) => ({ ...p, position: i }))
-        const tx = idb.transaction('products', 'readwrite')
-        for (const p of seeded) tx.store.put(p)
-        await tx.done
-        finalProducts = seeded
+        finalProducts = []
       } else {
         const migrated = migrateProducts(stored)
         const needsWrite = migrated.some((p, i) => p !== stored[i])

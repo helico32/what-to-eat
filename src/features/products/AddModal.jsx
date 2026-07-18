@@ -156,9 +156,9 @@ const dateInDays = (n) => {
 
 const todayStr = () => new Date().toISOString().split('T')[0]
 
-export default function AddModal({ onClose, onAdd }) {
+export default function AddModal({ onClose, onAdd, initialName = '' }) {
   const [step,        setStep]        = useState(1)
-  const [name,        setName]        = useState('')
+  const [name,        setName]        = useState(initialName)
   const [qty,         setQty]         = useState(1)
   const [emoji,       setEmoji]       = useState(null)
   const [image,       setImage]       = useState(null)

@@ -86,9 +86,10 @@ export default function ProductRow({
   canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo,
 }) {
   const badge = getBadge(product.expiryDate, product.location)
-  const [confirm,    setConfirm]    = useState(null) // null | 'cart' | 'meal' | 'delete' | 'decrement'
-  const [done,       setDone]       = useState(null) // null | 'cart' | 'meal' | 'delete'
-  const [isDateEdit, setIsDateEdit] = useState(false)
+  const [confirm,     setConfirm]     = useState(null) // null | 'cart' | 'meal' | 'delete' | 'decrement'
+  const [done,        setDone]        = useState(null) // null | 'cart' | 'meal' | 'delete'
+  const [isDateEdit,  setIsDateEdit]  = useState(false)
+  const [pendingDate, setPendingDate] = useState('')
   const timerRef = useRef()
 
   const handleConfirm = (type) => {
@@ -218,24 +219,28 @@ export default function ProductRow({
         </div>
       )}
 
-      {/* Picker de date inline */}
+      {/* Picker de date inline — pas d'autoFocus : sur iOS, autoFocus ouvre le picker
+          immédiatement et peut committer aujourd'hui avant que l'utilisatrice scrolle.
+          L'utilisatrice tape le champ elle-même, onChange ne se déclenche qu'après
+          sa sélection explicite. */}
       {isDateEdit && (
         <div className="pb-3 flex items-center gap-2">
           <input
-            // eslint-disable-next-line jsx-a11y/no-autofocus -- focus automatique sur le picker de date ouvert par l'utilisateur
-            autoFocus
             type="date"
             min={new Date().toISOString().split('T')[0]}
+            value={pendingDate}
             onChange={e => {
+              setPendingDate(e.target.value)
               if (e.target.value) {
                 onUpdateExpiry(product.id, e.target.value)
                 setIsDateEdit(false)
+                setPendingDate('')
               }
             }}
             className="flex-1 px-3 py-1.5 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] outline-none focus:border-forest transition-colors"
           />
           <button
-            onClick={() => setIsDateEdit(false)}
+            onClick={() => { setIsDateEdit(false); setPendingDate('') }}
             className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
           >
             Annuler

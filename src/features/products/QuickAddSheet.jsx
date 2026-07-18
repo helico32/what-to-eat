@@ -109,9 +109,9 @@ export default function QuickAddSheet({ onAdd, onClose, onFullAdd }) {
           Ajouter
         </button>
 
-        {/* Escalade vers le flux complet si la personne veut ajouter une photo ou une date */}
+        {/* Escalade vers le flux complet — passe le nom saisi pour ne pas le perdre */}
         <button
-          onClick={() => { onClose(); onFullAdd() }}
+          onClick={() => onFullAdd(name.trim())}
           className="w-full text-center font-body text-[14px] text-ink-primary py-1"
         >
           Avec photo / date →

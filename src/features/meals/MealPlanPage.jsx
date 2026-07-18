@@ -5,30 +5,33 @@ import MealGroupsList from './MealGroupsList'
 import { btnActive, btnDefault } from '../../utils/styles'
 import { sortByUrgency, getBadge } from '../products/badges'
 
-function get7Days() {
-  return Array.from({ length: 7 }, (_, i) => {
+const TODAY = new Date().toISOString().split('T')[0]
+const TOMORROW = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0] })()
+
+// 2 jours passés + aujourd'hui + 6 futurs = 9 jours.
+// Les jours passés restent accessibles pour confirmer/annuler des repas oubliés.
+function getDays() {
+  return Array.from({ length: 9 }, (_, i) => {
     const d = new Date()
-    d.setDate(d.getDate() + i)
+    d.setDate(d.getDate() + i - 2)
     return d.toISOString().split('T')[0]
   })
 }
 
-function getDayShortLabel(dateStr, index) {
-  if (index === 0) return "Auj."
-  if (index === 1) return "Dem."
-  const d = new Date(dateStr + 'T12:00:00')
-  return d.toLocaleDateString('fr-FR', { weekday: 'short' })
+function getDayShortLabel(dateStr) {
+  if (dateStr === TODAY)    return 'Auj.'
+  if (dateStr === TOMORROW) return 'Dem.'
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'short' })
 }
 
 function getDayNumber(dateStr) {
   return new Date(dateStr + 'T12:00:00').getDate()
 }
 
-function getDayFullLabel(dateStr, index) {
-  if (index === 0) return "Aujourd'hui"
-  if (index === 1) return "Demain"
-  const d = new Date(dateStr + 'T12:00:00')
-  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+function getDayFullLabel(dateStr) {
+  if (dateStr === TODAY)    return "Aujourd'hui"
+  if (dateStr === TOMORROW) return 'Demain'
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
@@ -194,12 +197,10 @@ function NewRepasSheet({ onConfirm, onClose }) {
 }
 
 export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddRepas, onRenameRepas, onNameNoneMeals, onDeleteRepas, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount }) {
-  const days = get7Days()
-  const [selectedDay, setSelectedDay] = useState(days[0])
+  const days = getDays()
+  const [selectedDay, setSelectedDay] = useState(TODAY)
   const [pickerRepasId, setPickerRepasId] = useState(null)
   const [showNewRepasSheet, setShowNewRepasSheet] = useState(false)
-
-  const dayIndex = days.indexOf(selectedDay)
 
   const handleDayChange = (date) => {
     setSelectedDay(date)
@@ -228,9 +229,9 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
             <button
               key={date}
               onClick={() => handleDayChange(date)}
-              className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl border border-ink-primary transition-all min-w-[52px] ${active ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand/50'}`}
+              className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl border border-ink-primary transition-all min-w-[52px] ${active ? 'bg-brand text-ink-primary' : 'bg-canvas-border text-ink-primary hover:bg-brand/50'} ${date < TODAY && !active ? 'opacity-50' : ''}`}
             >
-              <span className="font-body text-[11px] font-semibold uppercase">{getDayShortLabel(date, i)}</span>
+              <span className="font-body text-[11px] font-semibold uppercase">{getDayShortLabel(date)}</span>
               <span className="font-display font-bold text-[18px] leading-tight">{getDayNumber(date)}</span>
               {(meals.some(m => m.date === date) || repas.some(r => r.date === date)) && (
                 <span className={`w-1.5 h-1.5 rounded-full mt-0.5 ${active ? 'bg-ink-primary' : 'bg-brand'}`} />
@@ -242,7 +243,7 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
 
       <main className="px-4 pt-4 pb-24">
         <p className="font-display font-semibold text-[15px] text-ink-primary mb-3 capitalize">
-          {getDayFullLabel(selectedDay, dayIndex)}
+          {getDayFullLabel(selectedDay)}
         </p>
         <MealGroupsList
           key={selectedDay}

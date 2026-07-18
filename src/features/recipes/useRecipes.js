@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { dbPromise } from '../../db'
-import { recipes as defaultRecipes } from './data'
 import { auth, db as firestore } from '../../firebase'
 import { doc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore'
 
@@ -51,11 +50,7 @@ export function useRecipes() {
       const stored = await idb.getAll('recipes')
       let finalRecipes
       if (stored.length === 0) {
-        const seeded = defaultRecipes.map((r, i) => ({ ...r, position: i }))
-        const tx = idb.transaction('recipes', 'readwrite')
-        for (const r of seeded) tx.store.put(r)
-        await tx.done
-        finalRecipes = seeded
+        finalRecipes = []
       } else {
         finalRecipes = [...stored].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity))
       }

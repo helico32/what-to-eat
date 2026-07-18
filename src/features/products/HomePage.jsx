@@ -113,6 +113,7 @@ const getSectionLabel = (tab) => ({
 export default function HomePage({ store, mealsStore, recipes, uncheckedCount, onMenu, tab, onTabChange }) {
   const navigate = useNavigate()
   const [showAdd,    setShowAdd]    = useState(null)    // null | 'quick' | 'full'
+  const [quickName,  setQuickName]  = useState('')
   const [search,     setSearch]     = useState('')
   // Urgent → repas par défaut, autres onglets → courses par défaut
   const [actionMode, setActionMode] = useState('meal')  // 'meal' | 'cart'
@@ -246,14 +247,14 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
         <QuickAddSheet
           onClose={() => setShowAdd(null)}
           onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
-          onFullAdd={() => setShowAdd('full')}
+          onFullAdd={(name) => { setQuickName(name); setShowAdd('full') }}
         />
       )}
       {showAdd === 'full' && (
         <AddModal
-          onClose={() => setShowAdd(null)}
-          onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
-          products={store.products}
+          onClose={() => { setQuickName(''); setShowAdd(null) }}
+          onAdd={(p) => { store.addProduct(p); setQuickName(''); setShowAdd(null) }}
+          initialName={quickName}
         />
       )}
     </>
