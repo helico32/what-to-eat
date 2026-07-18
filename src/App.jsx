@@ -21,7 +21,7 @@ const Conditions      = lazy(() => import('./features/legal/Conditions'))
 
 export default function App() {
   const store    = useStore()
-  const { recipes, addRecipe, deleteRecipe, editRecipe, toggleFavorite, reorderRecipes } = useRecipes()
+  const { recipes, addRecipe, deleteRecipe, editRecipe, toggleFavorite, reorderRecipes, syncAfterGoogleSignIn: syncRecipesAfterGoogleSignIn } = useRecipes()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -39,6 +39,7 @@ export default function App() {
     if (authLoading) return
     if (prevIsAnonymous.current === true && !isAnonymous) {
       store.syncAfterGoogleSignIn()
+      syncRecipesAfterGoogleSignIn()
       refreshToken()
     }
     prevIsAnonymous.current = isAnonymous

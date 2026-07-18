@@ -47,7 +47,18 @@ export default function MenuDrawer({
         className="w-[300px] max-w-[80vw] h-full bg-canvas flex flex-col pt-14 pb-10 shadow-lg overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <p className="font-display font-bold text-[18px] text-ink-primary px-5 mb-5">Menu</p>
+        <div className="flex items-center justify-between px-5 mb-5">
+          <p className="font-display font-bold text-[18px] text-ink-primary">Menu</p>
+          <button
+            onClick={onClose}
+            aria-label="Fermer le menu"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-ink-primary hover:bg-canvas-border transition-colors"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
 
         <nav className="flex flex-col gap-3 px-3">
           {TABS.map(({ id, label, Icon }) => {
