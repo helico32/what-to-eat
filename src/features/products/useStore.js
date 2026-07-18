@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { dbPromise } from '../../db'
 import { initialProducts } from '../../data/products'
+import { auth, db as firestore } from '../../firebase'
+import { doc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore'
 
 // Migration one-time : les anciens produits utilisaient daysLeft (nombre de jours)
 // à la place de expiryDate (date ISO). On convertit au chargement si besoin.
@@ -14,42 +16,114 @@ function migrateProducts(products) {
   })
 }
 
+// Renvoie l'uid si l'utilisatrice est connectée avec Google, null sinon.
+// Vérifié au moment de chaque mutation — pas de mémorisation nécessaire.
+function googleUid() {
+  const u = auth.currentUser
+  return u && !u.isAnonymous ? u.uid : null
+}
+
+// Écrit un produit dans Firestore — sans l'image (trop lourde, reste dans IndexedDB).
+// updatedAt permet de résoudre les conflits en cas d'usage sur deux appareils.
+// Fire-and-forget : Firestore met l'écriture en file offline si pas de réseau.
+function pushProduct(uid, product) {
+  const { image: _image, ...fields } = product
+  setDoc(doc(firestore, 'users', uid, 'products', product.id), {
+    ...fields,
+    updatedAt: new Date().toISOString(),
+  }).catch(() => {})
+}
+
+// Supprime un produit de Firestore. Fire-and-forget.
+function removeProduct(uid, id) {
+  deleteDoc(doc(firestore, 'users', uid, 'products', id)).catch(() => {})
+}
+
 export function useStore() {
   const [products,     setProducts]     = useState([])
   const [shoppingList, setShoppingList] = useState([])
 
   useEffect(() => {
     async function load() {
-      const db = await dbPromise
+      const idb = await dbPromise
+      await auth.authStateReady()
 
-      // --- Produits ---
-      const stored = await db.getAll('products')
+      const uid = googleUid()
+
+      // Utilisatrice Google : si Firestore a des produits, on restaure depuis Firestore.
+      // Couvre le cas reinstall PWA + reconnexion Google, et multi-appareils.
+      if (uid) {
+        const snap = await getDocs(collection(firestore, 'users', uid, 'products'))
+        if (!snap.empty) {
+          const firestoreProducts = snap.docs.map(d => d.data())
+          const tx = idb.transaction('products', 'readwrite')
+          await tx.store.clear()
+          for (const p of firestoreProducts) tx.store.put(p)
+          await tx.done
+          setProducts([...firestoreProducts].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+          const shopping = await idb.getAll('shoppingList')
+          setShoppingList([...shopping].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+          return
+        }
+      }
+
+      // Chargement normal depuis IndexedDB
+      // (utilisatrice anonyme, ou Google dont Firestore est encore vide)
+      const stored = await idb.getAll('products')
+      let finalProducts
       if (stored.length === 0) {
-        // Premier lancement : on seed avec les produits par défaut.
         const seeded = initialProducts.map((p, i) => ({ ...p, position: i }))
-        const tx = db.transaction('products', 'readwrite')
+        const tx = idb.transaction('products', 'readwrite')
         for (const p of seeded) tx.store.put(p)
         await tx.done
-        setProducts(seeded)
+        finalProducts = seeded
       } else {
-        // Migration daysLeft → expiryDate si des produits sont encore à l'ancien format.
-        // Si rien n'a changé, needsWrite est false et on évite une écriture inutile.
         const migrated = migrateProducts(stored)
         const needsWrite = migrated.some((p, i) => p !== stored[i])
         if (needsWrite) {
-          const tx = db.transaction('products', 'readwrite')
+          const tx = idb.transaction('products', 'readwrite')
           for (const p of migrated) tx.store.put(p)
           await tx.done
         }
-        setProducts([...migrated].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+        finalProducts = [...migrated].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity))
+      }
+      setProducts(finalProducts)
+
+      // Google avec Firestore vide → sync initiale (premier sign-in depuis cet appareil)
+      if (uid) {
+        for (const p of finalProducts) pushProduct(uid, p)
       }
 
-      // --- Liste de courses ---
-      const shopping = await db.getAll('shoppingList')
+      const shopping = await idb.getAll('shoppingList')
       setShoppingList([...shopping].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
     }
     load()
   }, [])
+
+  // Appelée depuis App.jsx quand l'utilisatrice vient de signer avec Google.
+  // Si Firestore a des données (compte existant) → restore dans IndexedDB.
+  // Si Firestore est vide (premier sign-in) → pousse les produits locaux.
+  const syncAfterGoogleSignIn = async () => {
+    const uid = googleUid()
+    if (!uid) return
+
+    const snap = await getDocs(collection(firestore, 'users', uid, 'products'))
+
+    if (!snap.empty) {
+      const firestoreProducts = snap.docs.map(d => d.data())
+      const idb = await dbPromise
+      const tx = idb.transaction('products', 'readwrite')
+      await tx.store.clear()
+      for (const p of firestoreProducts) tx.store.put(p)
+      await tx.done
+      setProducts([...firestoreProducts].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+    } else {
+      // Premier sign-in : les produits locaux deviennent la source Firestore
+      const idb = await dbPromise
+      const localProducts = await idb.getAll('products')
+      for (const p of localProducts) pushProduct(uid, p)
+    }
+  }
 
   // Relit les produits depuis IndexedDB.
   // Appelé par useMeals après une transaction qui modifie le store 'products' directement.
@@ -68,12 +142,16 @@ export function useStore() {
     setProducts(prev => [...prev, newProduct])
     const db = await dbPromise
     await db.put('products', newProduct)
+    const uid = googleUid()
+    if (uid) pushProduct(uid, newProduct)
   }
 
   const deleteProduct = async (id) => {
     setProducts(prev => prev.filter(p => p.id !== id))
     const db = await dbPromise
     await db.delete('products', id)
+    const uid = googleUid()
+    if (uid) removeProduct(uid, id)
   }
 
   const decrementProduct = async (id) => {
@@ -81,13 +159,16 @@ export function useStore() {
     if (!product) return
     const nextQty = (product.qty ?? 1) - 1
     const db = await dbPromise
+    const uid = googleUid()
     if (nextQty > 0) {
       const updated = { ...product, qty: nextQty }
       setProducts(prev => prev.map(p => p.id === id ? updated : p))
       await db.put('products', updated)
+      if (uid) pushProduct(uid, updated)
     } else {
       setProducts(prev => prev.filter(p => p.id !== id))
       await db.delete('products', id)
+      if (uid) removeProduct(uid, id)
     }
   }
 
@@ -98,6 +179,8 @@ export function useStore() {
     setProducts(prev => prev.map(p => p.id === id ? updated : p))
     const db = await dbPromise
     await db.put('products', updated)
+    const uid = googleUid()
+    if (uid) pushProduct(uid, updated)
   }
 
   const updateExpiryDate = async (id, date) => {
@@ -107,6 +190,8 @@ export function useStore() {
     setProducts(prev => prev.map(p => p.id === id ? updated : p))
     const db = await dbPromise
     await db.put('products', updated)
+    const uid = googleUid()
+    if (uid) pushProduct(uid, updated)
   }
 
   const reorderProducts = async (newList) => {
@@ -117,6 +202,10 @@ export function useStore() {
     const tx = db.transaction('products', 'readwrite')
     for (const p of withPositions) tx.store.put(p)
     await tx.done
+    const uid = googleUid()
+    if (uid) {
+      for (const p of withPositions) pushProduct(uid, p)
+    }
   }
 
   // --- Liste de courses ---
@@ -211,5 +300,6 @@ export function useStore() {
     incrementProduct,
     updateExpiryDate,
     refreshProducts,
+    syncAfterGoogleSignIn,
   }
 }

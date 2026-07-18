@@ -20,6 +20,7 @@ output.css
 
 # Paramètres locaux Claude Code
 .claude/
+claude/
 
 # Variables d'environnement
 .env

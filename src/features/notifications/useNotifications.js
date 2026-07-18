@@ -52,5 +52,12 @@ export function useNotifications() {
     if (permission === 'granted') saveToken()
   }, [permission])
 
-  return { permission, requestPermission }
+  // Appelée depuis App.jsx après un sign-in Google pour re-sauvegarder le token
+  // sous le bon uid (le cas signInWithCredential change l'uid — le token sauvegardé
+  // sous l'ancien uid anonyme ne serait jamais lu par la Cloud Function).
+  const refreshToken = () => {
+    if (permission === 'granted') saveToken()
+  }
+
+  return { permission, requestPermission, refreshToken }
 }

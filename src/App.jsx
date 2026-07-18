@@ -1,4 +1,4 @@
-import { useState, useCallback, lazy, Suspense } from 'react'
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useStore }         from './features/products/useStore'
 import { useRecipes }       from './features/recipes/useRecipes'
@@ -28,8 +28,23 @@ export default function App() {
   const [tab,      setTab]      = useState('urgent')
   const [showMenu, setShowMenu] = useState(false)
 
-  const { permission, requestPermission } = useNotifications()
+  const { permission, requestPermission, refreshToken } = useNotifications()
   const { isAnonymous, authEmail, authLoading, signInWithGoogle, signOut } = useAuth()
+
+  // Déclenche la sync produits quand l'utilisatrice passe d'anonyme à Google
+  // pendant la session (sign-in via PlanPage). Le chargement initial (app ouverte
+  // déjà connectée) est géré directement dans useStore, pas ici.
+  const prevIsAnonymous = useRef(null)
+  useEffect(() => {
+    if (authLoading) return
+    if (prevIsAnonymous.current === true && !isAnonymous) {
+      store.syncAfterGoogleSignIn()
+      refreshToken()
+    }
+    prevIsAnonymous.current = isAnonymous
+  // store.syncAfterGoogleSignIn est stable (ne dépend pas de state React closuré)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAnonymous, authLoading])
 
   const mealsStore = useMeals({
     onProductsChanged: store.refreshProducts,
