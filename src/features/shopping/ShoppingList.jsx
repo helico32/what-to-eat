@@ -357,13 +357,13 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
         <div className="flex gap-2">
           <button
             onClick={() => setShowRangerSheet(true)}
-            className="flex-1 py-3.5 bg-forest/10 border border-forest/20 rounded-xl font-body font-semibold text-[16px] text-forest transition-colors"
+            className={`flex-1 py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${btnActive}`}
           >
             Ranger les courses ({checked.length})
           </button>
           <button
             onClick={onClearChecked}
-            className="py-3.5 px-4 bg-urgent/30 border border-urgent/30 rounded-xl font-body font-semibold text-[16px] text-urgent transition-colors"
+            className={`py-3.5 px-4 rounded-xl font-body font-semibold text-[16px] transition-all ${btnDefault}`}
           >
             Effacer
           </button>

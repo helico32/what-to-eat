@@ -266,7 +266,7 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
         {onCreateRepas && (
           <button
             onClick={onCreateRepas}
-            className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-primary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
+            className={`w-full py-3 rounded-xl font-body font-semibold text-[15px] transition-all flex items-center justify-center gap-2 ${btnDefault}`}
           >
             <PlusIcon />
             Nouveau repas

@@ -40,27 +40,40 @@ function EditIcon() {
   )
 }
 
-// Les deux toggles vivent toujours dans la SectionLabel, peu importe l'onglet.
-// — actionMode toggle : montre l'icône opposée au mode actif (icon = ce vers quoi on switche)
-// — editMode toggle   : icône crayon, highlighted quand actif
+// Deux boutons action (repas / courses) toujours visibles, chacun highlighté quand actif.
+// Tapper un bouton action quand editMode est actif quitte l'édition et active ce mode.
+// Tapper le bouton crayon quand un mode action est actif le conserve (editMode s'ajoute).
 function SectionLabel({ label, count, actionMode, onToggleAction, editMode, onToggleEdit }) {
   const hasToggles = !!onToggleAction
   const btnBase   = 'w-9 h-9 flex items-center justify-center rounded-full border border-ink-primary transition-all'
   const btnNormal = 'bg-canvas-border text-ink-primary hover:bg-brand'
   const btnOn     = 'bg-brand text-ink-primary'
 
+  // Bascule vers un mode action donné. Si editMode est actif, le quitte d'abord.
+  const switchTo = (mode) => {
+    if (editMode) onToggleEdit()
+    if (mode !== actionMode) onToggleAction()
+  }
+
   return (
     <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <p className="font-display font-semibold text-[17px] text-ink-primary">{label}</p>
         {hasToggles && (
           <>
             <button
-              onClick={onToggleAction}
-              aria-label={actionMode === 'meal' ? 'Passer en mode courses' : 'Passer en mode repas'}
-              className={`${btnBase} ${btnNormal}`}
+              onClick={() => switchTo('meal')}
+              aria-label="Mode repas"
+              className={`${btnBase} ${actionMode === 'meal' && !editMode ? btnOn : btnNormal}`}
             >
-              {actionMode === 'meal' ? <CartIcon /> : <CutleryIcon />}
+              <CutleryIcon />
+            </button>
+            <button
+              onClick={() => switchTo('cart')}
+              aria-label="Mode courses"
+              className={`${btnBase} ${actionMode === 'cart' && !editMode ? btnOn : btnNormal}`}
+            >
+              <CartIcon />
             </button>
             <button
               onClick={onToggleEdit}
