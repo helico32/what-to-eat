@@ -62,18 +62,18 @@ function SectionLabel({ label, count, actionMode, onToggleAction, editMode, onTo
         {hasToggles && (
           <>
             <button
-              onClick={() => switchTo('meal')}
-              aria-label="Mode repas"
-              className={`${btnBase} ${actionMode === 'meal' && !editMode ? btnOn : btnNormal}`}
-            >
-              <CutleryIcon />
-            </button>
-            <button
               onClick={() => switchTo('cart')}
               aria-label="Mode courses"
               className={`${btnBase} ${actionMode === 'cart' && !editMode ? btnOn : btnNormal}`}
             >
               <CartIcon />
+            </button>
+            <button
+              onClick={() => switchTo('meal')}
+              aria-label="Mode repas"
+              className={`${btnBase} ${actionMode === 'meal' && !editMode ? btnOn : btnNormal}`}
+            >
+              <CutleryIcon />
             </button>
             <button
               onClick={onToggleEdit}
@@ -129,13 +129,13 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
   const [quickName,  setQuickName]  = useState('')
   const [search,     setSearch]     = useState('')
   // Urgent → repas par défaut, autres onglets → courses par défaut
-  const [actionMode, setActionMode] = useState('meal')  // 'meal' | 'cart'
+  const [actionMode, setActionMode] = useState('cart')  // 'meal' | 'cart'
   const [editMode,   setEditMode]   = useState(false)
 
   // Réinitialise les modes à chaque changement d'onglet (TabBar ou MenuDrawer)
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setActionMode(tab === 'urgent' ? 'meal' : 'cart')
+    setActionMode('cart')
     setEditMode(false)
   }, [tab])
 

@@ -15,6 +15,7 @@ const AddRecipeModal  = lazy(() => import('./features/recipes/AddRecipeModal'))
 const RecipeModal     = lazy(() => import('./features/recipes/RecipeModal'))
 const MealPlanPage    = lazy(() => import('./features/meals/MealPlanPage'))
 const PlanPage        = lazy(() => import('./features/auth/PlanPage'))
+const AccountPage     = lazy(() => import('./features/auth/AccountPage'))
 const MentionsLegales = lazy(() => import('./features/legal/MentionsLegales'))
 const Confidentialite = lazy(() => import('./features/legal/Confidentialite'))
 const Conditions      = lazy(() => import('./features/legal/Conditions'))
@@ -156,6 +157,17 @@ export default function App() {
           />
         } />
 
+        {/* ── Mon compte ── */}
+        <Route path="/compte" element={
+          <AccountPage
+            onClose={() => navigate(-1)}
+            authEmail={authEmail}
+            onSignOut={signOut}
+            notifPermission={permission}
+            onRequestNotif={requestPermission}
+          />
+        } />
+
         {/* ── Pages légales ── */}
         <Route path="/legal-notice" element={<MentionsLegales />} />
         <Route path="/privacy"      element={<Confidentialite />} />
@@ -192,13 +204,10 @@ export default function App() {
           onSelectTab={(t) => { setTab(t); navigate('/') }}
           onSelectPage={(p) => navigate(`/${p}`)}
           onClose={() => setShowMenu(false)}
-          notifPermission={permission}
-          onRequestNotif={requestPermission}
           isAnonymous={isAnonymous}
-          authEmail={authEmail}
           authLoading={authLoading}
           onShowPlan={() => navigate('/login')}
-          onSignOut={signOut}
+          onShowAccount={() => navigate('/compte')}
         />
       )}
     </div>
