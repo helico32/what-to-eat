@@ -193,8 +193,8 @@ export default function AddModal({ onClose, onAdd, initialName = '' }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto">
-      <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
+    <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto lg:bg-ink-primary/30 lg:flex lg:items-start lg:justify-center lg:pt-10 lg:overflow-y-auto">
+      <div className="max-w-[430px] mx-auto min-h-full flex flex-col lg:min-h-0 lg:max-h-[90vh] lg:overflow-y-auto lg:rounded-xl lg:border lg:border-ink-primary lg:shadow-lg lg:bg-canvas lg:w-full">
 
         {/* ── STEP 1 : Détails ── */}
         {step === 1 && (

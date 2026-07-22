@@ -1,6 +1,11 @@
+import { btnDefault } from '../../utils/styles'
 import MealGroupsList from './MealGroupsList'
 
-export default function PlannedMealsSection({ meals, repas, onConfirmMeal, onCancelMeal, onRenameRepas, onNameNoneMeals }) {
+export default function PlannedMealsSection({
+  meals, repas, onConfirmMeal, onCancelMeal, onRenameRepas, onNameNoneMeals,
+  horizontal = false,
+  onAddItem, onDeleteRepas, onCreateRepas,
+}) {
   const today = new Date().toISOString().split('T')[0]
   const todayMeals = meals.filter(m => m.date === today)
   const todayRepas = repas.filter(r => r.date === today)
@@ -9,7 +14,17 @@ export default function PlannedMealsSection({ meals, repas, onConfirmMeal, onCan
 
   return (
     <div className="mb-4">
-      <p className="font-display font-semibold text-[15px] text-ink-primary mb-3">Repas prévus aujourd'hui</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="font-display font-semibold text-[17px] text-ink-primary">Repas prévus aujourd'hui</p>
+        {onCreateRepas && (
+          <button
+            onClick={onCreateRepas}
+            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[14px] border transition-all ${btnDefault}`}
+          >
+            + Repas
+          </button>
+        )}
+      </div>
       <MealGroupsList
         meals={meals}
         repas={repas}
@@ -18,6 +33,9 @@ export default function PlannedMealsSection({ meals, repas, onConfirmMeal, onCan
         onCancelMeal={onCancelMeal}
         onRenameRepas={onRenameRepas}
         onNameNoneMeals={onNameNoneMeals ? (name) => onNameNoneMeals(name, today) : undefined}
+        onAddItem={onAddItem}
+        onDeleteRepas={onDeleteRepas}
+        horizontal={horizontal}
       />
     </div>
   )

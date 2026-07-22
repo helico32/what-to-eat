@@ -5,6 +5,7 @@ import { useRecipes }       from './features/recipes/useRecipes'
 import { useMeals }         from './features/meals/useMeals'
 import { useNotifications } from './features/notifications/useNotifications'
 import { useAuth }          from './features/auth/useAuth'
+import { useIsDesktop }     from './hooks/useIsDesktop'
 import HomePage             from './features/products/HomePage'
 import MenuDrawer           from './components/MenuDrawer'
 
@@ -14,8 +15,9 @@ const RecipesPage     = lazy(() => import('./features/recipes/RecipesPage'))
 const AddRecipeModal  = lazy(() => import('./features/recipes/AddRecipeModal'))
 const RecipeModal     = lazy(() => import('./features/recipes/RecipeModal'))
 const MealPlanPage    = lazy(() => import('./features/meals/MealPlanPage'))
-const PlanPage        = lazy(() => import('./features/auth/PlanPage'))
-const AccountPage     = lazy(() => import('./features/auth/AccountPage'))
+const PlanPage           = lazy(() => import('./features/auth/PlanPage'))
+const AccountPage        = lazy(() => import('./features/auth/AccountPage'))
+const DesktopDashboard   = lazy(() => import('./features/desktop/DesktopDashboard'))
 const MentionsLegales = lazy(() => import('./features/legal/MentionsLegales'))
 const Confidentialite = lazy(() => import('./features/legal/Confidentialite'))
 const Conditions      = lazy(() => import('./features/legal/Conditions'))
@@ -25,6 +27,8 @@ export default function App() {
   const { recipes, addRecipe, deleteRecipe, editRecipe, toggleFavorite, reorderRecipes, syncAfterGoogleSignIn: syncRecipesAfterGoogleSignIn } = useRecipes()
   const navigate = useNavigate()
   const location = useLocation()
+
+  const isDesktop = useIsDesktop()
 
   const [tab,      setTab]      = useState('urgent')
   const [showMenu, setShowMenu] = useState(false)
@@ -78,20 +82,35 @@ export default function App() {
   }, [store])
 
   return (
-    <div className="min-h-dvh bg-canvas max-w-[430px] mx-auto font-body text-ink-primary">
+    <div className={`min-h-dvh bg-canvas font-body text-ink-primary ${isDesktop ? '' : 'max-w-[430px] mx-auto'}`}>
       <Suspense fallback={<div className="min-h-dvh bg-canvas" />}>
       <Routes>
 
         <Route path="/" element={
-          <HomePage
-            store={store}
-            mealsStore={mealsStore}
-            recipes={recipes}
-            uncheckedCount={uncheckedCount}
-            onMenu={() => setShowMenu(true)}
-            tab={tab}
-            onTabChange={setTab}
-          />
+          isDesktop
+            ? <DesktopDashboard
+                store={store}
+                mealsStore={mealsStore}
+                recipes={recipes}
+                tab={tab}
+                onTabChange={setTab}
+                isAnonymous={isAnonymous}
+                authLoading={authLoading}
+                onShowPlan={() => navigate('/login')}
+                onShowAccount={() => navigate('/compte')}
+                onAddCheckedToStock={handleAddCheckedToStock}
+                onCart={() => navigate('/list')}
+                cartCount={uncheckedCount}
+              />
+            : <HomePage
+                store={store}
+                mealsStore={mealsStore}
+                recipes={recipes}
+                uncheckedCount={uncheckedCount}
+                onMenu={() => setShowMenu(true)}
+                tab={tab}
+                onTabChange={setTab}
+              />
         } />
 
         {/* ── Liste de courses ── */}
@@ -190,13 +209,17 @@ export default function App() {
             onMenu={() => setShowMenu(true)}
             onCart={() => navigate('/list')}
             cartCount={uncheckedCount}
+            isAnonymous={isAnonymous}
+            authLoading={authLoading}
+            onShowPlan={() => navigate('/login')}
+            onShowAccount={() => navigate('/compte')}
           />
         } />
 
       </Routes>
       </Suspense>
 
-      {showMenu && (
+      {showMenu && !isDesktop && (
         <MenuDrawer
           activeTab={tab}
           activePage={activePage}

@@ -1,9 +1,20 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
+import DesktopHeader from '../../components/DesktopHeader'
 import SearchBar from '../../components/SearchBar'
 import MealGroupsList from './MealGroupsList'
 import { btnActive, btnDefault } from '../../utils/styles'
 import { sortByUrgency, getBadge } from '../products/badges'
+import { useIsDesktop } from '../../hooks/useIsDesktop'
+
+function CloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  )
+}
 
 const TODAY = new Date().toISOString().split('T')[0]
 const TOMORROW = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0] })()
@@ -34,11 +45,12 @@ function getDayFullLabel(dateStr) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
+export function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
   const [step, setStep] = useState('pick')
   const [chosenProduct, setChosenProduct] = useState(null)
   const [qty, setQty] = useState(1)
   const [search, setSearch] = useState('')
+  const isDesktop = useIsDesktop()
 
   const q = search.trim().toLowerCase()
   const available = sortByUrgency(products.filter(p => (p.qty ?? 0) > 0))
@@ -55,6 +67,10 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
     onClose()
   }
 
+  const panelCls = isDesktop
+    ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[480px] bg-canvas rounded-[20px] border border-ink-primary shadow-lg'
+    : 'absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg'
+
   return (
     <div
       className="fixed inset-0 z-50"
@@ -66,15 +82,20 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
     >
       <div className="absolute inset-0 bg-ink-primary/30" />
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
-      <div
-        className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mt-4 mb-4" />
+      <div className={panelCls} onClick={e => e.stopPropagation()}>
+        {/* Entête : titre + bouton X */}
+        <div className="flex items-center justify-between px-5 pt-5 mb-3">
+          {step === 'pick'
+            ? <p className="font-display font-semibold text-[16px] text-ink-primary">Choisir un ingrédient</p>
+            : <p className="font-display font-semibold text-[16px] text-ink-primary">{chosenProduct?.name}</p>
+          }
+          <button onClick={onClose} aria-label="Fermer" className={`w-8 h-8 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnDefault}`}>
+            <CloseIcon />
+          </button>
+        </div>
 
         {step === 'pick' ? (
           <>
-            <p className="font-display font-semibold text-[16px] text-ink-primary px-5 mb-3">Choisir un ingrédient</p>
             <div className="px-5 mb-3">
               <SearchBar value={search} onChange={setSearch} placeholder="Rechercher un ingrédient…" />
             </div>
@@ -148,12 +169,17 @@ function ProductPickerSheet({ products, selectedDate, onAdd, onClose }) {
   )
 }
 
-function NewRepasSheet({ onConfirm, onClose }) {
+export function NewRepasSheet({ onConfirm, onClose }) {
   const [name, setName] = useState('')
   const inputRef = useRef()
+  const isDesktop = useIsDesktop()
   useEffect(() => { inputRef.current?.focus() }, [])
 
   const submit = () => { if (name.trim()) onConfirm(name.trim()) }
+
+  const panelCls = isDesktop
+    ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[480px] bg-canvas rounded-[20px] border border-ink-primary shadow-lg px-5 pb-8'
+    : 'absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg px-5 pb-10'
 
   return (
     <div
@@ -166,12 +192,13 @@ function NewRepasSheet({ onConfirm, onClose }) {
     >
       <div className="absolute inset-0 bg-ink-primary/30" />
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
-      <div
-        className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary shadow-lg px-5 pb-10"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mt-4 mb-5" />
-        <p className="font-display font-semibold text-[16px] text-ink-primary mb-4">Nom du repas</p>
+      <div className={panelCls} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between pt-5 mb-4">
+          <p className="font-display font-semibold text-[16px] text-ink-primary">Nom du repas</p>
+          <button onClick={onClose} aria-label="Fermer" className={`w-8 h-8 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnDefault}`}>
+            <CloseIcon />
+          </button>
+        </div>
         <input
           ref={inputRef}
           type="text"
@@ -196,8 +223,10 @@ function NewRepasSheet({ onConfirm, onClose }) {
   )
 }
 
-export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddRepas, onRenameRepas, onNameNoneMeals, onDeleteRepas, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount }) {
+export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddRepas, onRenameRepas, onNameNoneMeals, onDeleteRepas, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount, isAnonymous, authLoading, onShowPlan, onShowAccount }) {
   const days = getDays()
+  const navigate = useNavigate()
+  const isDesktop = useIsDesktop()
   const [selectedDay, setSelectedDay] = useState(TODAY)
   const [pickerRepasId, setPickerRepasId] = useState(null)
   const [showNewRepasSheet, setShowNewRepasSheet] = useState(false)
@@ -214,16 +243,29 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
 
   return (
     <div className="min-h-dvh bg-canvas font-body text-ink-primary">
-      <Header
-        onTitleClick={onClose}
-        onMenu={onMenu}
-        onAdd={() => setPickerRepasId('__none__')}
-        onCart={onCart}
-        cartCount={cartCount}
-      />
+      {isDesktop ? (
+        <DesktopHeader
+          onDashboard={() => navigate('/')}
+          isAnonymous={isAnonymous}
+          authLoading={authLoading}
+          onShowPlan={onShowPlan}
+          onShowAccount={onShowAccount}
+          showAdd={false}
+          onCart={onCart}
+          cartCount={cartCount}
+        />
+      ) : (
+        <Header
+          onTitleClick={onClose}
+          onMenu={onMenu}
+          onAdd={() => setPickerRepasId('__none__')}
+          onCart={onCart}
+          cartCount={cartCount}
+        />
+      )}
 
-      <div className="flex gap-2 overflow-x-auto px-4 py-3 border-b border-ink-primary" style={{ scrollbarWidth: 'none' }}>
-        {days.map((date, i) => {
+      <div className={`flex gap-2 py-3 border-b border-ink-primary ${isDesktop ? 'justify-center px-8' : 'overflow-x-auto px-4'}`} style={{ scrollbarWidth: 'none' }}>
+        {days.map((date) => {
           const active = date === selectedDay
           return (
             <button
@@ -241,10 +283,20 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
         })}
       </div>
 
-      <main className="px-4 pt-4 pb-24">
-        <p className="font-display font-semibold text-[15px] text-ink-primary mb-3 capitalize">
-          {getDayFullLabel(selectedDay)}
-        </p>
+      <main className={isDesktop ? 'max-w-[1440px] mx-auto px-8 pt-6 pb-24' : 'px-4 pt-4 pb-24'}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-display font-semibold text-[15px] text-ink-primary capitalize">
+            {getDayFullLabel(selectedDay)}
+          </p>
+          {isDesktop && (
+            <button
+              onClick={() => setShowNewRepasSheet(true)}
+              className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[14px] border transition-all ${btnDefault}`}
+            >
+              + Repas
+            </button>
+          )}
+        </div>
         <MealGroupsList
           key={selectedDay}
           meals={meals}
@@ -256,7 +308,8 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
           onNameNoneMeals={(name) => onNameNoneMeals(name, selectedDay)}
           onConfirmMeal={onConfirmMeal}
           onCancelMeal={onCancelMeal}
-          onCreateRepas={() => setShowNewRepasSheet(true)}
+          onCreateRepas={isDesktop ? undefined : () => setShowNewRepasSheet(true)}
+          horizontal={isDesktop}
         />
       </main>
 

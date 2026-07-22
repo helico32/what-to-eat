@@ -77,13 +77,15 @@ function CutleryIcon() {
   )
 }
 
-// actionMode : 'meal' | 'cart' — contrôlé par le toggle global dans SectionLabel
-// editMode   : boolean         — contrôlé par le toggle global dans SectionLabel
-// canDrag    : true sur les tabs non-urgent hors recherche
+// actionMode  : 'meal' | 'cart' — contrôlé par le toggle global dans SectionLabel (mobile)
+// editMode    : boolean         — contrôlé par le toggle global dans SectionLabel (mobile)
+// canDrag     : true sur les tabs non-urgent hors recherche
+// desktopMode : true → 3 boutons toujours visibles, PositionInput sans editMode
 export default function ProductRow({
   product, onDelete, onDecrement, onIncrement, onAddToCart, onAddToMeal, onUpdateExpiry,
   actionMode, editMode,
   canDrag, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo,
+  desktopMode = false,
 }) {
   const badge = getBadge(product.expiryDate, product.location)
   const [confirm,     setConfirm]     = useState(null) // null | 'cart' | 'meal' | 'delete' | 'decrement'
@@ -114,9 +116,9 @@ export default function ProductRow({
       {/* Ligne principale */}
       <div className="flex items-center gap-3 py-3">
 
-        {/* PositionInput — desktop uniquement, tout à gauche de la row */}
-        {editMode && canDrag && (
-          <div className="hidden md:flex flex-shrink-0">
+        {/* PositionInput — visible si canDrag. En desktopMode pas besoin d'editMode */}
+        {(desktopMode ? canDrag : (editMode && canDrag)) && (
+          <div className="flex flex-shrink-0">
             <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
           </div>
         )}
@@ -187,17 +189,40 @@ export default function ProductRow({
           </span>
         ) : null}
 
-        {/* Bouton unique — poubelle en editMode, action (repas/courses) sinon */}
-        {editMode ? (
-          <>
+        {/* Desktop : 3 boutons toujours visibles — Mobile : bouton unique togglé */}
+        {desktopMode ? (
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <button
+              onClick={() => setConfirm(confirm === 'cart' ? null : 'cart')}
+              className={`w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'cart' ? btnActive : btnDefault}`}
+              aria-label="Ajouter à la liste de courses"
+            >
+              <CartIcon />
+            </button>
+            <button
+              disabled={product.qty === 0}
+              onClick={() => setConfirm(confirm === 'meal' ? null : 'meal')}
+              className={`w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'meal' ? btnActive : btnDefault}`}
+              aria-label="Ajouter au repas"
+            >
+              <CutleryIcon />
+            </button>
             <button
               onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
-              className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
+              className={`w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
               aria-label="Supprimer"
             >
               <TrashIcon />
             </button>
-          </>
+          </div>
+        ) : editMode ? (
+          <button
+            onClick={() => setConfirm(confirm === 'delete' ? null : 'delete')}
+            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${confirm === 'delete' ? btnActive : btnDefault}`}
+            aria-label="Supprimer"
+          >
+            <TrashIcon />
+          </button>
         ) : (
           <button
             disabled={actionMode === 'meal' && product.qty === 0}

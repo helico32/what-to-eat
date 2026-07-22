@@ -115,7 +115,7 @@ function MealRow({ meal, isChecked, rowQty, onToggle, onSetRowQty, onCancel }) {
   )
 }
 
-function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAddItem, onDelete, onRename, onCancel }) {
+function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAddItem, onDelete, onRename, onCancel, className = '' }) {
   const [collapsed, setCollapsed] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState(name)
@@ -134,7 +134,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
   }
 
   return (
-    <div className="bg-canvas-card rounded-xl border border-ink-primary mb-3">
+    <div className={`bg-canvas-card rounded-xl border border-ink-primary mb-3 ${className}`}>
       <div className="flex items-center gap-2 px-4 py-3">
         {!isEditing && !confirmDelete && (
           <button onClick={() => setCollapsed(c => !c)} className="flex-shrink-0 text-ink-primary">
@@ -201,7 +201,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
             {onAddItem && (
               <button
                 onClick={onAddItem}
-                className={`w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full border border-ink-primary transition-all ${btnDefault}`}
+                className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full border border-ink-primary bg-brand transition-all active:scale-95"
                 aria-label="Ajouter un ingrédient"
               >
                 <PlusIcon />
@@ -243,7 +243,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
   )
 }
 
-export default function MealGroupsList({ meals, repas, date, onAddItem, onDeleteRepas, onRenameRepas, onNameNoneMeals, onConfirmMeal, onCancelMeal, onCreateRepas }) {
+export default function MealGroupsList({ meals, repas, date, onAddItem, onDeleteRepas, onRenameRepas, onNameNoneMeals, onConfirmMeal, onCancelMeal, onCreateRepas, horizontal = false }) {
   const dayRepas = repas.filter(r => r.date === date)
   const dayMeals = meals.filter(m => m.date === date)
   // Meals sans groupe de repas nommé — affichés dans un groupe "Encas"
@@ -276,30 +276,36 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
     )
   }
 
+  const groupClassName = horizontal ? 'flex-1 min-w-[280px] max-w-[25%] mb-0' : ''
+
   return (
     <>
-      {dayRepas.map(r => (
-        <RepasGroup
-          key={r.id}
-          name={r.name}
-          meals={dayMeals.filter(m => m.repasId === r.id)}
-          {...groupProps}
-          onAddItem={onAddItem ? () => onAddItem(r.id) : undefined}
-          onDelete={onDeleteRepas ? () => onDeleteRepas(r.id) : undefined}
-          onRename={onRenameRepas ? (newName) => onRenameRepas(r.id, newName) : undefined}
-        />
-      ))}
-      {noneMeals.length > 0 && (
-        <RepasGroup
-          name="Encas"
-          meals={noneMeals}
-          {...groupProps}
-          onAddItem={onAddItem ? () => onAddItem('__none__') : undefined}
-          onRename={onNameNoneMeals}
-          onDelete={onCancelMeal ? () => noneMeals.forEach(m => onCancelMeal(m.id)) : undefined}
-        />
-      )}
-      {onCreateRepas && (
+      <div className={horizontal ? 'flex gap-4 flex-wrap items-start mb-3' : ''}>
+        {dayRepas.map(r => (
+          <RepasGroup
+            key={r.id}
+            name={r.name}
+            meals={dayMeals.filter(m => m.repasId === r.id)}
+            {...groupProps}
+            onAddItem={onAddItem ? () => onAddItem(r.id) : undefined}
+            onDelete={onDeleteRepas ? () => onDeleteRepas(r.id) : undefined}
+            onRename={onRenameRepas ? (newName) => onRenameRepas(r.id, newName) : undefined}
+            className={groupClassName}
+          />
+        ))}
+        {noneMeals.length > 0 && (
+          <RepasGroup
+            name="Encas"
+            meals={noneMeals}
+            {...groupProps}
+            onAddItem={onAddItem ? () => onAddItem('__none__') : undefined}
+            onRename={onNameNoneMeals}
+            onDelete={onCancelMeal ? () => noneMeals.forEach(m => onCancelMeal(m.id)) : undefined}
+            className={groupClassName}
+          />
+        )}
+      </div>
+      {onCreateRepas && !horizontal && (
         <button
           onClick={onCreateRepas}
           className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-primary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
