@@ -3,6 +3,8 @@ import ShoppingList from './ShoppingList'
 import Header from '../../components/Header'
 import SearchBar from '../../components/SearchBar'
 import SearchEmpty from '../../components/SearchEmpty'
+import { useIsDesktop } from '../../hooks/useIsDesktop'
+import { btnDefault } from '../../utils/styles'
 
 function SortIcon() {
   return (
@@ -83,6 +85,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
   const [showAdd, setShowAdd] = useState(false)
   const [sorting, setSorting] = useState(false)
   const [search, setSearch] = useState('')
+  const isDesktop = useIsDesktop()
 
   const q = search.trim().toLowerCase()
   const filteredItems = q
@@ -90,24 +93,53 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
     : items
 
   return (
-    <div className="fixed inset-0 z-30 bg-canvas overflow-y-auto">
-      <div className="max-w-[430px] mx-auto">
+    <div className={isDesktop ? 'min-h-dvh bg-canvas' : 'fixed inset-0 z-30 bg-canvas overflow-y-auto'}>
+      <div className={isDesktop ? 'max-w-[75%] mx-auto px-8' : 'max-w-[430px] mx-auto'}>
 
-        <Header
-          onTitleClick={onClose}
-          onAdd={() => setShowAdd(true)}
-          onMenu={onMenu}
-          onCart={onCart}
-          cartCount={cartCount}
-        />
+        {!isDesktop && (
+          <Header
+            onTitleClick={onClose}
+            onAdd={() => setShowAdd(true)}
+            onMenu={onMenu}
+            onCart={onCart}
+            cartCount={cartCount}
+          />
+        )}
 
-        <SearchBar
-          value={search}
-          onChange={v => { setSearch(v); setSorting(false) }}
-          placeholder="Rechercher dans la liste…"
-        />
+        {isDesktop ? (
+          <div className="flex items-center gap-4 pt-8 mb-8">
+            <div className="flex-1 relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-primary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+              </svg>
+              <input
+                type="text"
+                name="search"
+                value={search}
+                onChange={e => { setSearch(e.target.value); setSorting(false) }}
+                placeholder="Rechercher dans la liste…"
+                className="w-full pl-9 pr-9 py-2 bg-canvas border border-ink-primary rounded-[10px] font-body text-[16px] text-ink-primary placeholder:text-ink-primary/50 outline-none"
+              />
+              {search && (
+                <button onClick={() => setSearch('')} aria-label="Effacer la recherche" className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-primary text-lg leading-none">×</button>
+              )}
+            </div>
+            <button
+              onClick={() => setShowAdd(true)}
+              className={`flex-shrink-0 px-3 py-2 rounded-[10px] font-body font-semibold text-[14px] leading-6 border transition-all ${btnDefault}`}
+            >
+              + Ajouter un item
+            </button>
+          </div>
+        ) : (
+          <SearchBar
+            value={search}
+            onChange={v => { setSearch(v); setSorting(false) }}
+            placeholder="Rechercher dans la liste…"
+          />
+        )}
 
-        <main className="px-4 pb-32">
+        <main className={isDesktop ? 'pb-8' : 'px-4 pb-32'}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <p className="font-display font-semibold text-[15px] text-ink-primary">

@@ -21,9 +21,9 @@ export function getBadge(expiryDate, location) {
 export function getIngredientChipBg(expiryDate) {
   const daysLeft = computeDaysLeft(expiryDate)
   if (daysLeft === null) return 'bg-canvas border border-ink-primary'
-  if (daysLeft <= 1)     return 'bg-urgent/30 border border-urgent'
-  if (daysLeft <= 4)     return 'bg-brand/30 border border-brand'
-  return 'bg-canvas-border border border-ink-primary'
+  if (daysLeft <= 1)     return 'bg-urgent/30 border border-ink-primary'
+  if (daysLeft <= 4)     return 'bg-caution/30 border border-ink-primary'
+  return 'bg-fresh/30 border border-ink-primary'
 }
 
 export function sortByUrgency(list) {

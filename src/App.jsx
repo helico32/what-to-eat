@@ -35,7 +35,9 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false)
 
   const { permission, requestPermission, refreshToken } = useNotifications()
-  const { isAnonymous, authEmail, authLoading, signInWithGoogle, signOut } = useAuth()
+  const { isAnonymous, authEmail, authName, authLoading, signInWithGoogle, signOut } = useAuth()
+  const [dateLocale, setDateLocale] = useState(() => localStorage.getItem('dateLocale') ?? 'fr')
+  const handleDateLocaleChange = (val) => { setDateLocale(val); localStorage.setItem('dateLocale', val) }
 
   // Déclenche la sync produits quand l'utilisatrice passe d'anonyme à Google
   // pendant la session (sign-in via PlanPage). Le chargement initial (app ouverte
@@ -107,6 +109,10 @@ export default function App() {
                 tab={tab}
                 onTabChange={setTab}
                 onAddCheckedToStock={handleAddCheckedToStock}
+                authName={authName}
+                isAnonymous={isAnonymous}
+                authLoading={authLoading}
+                dateLocale={dateLocale}
               />
             : <HomePage
                 store={store}
@@ -190,6 +196,8 @@ export default function App() {
             onSignOut={signOut}
             notifPermission={permission}
             onRequestNotif={requestPermission}
+            dateLocale={dateLocale}
+            onDateLocaleChange={handleDateLocaleChange}
           />
         } />
 

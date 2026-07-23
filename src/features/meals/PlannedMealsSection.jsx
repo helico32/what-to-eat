@@ -15,13 +15,13 @@ export default function PlannedMealsSection({
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="font-display font-semibold text-[17px] text-ink-primary">Repas prévus aujourd'hui</p>
+        <p className="font-display font-semibold text-[16px] text-ink-primary">Repas prévus aujourd'hui</p>
         {onCreateRepas && (
           <button
             onClick={onCreateRepas}
-            className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[14px] border transition-all ${btnDefault}`}
+            className={`flex-shrink-0 px-3 py-2 rounded-[10px] font-body font-semibold text-[14px] leading-6 border transition-all ${btnDefault}`}
           >
-            + Repas
+            + Ajouter un repas
           </button>
         )}
       </div>

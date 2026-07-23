@@ -252,7 +252,7 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
         />
       )}
 
-      <div className={`flex gap-2 py-3 border-b border-ink-primary ${isDesktop ? 'justify-center px-8' : 'overflow-x-auto px-4'}`} style={{ scrollbarWidth: 'none' }}>
+      <div className={`flex py-3 border-b border-ink-primary ${isDesktop ? 'gap-4 justify-center px-8' : 'gap-2 overflow-x-auto px-4'}`} style={{ scrollbarWidth: 'none' }}>
         {days.map((date) => {
           const active = date === selectedDay
           return (
@@ -271,7 +271,7 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
         })}
       </div>
 
-      <main className={isDesktop ? 'max-w-[1440px] mx-auto px-8 pt-6 pb-24' : 'px-4 pt-4 pb-24'}>
+      <main className={isDesktop ? 'max-w-[1440px] mx-auto px-8 pt-8 pb-8' : 'px-4 pt-4 pb-24'}>
         <div className="flex items-center justify-between mb-3">
           <p className="font-display font-semibold text-[15px] text-ink-primary capitalize">
             {getDayFullLabel(selectedDay)}
@@ -279,9 +279,9 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
           {isDesktop && (
             <button
               onClick={() => setShowNewRepasSheet(true)}
-              className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[14px] border transition-all ${btnDefault}`}
+              className={`flex-shrink-0 px-3 py-2 rounded-[10px] font-body font-semibold text-[14px] leading-6 border transition-all ${btnDefault}`}
             >
-              + Repas
+              + Ajouter un repas
             </button>
           )}
         </div>

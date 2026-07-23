@@ -83,6 +83,7 @@ export function useAuth() {
     user,
     isAnonymous: user === undefined ? true : (user?.isAnonymous ?? true),
     authEmail:   user?.email ?? null,
+    authName:    user?.displayName || user?.providerData?.[0]?.displayName || user?.email?.split('@')[0] || null,
     authLoading: user === undefined,
     signInWithGoogle,
     signOut,

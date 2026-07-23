@@ -67,8 +67,8 @@ function MealRow({ meal, isChecked, rowQty, onToggle, onSetRowQty, onCancel }) {
           }
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-body font-semibold text-[15px] text-ink-primary truncate">{meal.productSnapshot.name}</p>
-          <p className="font-body text-[13px] text-ink-primary">x {meal.qty} prévu{meal.qty > 1 ? 's' : ''}</p>
+          <p className="font-body font-semibold text-[16px] text-ink-primary truncate">{meal.productSnapshot.name}</p>
+          <p className="font-body text-[14px] text-ink-primary">x {meal.qty} prévu{meal.qty > 1 ? 's' : ''}</p>
         </div>
         {isChecked ? (
           <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -144,7 +144,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
 
         <div className="flex-1 min-w-0 flex items-center gap-2">
           {confirmDelete ? (
-            <p className="font-body text-[15px] text-ink-primary truncate">Supprimer "{name}" ?</p>
+            <p className="font-body text-[16px] text-ink-primary truncate">Supprimer "{name}" ?</p>
           ) : isEditing ? (
             <>
               <input
@@ -152,7 +152,7 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
                 value={editName}
                 onChange={e => setEditName(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setEditName(name); setIsEditing(false) } }}
-                className="flex-1 min-w-0 bg-transparent border-b border-ink-primary font-display font-semibold text-[15px] text-ink-primary outline-none"
+                className="flex-1 min-w-0 bg-transparent border-b border-ink-primary font-display font-semibold text-[16px] text-ink-primary outline-none"
               />
               <button
                 onClick={commitRename}
@@ -165,8 +165,8 @@ function RepasGroup({ name, meals, checked, rowQtys, onToggle, onSetRowQty, onAd
           ) : (
             <>
               <button onClick={() => setCollapsed(c => !c)} className="flex-1 min-w-0 text-left flex items-center gap-1">
-                <p className="font-display font-semibold text-[15px] text-ink-primary truncate">{name}</p>
-                <span className="font-body text-[13px] text-ink-primary flex-shrink-0">({meals.length})</span>
+                <p className="font-display font-semibold text-[16px] text-ink-primary truncate">{name}</p>
+                <span className="font-body text-[14px] text-ink-primary flex-shrink-0">({meals.length})</span>
               </button>
               {onRename && (
                 <button
@@ -261,12 +261,12 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
       <>
         <div className="text-center py-10">
           <span className="text-4xl block mb-3">🍽️</span>
-          <p className="font-body text-[15px] text-ink-primary">Aucun repas prévu ce jour</p>
+          <p className="font-body text-[16px] text-ink-primary">Aucun repas prévu ce jour</p>
         </div>
         {onCreateRepas && (
           <button
             onClick={onCreateRepas}
-            className={`w-full py-3 rounded-xl font-body font-semibold text-[15px] transition-all flex items-center justify-center gap-2 ${btnDefault}`}
+            className={`w-full py-3 rounded-xl font-body font-semibold text-[16px] transition-all flex items-center justify-center gap-2 ${btnDefault}`}
           >
             <PlusIcon />
             Nouveau repas
@@ -308,7 +308,7 @@ export default function MealGroupsList({ meals, repas, date, onAddItem, onDelete
       {onCreateRepas && !horizontal && (
         <button
           onClick={onCreateRepas}
-          className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-primary font-body text-[15px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl border border-dashed border-ink-primary text-ink-primary font-body text-[16px] hover:bg-canvas-border transition-all flex items-center justify-center gap-2"
         >
           <PlusIcon />
           Nouveau repas

@@ -15,7 +15,12 @@ function BellIcon() {
   )
 }
 
-export default function AccountPage({ onClose, authEmail, onSignOut, notifPermission, onRequestNotif }) {
+const DATE_LOCALES = [
+  { value: 'fr', label: 'Français', example: 'mercredi 23 juillet 2026' },
+  { value: 'en', label: 'English',  example: 'Wednesday, 23 July 2026'  },
+]
+
+export default function AccountPage({ onClose, authEmail, onSignOut, notifPermission, onRequestNotif, dateLocale = 'fr', onDateLocaleChange }) {
 
   const handleSignOut = () => {
     onSignOut()
@@ -92,6 +97,28 @@ export default function AccountPage({ onClose, authEmail, onSignOut, notifPermis
               )}
             </div>
           )}
+
+          {/* ── Affichage ── */}
+          <div className="flex flex-col gap-2">
+            <p className="font-body font-semibold text-[13px] text-ink-primary uppercase tracking-wider px-1">
+              Affichage
+            </p>
+            {DATE_LOCALES.map(({ value, label, example }) => (
+              <button
+                key={value}
+                onClick={() => onDateLocaleChange?.(value)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-ink-primary bg-canvas-card text-left"
+              >
+                <span className="w-4 h-4 rounded-full border-2 border-ink-primary flex items-center justify-center flex-shrink-0">
+                  {dateLocale === value && <span className="w-2 h-2 rounded-full bg-ink-primary" />}
+                </span>
+                <div>
+                  <p className="font-body font-semibold text-[16px] text-ink-primary">{label}</p>
+                  <p className="font-body text-[14px] text-ink-primary">{example}</p>
+                </div>
+              </button>
+            ))}
+          </div>
 
           {/* ── Déconnexion ── */}
           <div className="mt-auto pt-4">

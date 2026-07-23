@@ -74,7 +74,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
         {/* Right: content */}
         <div className="flex-1 p-4 min-w-0">
           {/* Recipe name */}
-          <h2 className="font-display font-bold text-[18px] leading-[24px] text-ink-primary mb-1.5">
+          <h2 className="font-body font-semibold text-[20px] leading-[28px] text-ink-primary mb-1.5">
             {recipe.name}
           </h2>
 
@@ -105,7 +105,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
           <div className="flex gap-2">
             <button
               onClick={() => onViewRecipe(recipe)}
-              className="flex-1 py-2.5 bg-forest text-canvas rounded-lg font-body font-semibold text-[16px] active:scale-[.98] transition-all"
+              className="flex-1 py-2.5 bg-forest text-canvas rounded-lg border border-ink-primary font-body font-semibold text-[16px] active:scale-[.98] transition-all"
             >
               Voir la recette
             </button>
@@ -113,7 +113,7 @@ export default function RecipeCard({ recipes, products, onViewRecipe }) {
               <button
                 onClick={() => setIdx(i => i + 1)}
                 aria-label="Recette aléatoire"
-                className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg flex items-center justify-center active:scale-[.98] transition-all"
+                className="w-10 h-10 flex-shrink-0 bg-brand text-ink-primary rounded-lg border border-ink-primary flex items-center justify-center active:scale-[.98] transition-all"
               >
                 <ShuffleIcon />
               </button>

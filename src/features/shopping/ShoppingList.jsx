@@ -150,7 +150,7 @@ function RangerSheet({ checkedItems, onConfirm, onClose }) {
                 value={expiry}
                 min={todayStr()}
                 onChange={e => setExpiry(e.target.value)}
-                className="w-full pl-11 pr-4 py-5 bg-canvas border-2 border-ink-primary rounded-xl font-body text-[15px] font-semibold outline-none focus:border-forest transition-colors"
+                className="w-full pl-11 pr-4 py-5 bg-canvas border-2 border-ink-primary rounded-xl font-body text-[16px] font-semibold outline-none focus:border-forest transition-colors"
               />
             </div>
 
@@ -239,7 +239,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
     return (
       <div className="text-center py-20">
         <span className="text-4xl block mb-3">🛒</span>
-        <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Liste vide</h3>
+        <h3 className="font-display font-semibold text-[20px] text-ink-primary mb-2">Liste vide</h3>
         <p className="font-body text-[16px] text-ink-primary">
           Appuie sur l'icône 🛒 à côté d'un produit.
         </p>
@@ -279,7 +279,7 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className={`font-body text-[16px] font-medium transition-colors ${
+                <p className={`font-body font-semibold text-[16px] transition-colors ${
                   item.checked ? 'text-ink-primary line-through' : 'text-ink-primary'
                 }`}>
                   {item.name}

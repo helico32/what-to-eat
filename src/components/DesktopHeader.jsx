@@ -42,7 +42,7 @@ export default function DesktopHeader({ onDashboard, isAnonymous, authLoading, o
 
   return (
     <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md border-b border-ink-primary px-8">
-      <div className="max-w-[1440px] mx-auto flex items-center h-20 gap-6">
+      <div className="max-w-[1440px] mx-auto flex items-center h-20 gap-8">
 
         {/* Logo */}
         <button
@@ -53,7 +53,7 @@ export default function DesktopHeader({ onDashboard, isAnonymous, authLoading, o
         </button>
 
         {/* Centre : liens nav + bouton + */}
-        <nav className="flex items-center gap-3 flex-1 justify-center">
+        <nav className="flex items-center gap-4 flex-1 justify-center">
 
           {NAV.map(({ label, path }) => {
             const isActive = path === '/'
@@ -76,7 +76,7 @@ export default function DesktopHeader({ onDashboard, isAnonymous, authLoading, o
         </nav>
 
         {/* Droite : panier (optionnel) + compte */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-4 flex-shrink-0">
           {onCart && (
             <button onClick={onCart} aria-label="Liste de courses" className="relative w-10 h-10 flex items-center justify-center text-ink-primary">
               <CartIcon />
