@@ -101,7 +101,7 @@ export default function DesktopHeader({ onDashboard, isAnonymous, authLoading, o
               <button
                 onClick={onShowAccount}
                 aria-label="Mon compte"
-                className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all flex-shrink-0 ${btnDefault}`}
+                className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all flex-shrink-0 ${location.pathname === '/compte' ? btnActive : btnDefault}`}
               >
                 <UserIcon />
               </button>

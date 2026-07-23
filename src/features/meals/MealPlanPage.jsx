@@ -252,7 +252,7 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
         />
       )}
 
-      <div className={`flex py-3 border-b border-ink-primary ${isDesktop ? 'gap-4 justify-center px-8' : 'gap-2 overflow-x-auto px-4'}`} style={{ scrollbarWidth: 'none' }}>
+      <div className={`flex py-6 border-b border-ink-primary bg-canvas-card ${isDesktop ? 'sticky top-20 z-10 gap-4 justify-center px-8' : 'gap-2 overflow-x-auto px-4'}`} style={{ scrollbarWidth: 'none' }}>
         {days.map((date) => {
           const active = date === selectedDay
           return (
