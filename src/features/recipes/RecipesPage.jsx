@@ -80,13 +80,13 @@ function PositionInput({ position, total, onMoveTo }) {
   )
 }
 
-function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canSort, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo }) {
+function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canSort, isDragging, rowProps, handleProps, sortIndex, sortTotal, onMoveTo, matchCount }) {
   const getDays = (name) => {
     const p = products.find(x => x.name === name)
     return (p && p.expiryDate != null) ? p.expiryDate : null
   }
   const [confirm, setConfirm] = useState(false)
-
+  const totalCount = recipe.ingredients.length
   return (
     <div {...rowProps} className={`bg-canvas-card rounded-xl border border-ink-primary shadow-sm overflow-hidden transition-opacity ${isDragging ? 'opacity-40' : ''}`}>
       <div
@@ -131,39 +131,46 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
           </div>
         </div>
 
-        {/* Star */}
-        <button
-          onClick={e => { e.stopPropagation(); onToggleFavorite(recipe.id) }}
-          aria-label={recipe.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-          className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${recipe.favorite ? btnActive : btnDefault}`}
-        >
-          <StarIcon filled={recipe.favorite} />
-        </button>
-
-        {/* Sort or trash */}
-        {canSort ? (
-          <>
-            <div
-              {...handleProps}
-              className="md:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center text-ink-primary cursor-grab active:cursor-grabbing touch-none"
+        {/* Colonne droite : badge stock + boutons */}
+        <div className="flex-shrink-0 flex flex-col items-end justify-between gap-3">
+          {totalCount > 0 && matchCount > 0 && (
+            <span className="flex items-center gap-1 whitespace-nowrap">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${matchCount === totalCount ? 'bg-fresh' : 'bg-brand'}`} />
+              <span className="font-body text-[14px] text-ink-primary">
+                {matchCount === totalCount ? 'En stock' : `${matchCount}/${totalCount} items`}
+              </span>
+            </span>
+          )}
+          <div className="flex gap-1">
+            <button
+              onClick={e => { e.stopPropagation(); onToggleFavorite(recipe.id) }}
+              aria-label={recipe.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              className={`w-9 h-9 flex items-center justify-center rounded-[10px] font-body font-semibold transition-all ${recipe.favorite ? btnActive : btnDefault}`}
             >
-              <DragHandle />
-            </div>
-            <div className="hidden md:flex flex-shrink-0">
-              <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
-            </div>
-          </>
-        ) : (
-          <button
-            onClick={e => { e.stopPropagation(); setConfirm(c => !c) }}
-            aria-label="Supprimer la recette"
-            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold transition-all ${
-              confirm ? 'bg-urgent/30 text-urgent border-urgent' : 'bg-canvas-border text-ink-primary border-ink-primary'
-            }`}
-          >
-            <TrashIcon />
-          </button>
-        )}
+              <StarIcon filled={recipe.favorite} />
+            </button>
+            {canSort ? (
+              <>
+                <div {...handleProps} className="md:hidden w-9 h-9 flex items-center justify-center text-ink-primary cursor-grab active:cursor-grabbing touch-none">
+                  <DragHandle />
+                </div>
+                <div className="hidden md:flex">
+                  <PositionInput position={sortIndex + 1} total={sortTotal} onMoveTo={onMoveTo} />
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={e => { e.stopPropagation(); setConfirm(c => !c) }}
+                aria-label="Supprimer la recette"
+                className={`w-9 h-9 flex items-center justify-center rounded-[10px] border font-body font-semibold transition-all ${
+                  confirm ? 'bg-urgent/30 text-urgent border-urgent' : 'bg-canvas-border text-ink-primary border-ink-primary'
+                }`}
+              >
+                <TrashIcon />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {confirm && !canSort && (
@@ -189,25 +196,74 @@ function RecipeItem({ recipe, products, onDelete, onView, onToggleFavorite, canS
   )
 }
 
+const FILTERS = [
+  { id: 'tous',      label: 'Tous'     },
+  { id: 'faisable',  label: 'Faisable' },
+  { id: 'urgentes',  label: 'Urgents'  },
+]
+
 export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggleFavorite, onReorderRecipes, onClose, onMenu, onCart, cartCount }) {
   const navigate = useNavigate()
   const [sorting, setSorting] = useState(false)
-  const [search, setSearch] = useState('')
+  const [search, setSearch]   = useState('')
+  const [filter, setFilter]   = useState('tous')
   const isDesktop = useIsDesktop()
 
+  // Map nom → produit pour retrouver en O(1)
+  const productMap = new Map(products.map(p => [p.name, p]))
+
+  const getMatchCount = (recipe) =>
+    recipe.ingredients.filter(ing => productMap.has(ing)).length
+
+  const getMinExpiry = (recipe) => {
+    const dates = recipe.ingredients
+      .map(ing => productMap.get(ing)?.expiryDate)
+      .filter(Boolean)
+    if (!dates.length) return Infinity
+    return Math.min(...dates.map(d => new Date(d).getTime()))
+  }
+
+  const hasUrgent = (recipe) =>
+    recipe.ingredients.some(ing => {
+      const p = productMap.get(ing)
+      if (!p?.expiryDate) return false
+      const days = Math.ceil((new Date(p.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))
+      return days <= 4
+    })
+
+  const faisableCount = recipes.filter(r => getMatchCount(r) > 0).length
+  const urgentesCount = recipes.filter(r => hasUrgent(r)).length
+
   const q = search.trim().toLowerCase()
+
   const sortedRecipes = [
     ...recipes.filter(r => r.favorite),
     ...recipes.filter(r => !r.favorite),
   ]
+
+  const baseRecipes = (() => {
+    if (filter === 'faisable') {
+      return [...recipes]
+        .filter(r => getMatchCount(r) > 0)
+        .sort((a, b) => getMatchCount(b) - getMatchCount(a))
+    }
+    if (filter === 'urgentes') {
+      return [...recipes]
+        .filter(r => hasUrgent(r))
+        .sort((a, b) => getMinExpiry(a) - getMinExpiry(b))
+    }
+    return sortedRecipes
+  })()
+
   const filteredRecipes = q
-    ? sortedRecipes.filter(r =>
+    ? baseRecipes.filter(r =>
         r.name.toLowerCase().includes(q) ||
         r.ingredients.some(ing => ing.toLowerCase().includes(q))
       )
-    : sortedRecipes
+    : baseRecipes
 
-  const { activeIndex, rowProps, handleProps } = useSortable(sorting ? sortedRecipes : [], onReorderRecipes)
+  const canSort = sorting && !q && filter === 'tous'
+  const { activeIndex, rowProps, handleProps } = useSortable(canSort ? sortedRecipes : [], onReorderRecipes)
 
   const handleMoveTo = (fromIndex, toIndex) => {
     if (fromIndex === toIndex) return
@@ -265,12 +321,31 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
         )}
 
         <main className={isDesktop ? 'pb-8' : 'px-4 pb-32'}>
+
+          {/* Filtres */}
+          {!q && (
+            <div className="flex items-center gap-2 mb-4">
+              {FILTERS.map(f => {
+                const count = f.id === 'faisable' ? faisableCount : f.id === 'urgentes' ? urgentesCount : null
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => { setFilter(f.id); setSorting(false) }}
+                    className={`flex-shrink-0 px-4 py-1.5 rounded-full font-body font-semibold text-[14px] border transition-all ${filter === f.id ? btnActive : btnDefault}`}
+                  >
+                    {f.label}{count !== null ? ` (${count})` : ''}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <p className="font-display font-semibold text-[15px] text-ink-primary">
-                {q ? `"${search.trim()}"` : 'Recettes'}
+                {q ? `"${search.trim()}"` : filter === 'faisable' ? 'Faisable' : filter === 'urgentes' ? 'Urgents' : 'Recettes'}
               </p>
-              {!q && recipes.length > 1 && (
+              {!q && filter === 'tous' && recipes.length > 1 && (
                 <button
                   onClick={() => setSorting(s => !s)}
                   aria-label="Trier manuellement"
@@ -289,15 +364,30 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
 
           {filteredRecipes.length === 0 ? (
             q ? <SearchEmpty /> : (
-            <div className="text-center py-20">
-              <span className="text-4xl block mb-3">🍳</span>
-              <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Aucune recette</h3>
-              <p className="font-body text-[16px] text-ink-primary">
-                Ajoute tes recettes favorites pour les retrouver chaque soir.
-              </p>
-            </div>)
+              filter === 'faisable' ? (
+                <div className="text-center py-20">
+                  <span className="text-4xl block mb-3">🧑‍🍳</span>
+                  <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Rien de faisable</h3>
+                  <p className="font-body text-[16px] text-ink-primary">Aucune recette ne correspond aux produits en stock.</p>
+                </div>
+              ) : filter === 'urgentes' ? (
+                <div className="text-center py-20">
+                  <span className="text-4xl block mb-3">✅</span>
+                  <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Rien d'urgent</h3>
+                  <p className="font-body text-[16px] text-ink-primary">Aucun ingrédient ne périme dans les 4 prochains jours.</p>
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <span className="text-4xl block mb-3">🍳</span>
+                  <h3 className="font-display font-semibold text-[18px] text-ink-primary mb-2">Aucune recette</h3>
+                  <p className="font-body text-[16px] text-ink-primary">
+                    Ajoute tes recettes favorites pour les retrouver chaque soir.
+                  </p>
+                </div>
+              )
+            )
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className={isDesktop ? 'grid grid-cols-2 gap-3' : 'flex flex-col gap-3'}>
               {filteredRecipes.map((r, index) => (
                 <RecipeItem
                   key={r.id}
@@ -306,13 +396,14 @@ export default function RecipesPage({ recipes, products, onDeleteRecipe, onToggl
                   onDelete={onDeleteRecipe}
                   onView={(r) => navigate(`/recipes/${r.id}`)}
                   onToggleFavorite={onToggleFavorite}
-                  canSort={sorting && !q}
+                  canSort={canSort}
                   isDragging={activeIndex === index}
-                  rowProps={sorting && !q ? rowProps(index) : {}}
-                  handleProps={sorting && !q ? handleProps(index) : {}}
+                  rowProps={canSort ? rowProps(index) : {}}
+                  handleProps={canSort ? handleProps(index) : {}}
                   sortIndex={index}
                   sortTotal={filteredRecipes.length}
                   onMoveTo={(to) => handleMoveTo(index, to)}
+                  matchCount={getMatchCount(r)}
                 />
               ))}
             </div>
