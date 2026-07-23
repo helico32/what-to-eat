@@ -26,7 +26,8 @@ function googleUid() {
 // updatedAt permet de résoudre les conflits en cas d'usage sur deux appareils.
 // Fire-and-forget : Firestore met l'écriture en file offline si pas de réseau.
 function pushProduct(uid, product) {
-  const { image: _image, ...fields } = product
+  // eslint-disable-next-line no-unused-vars
+  const { image, ...fields } = product
   setDoc(doc(firestore, 'users', uid, 'products', product.id), {
     ...fields,
     updatedAt: new Date().toISOString(),
