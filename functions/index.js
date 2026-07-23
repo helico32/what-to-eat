@@ -17,7 +17,15 @@ exports.checkExpirations = onSchedule('every day 09:00', async () => {
   const today      = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const usersSnap = await firestore.collection('users').get()
+  // Filtre : seuls les users dont nextExpiry <= dans 2 jours sont lus.
+  // Les users sans produits avec date (nextExpiry absent ou null) sont exclus.
+  const twoDaysFromNow = new Date(today)
+  twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2)
+  const twoDaysStr = twoDaysFromNow.toISOString().split('T')[0]
+
+  const usersSnap = await firestore.collection('users')
+    .where('nextExpiry', '<=', twoDaysStr)
+    .get()
 
   const sends = usersSnap.docs.map(async (userDoc) => {
     const { fcmToken } = userDoc.data()

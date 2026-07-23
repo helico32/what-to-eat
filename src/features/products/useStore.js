@@ -39,6 +39,16 @@ function removeProduct(uid, id) {
   deleteDoc(doc(firestore, 'users', uid, 'products', id)).catch(() => {})
 }
 
+// Dénormalise la prochaine date d'expiration sur le doc /users/{uid}.
+// La Cloud Function filtre avec where('nextExpiry', '<=', dans2Jours)
+// au lieu de scanner tous les users — lecture O(concernés) au lieu de O(tous).
+// Fire-and-forget : pas bloquant, Firestore file l'écriture si hors-ligne.
+function pushNextExpiry(uid, products) {
+  const dates = products.map(p => p.expiryDate).filter(Boolean)
+  const nextExpiry = dates.length > 0 ? dates.sort()[0] : null
+  setDoc(doc(firestore, 'users', uid), { nextExpiry }, { merge: true }).catch(() => {})
+}
+
 export function useStore() {
   const [products,     setProducts]     = useState([])
   const [shoppingList, setShoppingList] = useState([])
@@ -113,11 +123,13 @@ export function useStore() {
       for (const p of firestoreProducts) tx.store.put(p)
       await tx.done
       setProducts([...firestoreProducts].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity)))
+      pushNextExpiry(uid, firestoreProducts)
     } else {
       // Premier sign-in : les produits locaux deviennent la source Firestore
       const idb = await dbPromise
       const localProducts = await idb.getAll('products')
       for (const p of localProducts) pushProduct(uid, p)
+      pushNextExpiry(uid, localProducts)
     }
   }
 
@@ -135,19 +147,21 @@ export function useStore() {
     // crypto.randomUUID() évite les collisions d'id quand addProduct est appelé
     // plusieurs fois dans la même milliseconde (ex: ajout groupé depuis la liste de courses).
     const newProduct = { ...product, id: crypto.randomUUID(), position: products.length }
-    setProducts(prev => [...prev, newProduct])
+    const newProducts = [...products, newProduct]
+    setProducts(newProducts)
     const db = await dbPromise
     await db.put('products', newProduct)
     const uid = googleUid()
-    if (uid) pushProduct(uid, newProduct)
+    if (uid) { pushProduct(uid, newProduct); pushNextExpiry(uid, newProducts) }
   }
 
   const deleteProduct = async (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id))
+    const newProducts = products.filter(p => p.id !== id)
+    setProducts(newProducts)
     const db = await dbPromise
     await db.delete('products', id)
     const uid = googleUid()
-    if (uid) removeProduct(uid, id)
+    if (uid) { removeProduct(uid, id); pushNextExpiry(uid, newProducts) }
   }
 
   const decrementProduct = async (id) => {
@@ -162,9 +176,10 @@ export function useStore() {
       await db.put('products', updated)
       if (uid) pushProduct(uid, updated)
     } else {
-      setProducts(prev => prev.filter(p => p.id !== id))
+      const newProducts = products.filter(p => p.id !== id)
+      setProducts(newProducts)
       await db.delete('products', id)
-      if (uid) removeProduct(uid, id)
+      if (uid) { removeProduct(uid, id); pushNextExpiry(uid, newProducts) }
     }
   }
 
@@ -183,11 +198,12 @@ export function useStore() {
     const product = products.find(p => p.id === id)
     if (!product) return
     const updated = { ...product, expiryDate: date || null }
-    setProducts(prev => prev.map(p => p.id === id ? updated : p))
+    const newProducts = products.map(p => p.id === id ? updated : p)
+    setProducts(newProducts)
     const db = await dbPromise
     await db.put('products', updated)
     const uid = googleUid()
-    if (uid) pushProduct(uid, updated)
+    if (uid) { pushProduct(uid, updated); pushNextExpiry(uid, newProducts) }
   }
 
   const reorderProducts = async (newList) => {

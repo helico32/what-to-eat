@@ -7,7 +7,7 @@ import { useNotifications } from './features/notifications/useNotifications'
 import { useAuth }          from './features/auth/useAuth'
 import { useIsDesktop }     from './hooks/useIsDesktop'
 import HomePage             from './features/products/HomePage'
-import MenuDrawer           from './components/MenuDrawer'
+const MenuDrawer           = lazy(() => import('./components/MenuDrawer'))
 import DesktopHeader        from './components/DesktopHeader'
 
 // Pages secondaires — chargées uniquement à la navigation, pas au démarrage.
