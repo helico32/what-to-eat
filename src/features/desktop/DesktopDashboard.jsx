@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react'
 import { useNavigate }       from 'react-router-dom'
 import { sortByUrgency }     from '../products/badges'
 import { btnActive, btnDefault } from '../../utils/styles'
-import DesktopHeader         from '../../components/DesktopHeader'
 import RecipeCard            from '../recipes/RecipeCard'
 import ProductRow            from '../products/ProductRow'
 import ShoppingList          from '../shopping/ShoppingList'
@@ -70,8 +69,7 @@ const getSectionLabel = (tab) => ({
 
 export default function DesktopDashboard({
   store, mealsStore, recipes, tab, onTabChange,
-  isAnonymous, authLoading, onShowPlan, onShowAccount,
-  onAddCheckedToStock, onCart, cartCount,
+  onAddCheckedToStock,
 }) {
   const navigate = useNavigate()
   const [showAdd,           setShowAdd]           = useState(false)
@@ -110,17 +108,6 @@ export default function DesktopDashboard({
 
   return (
     <div className="min-h-dvh bg-canvas font-body text-ink-primary">
-      <DesktopHeader
-        onDashboard={() => onTabChange('urgent')}
-        isAnonymous={isAnonymous}
-        authLoading={authLoading}
-        onShowPlan={onShowPlan}
-        onShowAccount={onShowAccount}
-        showAdd={false}
-        onCart={onCart}
-        cartCount={cartCount}
-      />
-
       <div className="max-w-[1440px] mx-auto px-8 pt-6 pb-16">
 
         {/* ── Planning du jour — bande pleine largeur ── */}
@@ -147,7 +134,7 @@ export default function DesktopDashboard({
           {/* Colonne gauche — produits (2/3) */}
           <div className="flex-[2] min-w-0">
 
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-6">
               <div className="flex-1 relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-primary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>

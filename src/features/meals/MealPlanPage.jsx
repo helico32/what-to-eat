@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
-import DesktopHeader from '../../components/DesktopHeader'
 import SearchBar from '../../components/SearchBar'
 import MealGroupsList from './MealGroupsList'
 import { btnActive, btnDefault } from '../../utils/styles'
@@ -223,7 +222,7 @@ export function NewRepasSheet({ onConfirm, onClose }) {
   )
 }
 
-export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddRepas, onRenameRepas, onNameNoneMeals, onDeleteRepas, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount, isAnonymous, authLoading, onShowPlan, onShowAccount }) {
+export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddRepas, onRenameRepas, onNameNoneMeals, onDeleteRepas, onConfirmMeal, onCancelMeal, onClose, onMenu, onCart, cartCount }) {
   const days = getDays()
   const navigate = useNavigate()
   const isDesktop = useIsDesktop()
@@ -243,18 +242,7 @@ export default function MealPlanPage({ meals, repas, products, onAddMeal, onAddR
 
   return (
     <div className="min-h-dvh bg-canvas font-body text-ink-primary">
-      {isDesktop ? (
-        <DesktopHeader
-          onDashboard={() => navigate('/')}
-          isAnonymous={isAnonymous}
-          authLoading={authLoading}
-          onShowPlan={onShowPlan}
-          onShowAccount={onShowAccount}
-          showAdd={false}
-          onCart={onCart}
-          cartCount={cartCount}
-        />
-      ) : (
+      {!isDesktop && (
         <Header
           onTitleClick={onClose}
           onMenu={onMenu}

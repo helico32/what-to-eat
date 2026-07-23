@@ -8,6 +8,7 @@ import { useAuth }          from './features/auth/useAuth'
 import { useIsDesktop }     from './hooks/useIsDesktop'
 import HomePage             from './features/products/HomePage'
 import MenuDrawer           from './components/MenuDrawer'
+import DesktopHeader        from './components/DesktopHeader'
 
 // Pages secondaires — chargées uniquement à la navigation, pas au démarrage.
 const ListePage       = lazy(() => import('./features/shopping/ListePage'))
@@ -83,6 +84,17 @@ export default function App() {
 
   return (
     <div className={`min-h-dvh bg-canvas font-body text-ink-primary ${isDesktop ? '' : 'max-w-[430px] mx-auto'}`}>
+      {isDesktop && (
+        <DesktopHeader
+          onDashboard={() => setTab('urgent')}
+          isAnonymous={isAnonymous}
+          authLoading={authLoading}
+          onShowPlan={() => navigate('/login')}
+          onShowAccount={() => navigate('/compte')}
+          onCart={() => navigate('/list')}
+          cartCount={uncheckedCount}
+        />
+      )}
       <Suspense fallback={<div className="min-h-dvh bg-canvas" />}>
       <Routes>
 
@@ -94,13 +106,7 @@ export default function App() {
                 recipes={recipes}
                 tab={tab}
                 onTabChange={setTab}
-                isAnonymous={isAnonymous}
-                authLoading={authLoading}
-                onShowPlan={() => navigate('/login')}
-                onShowAccount={() => navigate('/compte')}
                 onAddCheckedToStock={handleAddCheckedToStock}
-                onCart={() => navigate('/list')}
-                cartCount={uncheckedCount}
               />
             : <HomePage
                 store={store}
@@ -209,10 +215,6 @@ export default function App() {
             onMenu={() => setShowMenu(true)}
             onCart={() => navigate('/list')}
             cartCount={uncheckedCount}
-            isAnonymous={isAnonymous}
-            authLoading={authLoading}
-            onShowPlan={() => navigate('/login')}
-            onShowAccount={() => navigate('/compte')}
           />
         } />
 

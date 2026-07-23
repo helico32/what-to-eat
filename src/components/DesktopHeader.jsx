@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+ import { useNavigate, useLocation } from 'react-router-dom'
 import { btnActive, btnDefault } from '../utils/styles'
 
 function GoogleIcon() {
@@ -36,13 +36,13 @@ const NAV = [
   { label: 'Recettes',         path: '/recipes'  },
 ]
 
-export default function DesktopHeader({ onAdd, onDashboard, isAnonymous, authLoading, onShowPlan, onShowAccount, showAdd = true, onCart, cartCount }) {
+export default function DesktopHeader({ onDashboard, isAnonymous, authLoading, onShowPlan, onShowAccount, onCart, cartCount }) {
   const navigate = useNavigate()
   const location = useLocation()
 
   return (
     <header className="sticky top-0 z-20 bg-canvas/90 backdrop-blur-md border-b border-ink-primary px-8">
-      <div className="max-w-[1440px] mx-auto flex items-center h-16 gap-6">
+      <div className="max-w-[1440px] mx-auto flex items-center h-20 gap-6">
 
         {/* Logo */}
         <button
@@ -73,21 +73,10 @@ export default function DesktopHeader({ onAdd, onDashboard, isAnonymous, authLoa
             )
           })}
 
-          {/* Bouton ajouter — masqué sur les pages sans ajout produit */}
-          {showAdd && (
-            <button
-              onClick={onAdd}
-              aria-label="Ajouter un produit"
-              className="w-8 h-8 bg-brand text-ink-primary border border-ink-primary rounded-full flex items-center justify-center text-2xl font-light active:scale-95 transition-all shadow-sm ml-1"
-            >
-              +
-            </button>
-          )}
-
         </nav>
 
         {/* Droite : panier (optionnel) + compte */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {onCart && (
             <button onClick={onCart} aria-label="Liste de courses" className="relative w-10 h-10 flex items-center justify-center text-ink-primary">
               <CartIcon />
