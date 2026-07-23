@@ -220,7 +220,61 @@ function DragHandle() {
   )
 }
 
-export default function ShoppingList({ items, onToggle, onDelete, onDecrement, onIncrement, onClearChecked, onReorder, onAddCheckedToStock, canSort }) {
+const COL_LABELS = { frigo: 'Frigo', congel: 'Congélateur', placard: 'Placard' }
+
+// Ligne d'un item — partagée entre le layout liste et le layout colonnes
+function ItemRow({ item, onToggle, onDelete, onDecrement, onIncrement, confirmId, setConfirmId }) {
+  const isConfirming = confirmId === item.id
+  return (
+    // div wrapper (pas Fragment) : évite que divide-y mette une bordure entre la main row
+    // et la ligne de confirmation du même item quand elles sont toutes les deux visibles
+    <div>
+      <div className={`flex items-center gap-3 px-4 py-3.5 ${item.checked ? 'bg-canvas-border/40' : ''}`}>
+        <button
+          onClick={() => onToggle(item.id)}
+          aria-label={item.checked ? 'Décocher' : 'Cocher'}
+          className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+            item.checked ? 'bg-forest border-forest text-canvas' : 'border-ink-primary'
+          }`}
+        >
+          {item.checked && <CheckIcon />}
+        </button>
+        <div className="w-10 h-10 bg-canvas rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+          {item.image
+            ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+            : <span>{item.emoji ?? '🛒'}</span>
+          }
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`font-body font-semibold text-[16px] transition-colors ${item.checked ? 'text-ink-primary line-through' : 'text-ink-primary'}`}>
+            {item.name}
+          </p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <button onClick={() => onDecrement(item.id)} aria-label="Diminuer" className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary">−</button>
+            <span className="font-body text-[14px] text-ink-primary min-w-[20px] text-center">{item.qty}</span>
+            <button onClick={() => onIncrement(item.id)} aria-label="Augmenter" className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary">+</button>
+          </div>
+        </div>
+        <button
+          onClick={() => setConfirmId(isConfirming ? null : item.id)}
+          aria-label="Supprimer"
+          className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${isConfirming ? btnActive : btnDefault}`}
+        >
+          <TrashIcon />
+        </button>
+      </div>
+      {isConfirming && (
+        <div className="px-4 pb-3 flex items-center gap-2">
+          <p className="flex-1 font-body text-[16px] text-ink-primary truncate">Supprimer "{item.name}" ?</p>
+          <button onClick={() => { onDelete(item.id); setConfirmId(null) }} className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}>Oui</button>
+          <button onClick={() => setConfirmId(null)} className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}>Non</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function ShoppingList({ items, onToggle, onDelete, onDecrement, onIncrement, onClearChecked, onReorder, onAddCheckedToStock, canSort, horizontal = false }) {
   const [showRangerSheet, setShowRangerSheet] = useState(false)
   const [confirmId, setConfirmId] = useState(null)
   const { activeIndex, rowProps, handleProps } = useSortable(canSort ? items : [], onReorder)
@@ -247,6 +301,62 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
     )
   }
 
+  // Rendu desktop : 3 colonnes fixes Frigo / Congélateur / Placard
+  if (horizontal) {
+    return (
+      <>
+        <div className="flex gap-4 items-start mb-4">
+          {['frigo', 'congel', 'placard'].map(loc => {
+            const colItems = items.filter(i => (i.location ?? 'frigo') === loc)
+            return (
+              <div key={loc} className="flex-1 min-w-[280px] bg-canvas-card rounded-xl border border-ink-primary overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-ink-primary">
+                  <p className="font-display font-semibold text-[16px] text-ink-primary">{COL_LABELS[loc]}</p>
+                  <span className="font-body text-[14px] text-ink-primary">{colItems.length}</span>
+                </div>
+                {colItems.length === 0 ? (
+                  <p className="py-6 text-center font-body text-[14px] text-ink-primary/50">Vide</p>
+                ) : (
+                  <div className="divide-y divide-ink-primary">
+                    {colItems.map(item => (
+                      <ItemRow
+                        key={item.id}
+                        item={item}
+                        onToggle={onToggle}
+                        onDelete={onDelete}
+                        onDecrement={onDecrement}
+                        onIncrement={onIncrement}
+                        confirmId={confirmId}
+                        setConfirmId={setConfirmId}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+        {checked.length > 0 && !confirmId && (
+          <div className="flex gap-2 mt-4 w-1/2 mx-auto">
+            <button onClick={() => setShowRangerSheet(true)} className="flex-1 py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all">
+              Ranger les courses ({checked.length})
+            </button>
+            <button onClick={onClearChecked} className="py-3.5 px-6 bg-canvas border border-ink-primary text-ink-primary rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all">
+              Effacer
+            </button>
+          </div>
+        )}
+        {showRangerSheet && (
+          <RangerSheet
+            checkedItems={checked}
+            onConfirm={(loc, expiry) => { onAddCheckedToStock(loc, expiry); setShowRangerSheet(false) }}
+            onClose={() => setShowRangerSheet(false)}
+          />
+        )}
+      </>
+    )
+  }
+
   return (
     <div>
       <div className="bg-canvas-card rounded-xl border border-ink-primary shadow-sm mb-4 overflow-hidden">
@@ -258,102 +368,35 @@ export default function ShoppingList({ items, onToggle, onDelete, onDecrement, o
               activeIndex === index ? 'opacity-40' : ''
             }`}
           >
-            <div className={`flex items-center gap-3 px-4 py-3.5 ${item.checked ? 'bg-canvas-border/40' : ''}`}>
-              <button
-                onClick={() => onToggle(item.id)}
-                aria-label={item.checked ? 'Décocher' : 'Cocher'}
-                className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                  item.checked
-                    ? 'bg-forest border-forest text-canvas'
-                    : 'border-ink-primary'
-                }`}
-              >
-                {item.checked && <CheckIcon />}
-              </button>
-
-              <div className="w-10 h-10 bg-canvas rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
-                {item.image
-                  ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                  : <span>{item.emoji ?? '🛒'}</span>
-                }
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className={`font-body font-semibold text-[16px] transition-colors ${
-                  item.checked ? 'text-ink-primary line-through' : 'text-ink-primary'
-                }`}>
-                  {item.name}
-                </p>
-                {!canSort && (
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <button
-                      onClick={() => onDecrement(item.id)}
-                      aria-label="Diminuer"
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
-                    >
-                      −
-                    </button>
-                    <span className="font-body text-[14px] text-ink-primary min-w-[20px] text-center">{item.qty}</span>
-                    <button
-                      onClick={() => onIncrement(item.id)}
-                      aria-label="Augmenter"
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-canvas-border text-ink-primary font-bold text-[14px] leading-none active:scale-90 transition-all border border-ink-primary hover:bg-brand hover:text-ink-primary"
-                    >
-                      +
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {canSort ? (
-                <>
-                  <div
-                    {...handleProps(index)}
-                    className="md:hidden text-ink-primary flex-shrink-0 cursor-grab active:cursor-grabbing p-1 touch-none"
-                  >
-                    <DragHandle />
-                  </div>
-                  <div className="hidden md:flex flex-shrink-0">
-                    <PositionInput position={index + 1} total={items.length} onMoveTo={(to) => handleMoveTo(index, to)} />
-                  </div>
-                </>
-              ) : (
-                <button
-                  onClick={() => setConfirmId(confirmId === item.id ? null : item.id)}
-                  aria-label="Supprimer"
-                  className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] transition-all ${
-                    confirmId === item.id ? btnActive : btnDefault
-                  }`}
-                >
-                  <TrashIcon />
+            {canSort ? (
+              // En mode tri : rendu custom avec drag handle, pas de qty controls
+              <div className={`flex items-center gap-3 py-3.5 ${item.checked ? 'bg-canvas-border/40' : ''}`}>
+                <button onClick={() => onToggle(item.id)} aria-label={item.checked ? 'Décocher' : 'Cocher'} className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${item.checked ? 'bg-forest border-forest text-canvas' : 'border-ink-primary'}`}>
+                  {item.checked && <CheckIcon />}
                 </button>
-              )}
-            </div>
-
-            {confirmId === item.id && (
-              <div className="pb-3 px-4 flex items-center gap-2">
-                <p className="flex-1 font-body text-[16px] text-ink-primary truncate">
-                  Supprimer "{item.name}" ?
-                </p>
-                <button
-                  onClick={() => { onDelete(item.id); setConfirmId(null) }}
-                  className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnDefault}`}
-                >
-                  Oui
-                </button>
-                <button
-                  onClick={() => setConfirmId(null)}
-                  className={`px-3 py-1.5 rounded-[10px] font-body font-semibold text-[16px] ${btnActive}`}
-                >
-                  Non
-                </button>
+                <div className="w-10 h-10 bg-canvas rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                  {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" /> : <span>{item.emoji ?? '🛒'}</span>}
+                </div>
+                <p className={`flex-1 font-body font-semibold text-[16px] truncate ${item.checked ? 'line-through' : ''}`}>{item.name}</p>
+                <div {...handleProps(index)} className="md:hidden text-ink-primary flex-shrink-0 cursor-grab active:cursor-grabbing p-1 touch-none"><DragHandle /></div>
+                <div className="hidden md:flex flex-shrink-0"><PositionInput position={index + 1} total={items.length} onMoveTo={(to) => handleMoveTo(index, to)} /></div>
               </div>
+            ) : (
+              <ItemRow
+                item={item}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onDecrement={onDecrement}
+                onIncrement={onIncrement}
+                confirmId={confirmId}
+                setConfirmId={setConfirmId}
+              />
             )}
           </div>
         ))}
       </div>
 
-      {checked.length > 0 && (
+      {checked.length > 0 && !confirmId && (
         <div className="flex gap-2">
           <button
             onClick={() => setShowRangerSheet(true)}

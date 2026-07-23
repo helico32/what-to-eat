@@ -135,7 +135,7 @@ export default function App() {
             onIncrement={store.incrementShoppingItem}
             onClearChecked={store.clearCheckedItems}
             onReorder={store.reorderShoppingList}
-            onAddItem={(name, emoji) => store.addToShoppingList({ id: Date.now(), name, emoji: emoji ?? '🛒' })}
+            onAddItem={(name, emoji, location) => store.addToShoppingList({ id: Date.now(), name, emoji: emoji ?? '🛒', location: location ?? 'frigo' })}
             onAddCheckedToStock={handleAddCheckedToStock}
             onClose={() => navigate('/')}
             onMenu={() => setShowMenu(true)}

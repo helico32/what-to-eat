@@ -17,9 +17,16 @@ function SortIcon() {
   )
 }
 
+const LOCATIONS = [
+  { id: 'frigo',   label: 'Frigo'        },
+  { id: 'congel',  label: 'Congélateur'  },
+  { id: 'placard', label: 'Placard'      },
+]
+
 function AddItemSheet({ onAdd, onClose }) {
   const [value, setValue] = useState('')
   const [emoji, setEmoji] = useState('')
+  const [location, setLocation] = useState('frigo')
   const inputRef = useRef()
 
   useEffect(() => { inputRef.current?.focus() }, [])
@@ -27,7 +34,7 @@ function AddItemSheet({ onAdd, onClose }) {
   const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 
   const submit = () => {
-    if (value.trim()) { onAdd(cap(value.trim()), emoji.trim() || null); onClose() }
+    if (value.trim()) { onAdd(cap(value.trim()), emoji.trim() || null, location); onClose() }
   }
 
   return (
@@ -67,6 +74,19 @@ function AddItemSheet({ onAdd, onClose }) {
             />
           </div>
         </div>
+        <div className="flex gap-2 mb-4">
+          {LOCATIONS.map(l => (
+            <button
+              key={l.id}
+              onClick={() => setLocation(l.id)}
+              className={`flex-1 py-2 rounded-pill font-body font-semibold text-[14px] border transition-all ${
+                location === l.id ? 'bg-brand text-ink-primary border-ink-primary' : 'bg-canvas-border text-ink-primary border-ink-primary'
+              }`}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
         <button
           onClick={submit}
           disabled={!value.trim()}
@@ -94,7 +114,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
 
   return (
     <div className={isDesktop ? 'min-h-dvh bg-canvas' : 'fixed inset-0 z-30 bg-canvas overflow-y-auto'}>
-      <div className={isDesktop ? 'max-w-[75%] mx-auto px-8' : 'max-w-[430px] mx-auto'}>
+      <div className={isDesktop ? 'max-w-[1440px] mx-auto px-8 pt-8 pb-8' : 'max-w-[430px] mx-auto'}>
 
         {!isDesktop && (
           <Header
@@ -107,7 +127,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
         )}
 
         {isDesktop ? (
-          <div className="flex items-center gap-4 pt-8 mb-8">
+          <div className="max-w-[75%] mx-auto flex items-center gap-4 pt-8 mb-8">
             <div className="flex-1 relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-primary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
@@ -174,6 +194,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
                 onReorder={onReorder}
                 onAddCheckedToStock={onAddCheckedToStock}
                 canSort={!q && sorting}
+                horizontal={isDesktop && !q && !sorting}
               />
           }
         </main>

@@ -215,6 +215,7 @@ export function useStore() {
       qty: 1,
       checked: false,
       position: shoppingList.length,
+      location: product.location ?? 'frigo',
     }
     setShoppingList(prev => [...prev, newItem])
     const db = await dbPromise
