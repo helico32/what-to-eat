@@ -154,7 +154,7 @@ export default function DesktopDashboard({
         )}
 
         {/* ── Deux colonnes ── */}
-        <div className="flex gap-8 items-start">
+        <div className="flex gap-8 items-start pt-8">
 
           {/* Colonne gauche — produits (2/3) */}
           <div className="flex-[2] min-w-0">
