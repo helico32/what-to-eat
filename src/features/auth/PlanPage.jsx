@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useIsDesktop } from '../../hooks/useIsDesktop'
 
 function CheckIcon() {
   return (
@@ -71,6 +72,7 @@ const PAID_EXTRAS = [
 export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermission, permission = 'default' }) {
   const [error, setError] = useState(null)
   const [step, setStep] = useState('plan') // 'plan' | 'success'
+  const isDesktop = useIsDesktop()
 
   const handlePaid = async () => {
     setError(null) // remet à zéro avant chaque tentative
@@ -82,7 +84,7 @@ export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermiss
   }
 
   if (step === 'success') return (
-    <div className="fixed inset-0 z-40 bg-canvas flex flex-col items-center justify-center px-6 gap-8">
+    <div className={isDesktop ? 'min-h-dvh bg-canvas flex flex-col items-center justify-center px-6 gap-8' : 'fixed inset-0 z-40 bg-canvas flex flex-col items-center justify-center px-6 gap-8'}>
       <div className="max-w-[430px] w-full flex flex-col items-center gap-8">
 
         {/* Confirmation */}
@@ -126,6 +128,83 @@ export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermiss
     </div>
   )
 
+  if (isDesktop) return (
+    <div className="min-h-dvh bg-canvas">
+      <div className="max-w-[900px] mx-auto px-8 py-12 flex flex-col gap-8">
+
+        <h1 className="font-display font-bold text-[28px] text-ink-primary text-center">Connexion</h1>
+
+        <div className="grid grid-cols-2 gap-8 items-start">
+
+          {/* ── Plan payant ── */}
+          <div className="rounded-xl border-2 border-forest bg-canvas-card p-5 flex flex-col gap-4">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <p className="font-display font-bold text-[22px] text-ink-primary">2,99€ / mois</p>
+                <p className="font-body font-semibold text-[14px] text-forest">7 jours offerts · sans CB</p>
+              </div>
+              <span className="bg-canvas border border-ink-primary px-2 py-0.5 rounded-pill font-body text-[14px] text-ink-primary">
+                Recommandé
+              </span>
+            </div>
+            <ul className="flex flex-col gap-3">
+              {PAID_EXTRAS.map((text) => (
+                <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
+                  <CheckIcon /><span>{text}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={handlePaid}
+              className="w-full flex items-center justify-center gap-3 py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
+            >
+              <GoogleIcon />
+              Commencer l'essai de 7 jours
+            </button>
+            {error && <p role="alert" className="font-body text-[14px] text-urgent text-center">{error}</p>}
+            <p className="font-body text-[14px] text-ink-primary text-center">Puis 2,99€/mois. Annulable à tout moment.</p>
+            <button onClick={handlePaid} className="font-body text-[14px] text-ink-primary underline underline-offset-2 text-center">
+              Déjà un compte ? Se connecter
+            </button>
+          </div>
+
+          {/* ── Plan gratuit ── */}
+          <div className="rounded-xl border border-ink-primary bg-canvas-card p-5 flex flex-col gap-4">
+            <p className="font-display font-bold text-[20px] text-ink-primary">Gratuit</p>
+            <ul className="flex flex-col gap-3">
+              {FREE_INCLUDED.map((text) => (
+                <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
+                  <CheckIcon /><span>{text}</span>
+                </li>
+              ))}
+              {FREE_EXCLUDED.map((text) => (
+                <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
+                  <CrossIcon /><span>{text}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={onClose}
+              className="w-full py-3.5 rounded-xl border border-ink-primary font-body font-semibold text-[16px] text-ink-primary active:scale-[.98] transition-all"
+            >
+              Continuer sans compte
+            </button>
+          </div>
+
+        </div>
+
+        <p className="font-body text-[14px] text-ink-primary text-center leading-relaxed">
+          En continuant, tu acceptes nos{' '}
+          <Link to="/terms" className="underline underline-offset-2">Conditions générales</Link>
+          {' '}et notre{' '}
+          <Link to="/privacy" className="underline underline-offset-2">Politique de confidentialité</Link>.
+          {' '}<Link to="/legal-notice" className="underline underline-offset-2">Mentions légales</Link>
+        </p>
+
+      </div>
+    </div>
+  )
+
   return (
     <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto">
       <div className="max-w-[430px] mx-auto min-h-full flex flex-col">
@@ -156,16 +235,13 @@ export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermiss
                 Recommandé
               </span>
             </div>
-
             <ul className="flex flex-col gap-3">
               {PAID_EXTRAS.map((text) => (
                 <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
-                  <CheckIcon />
-                  <span>{text}</span>
+                  <CheckIcon /><span>{text}</span>
                 </li>
               ))}
             </ul>
-
             <button
               onClick={handlePaid}
               className="w-full flex items-center justify-center gap-3 py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
@@ -173,22 +249,13 @@ export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermiss
               <GoogleIcon />
               Commencer l'essai de 7 jours
             </button>
-
             {error && (
-              <p role="alert" className="font-body text-[13px] text-urgent text-center">
-                {error}
-              </p>
+              <p role="alert" className="font-body text-[13px] text-urgent text-center">{error}</p>
             )}
-
             <p className="font-body text-[12px] text-ink-primary text-center">
               Puis 2,99€/mois. Annulable à tout moment.
             </p>
-
-            {/* Lien retour pour les utilisatrices qui ont déjà un compte */}
-            <button
-              onClick={handlePaid}
-              className="font-body text-[13px] text-ink-primary underline underline-offset-2 text-center"
-            >
+            <button onClick={handlePaid} className="font-body text-[13px] text-ink-primary underline underline-offset-2 text-center">
               Déjà un compte ? Se connecter
             </button>
           </div>
@@ -196,22 +263,18 @@ export default function PlanPage({ onClose, onSignInWithGoogle, onRequestPermiss
           {/* ── Plan gratuit ── */}
           <div className="rounded-xl border border-ink-primary bg-canvas-card p-5 flex flex-col gap-4">
             <p className="font-display font-bold text-[20px] text-ink-primary">Gratuit</p>
-
             <ul className="flex flex-col gap-3">
               {FREE_INCLUDED.map((text) => (
                 <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
-                  <CheckIcon />
-                  <span>{text}</span>
+                  <CheckIcon /><span>{text}</span>
                 </li>
               ))}
               {FREE_EXCLUDED.map((text) => (
                 <li key={text} className="flex items-start gap-3 font-body text-[15px] text-ink-primary">
-                  <CrossIcon />
-                  <span>{text}</span>
+                  <CrossIcon /><span>{text}</span>
                 </li>
               ))}
             </ul>
-
             <button
               onClick={onClose}
               className="w-full py-3.5 rounded-xl border border-ink-primary font-body font-semibold text-[16px] text-ink-primary active:scale-[.98] transition-all"

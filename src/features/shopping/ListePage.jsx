@@ -159,7 +159,7 @@ export default function ListePage({ items, onToggle, onDelete, onDecrement, onIn
           />
         )}
 
-        <main className={isDesktop ? 'pb-8' : 'px-4 pb-32'}>
+        <main className={isDesktop ? 'max-w-[75%] mx-auto pb-8' : 'px-4 pb-32'}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <p className="font-display font-semibold text-[15px] text-ink-primary">
