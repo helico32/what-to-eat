@@ -1,7 +1,8 @@
-import { initializeApp }                       from 'firebase/app'
-import { getAuth }                             from 'firebase/auth'
-import { getFirestore }                        from 'firebase/firestore'
+import { initializeApp }                           from 'firebase/app'
+import { getAuth }                                 from 'firebase/auth'
+import { getFirestore }                            from 'firebase/firestore'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+import { getAnalytics }                            from 'firebase/analytics'
 
 // Ces valeurs sont publiques — la sécurité est assurée par les règles Firestore,
 // pas par le secret de la config. Safe à committer.
@@ -12,9 +13,14 @@ const firebaseConfig = {
   storageBucket:     'what-to-eat-angelab.firebasestorage.app',
   messagingSenderId: '135887887805',
   appId:             '1:135887887805:web:b52ff2886497f81eca46d4',
+  measurementId:     'G-4K07VV24YY',
 }
 
 export const app = initializeApp(firebaseConfig)
+
+// Analytics collecte en silence — page_view, session_start, user_engagement.
+// Pas d'events custom, pas d'export nécessaire.
+getAnalytics(app)
 
 // En dev local, localhost n'est pas un vrai domaine — reCAPTCHA ne peut pas valider.
 // Ce token de debug remplace le token reCAPTCHA uniquement en local.
