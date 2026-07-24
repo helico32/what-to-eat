@@ -122,8 +122,8 @@ export function parseUtterance(text, today = new Date()) {
       }
     }
 
-    // -- Quantité : nombre isolé après le nom --------------------------------
-    if (asNumber !== null && current.name.length) { current.qty = asNumber; continue }
+    // -- Quantité : nombre en tête ("3 framboises") ou après le nom ("framboises 3")
+    if (asNumber !== null) { current.qty = asNumber; continue }
 
     // -- Mots de liaison des expressions de date : ignorés -------------------
     if (FILLER.has(tok)) continue

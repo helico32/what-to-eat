@@ -10,7 +10,7 @@ function googleUid() {
 
 // Écrit une recette dans Firestore — sans l'image (trop lourde, reste dans IndexedDB).
 function pushRecipe(uid, recipe) {
-  const { image: _image, ...fields } = recipe
+  const { photo: _photo, ...fields } = recipe
   setDoc(doc(firestore, 'users', uid, 'recipes', String(recipe.id)), {
     ...fields,
     updatedAt: new Date().toISOString(),

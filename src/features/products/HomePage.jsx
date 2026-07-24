@@ -9,7 +9,6 @@ import SearchEmpty                           from '../../components/SearchEmpty'
 import RecipeCard                            from '../recipes/RecipeCard'
 import ProductRow                            from './ProductRow'
 import AddModal                              from './AddModal'
-import QuickAddSheet                         from './QuickAddSheet'
 import PlannedMealsSection                   from '../meals/PlannedMealsSection'
 
 function CutleryIcon() {
@@ -125,8 +124,7 @@ const getSectionLabel = (tab) => ({
 
 export default function HomePage({ store, mealsStore, recipes, uncheckedCount, onMenu, tab, onTabChange }) {
   const navigate = useNavigate()
-  const [showAdd,    setShowAdd]    = useState(null)    // null | 'quick' | 'full'
-  const [quickName,  setQuickName]  = useState('')
+  const [showAdd, setShowAdd] = useState(false)
   const [search,     setSearch]     = useState('')
   // Urgent → repas par défaut, autres onglets → courses par défaut
   const [actionMode, setActionMode] = useState('cart')  // 'meal' | 'cart'
@@ -177,7 +175,7 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
     <>
       <Header
         onTitleClick={() => onTabChange('urgent')}
-        onAdd={() => setShowAdd('quick')}
+        onAdd={() => setShowAdd(true)}
         onMenu={onMenu}
         onCart={() => navigate('/list')}
         cartCount={uncheckedCount}
@@ -256,18 +254,10 @@ export default function HomePage({ store, mealsStore, recipes, uncheckedCount, o
         )}
       </main>
 
-      {showAdd === 'quick' && (
-        <QuickAddSheet
-          onClose={() => setShowAdd(null)}
-          onAdd={(p) => { store.addProduct(p); setShowAdd(null) }}
-          onFullAdd={(name) => { setQuickName(name); setShowAdd('full') }}
-        />
-      )}
-      {showAdd === 'full' && (
+      {showAdd && (
         <AddModal
-          onClose={() => { setQuickName(''); setShowAdd(null) }}
-          onAdd={(p) => { store.addProduct(p); setQuickName(''); setShowAdd(null) }}
-          initialName={quickName}
+          onClose={() => setShowAdd(false)}
+          onAdd={(p) => store.addProduct(p)}
         />
       )}
     </>

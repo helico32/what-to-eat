@@ -1,98 +1,8 @@
-import { useState, useRef } from 'react'
-import { compressImage } from '../../utils/compressImage'
-
-function CameraIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-      <circle cx="12" cy="13" r="3"/>
-    </svg>
-  )
-}
-
-function ImageIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21 15 16 10 5 21"/>
-    </svg>
-  )
-}
-
-function GridIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1"/>
-      <rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="14" y="14" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/>
-    </svg>
-  )
-}
-
-function SmileIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
-      <line x1="9" y1="9" x2="9.01" y2="9"/>
-      <line x1="15" y1="9" x2="15.01" y2="9"/>
-    </svg>
-  )
-}
-
-const IMG_CACHE_KEY = 'wte-image-cache'
-
-function loadImageCache() {
-  try { return JSON.parse(localStorage.getItem(IMG_CACHE_KEY) ?? '[]') } catch { return [] }
-}
-
-function saveToImageCache(base64) {
-  try {
-    const cache = loadImageCache().filter(img => img !== base64)
-    localStorage.setItem(IMG_CACHE_KEY, JSON.stringify([base64, ...cache]))
-  } catch { /* ignore localStorage errors */ }
-}
-
-function GallerySheet({ onSelect, onClose }) {
-  const images = loadImageCache()
-  return (
-    <div
-      className="fixed inset-0 z-50"
-      role="button"
-      tabIndex={0}
-      onClick={onClose}
-      onKeyDown={e => e.key === 'Escape' && onClose()}
-      aria-label="Fermer la galerie"
-    >
-      <div className="absolute inset-0 bg-ink-primary/30" />
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stopPropagation technique, pas une interaction utilisateur */}
-      <div
-        className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-canvas rounded-t-[20px] border-t border-x border-ink-primary p-5 pb-10 shadow-lg"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-4" />
-        <p className="font-display font-semibold text-[16px] text-ink-primary mb-4">Galerie</p>
-        {images.length === 0 ? (
-          <p className="font-body text-[15px] text-ink-primary">Aucune photo en cache pour l'instant.</p>
-        ) : (
-          <div className="grid grid-cols-3 gap-3 max-h-[55vh] overflow-y-auto">
-            {images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => { onSelect(img); onClose() }}
-                className="aspect-square rounded-xl overflow-hidden border border-ink-primary active:scale-95 transition-all"
-              >
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+import { useState, useEffect } from 'react'
+import ImagePickerGrid           from './ImagePickerGrid'
+import { useVoiceSession }       from '../voice/useVoiceSession'
+import VoiceSessionScreen        from '../voice/VoiceSessionScreen'
+import VoiceReviewScreen         from '../voice/VoiceReviewScreen'
 
 function ArrowLeft() {
   return (
@@ -155,256 +65,244 @@ const dateInDays = (n) => {
 }
 
 const todayStr = () => new Date().toISOString().split('T')[0]
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 
 export default function AddModal({ onClose, onAdd, initialName = '' }) {
-  const [step,        setStep]        = useState(1)
-  const [name,        setName]        = useState(initialName)
-  const [qty,         setQty]         = useState(1)
-  const [emoji,       setEmoji]       = useState(null)
-  const [image,       setImage]       = useState(null)
-  const [expiry,      setExpiry]      = useState('')
-  const [loc,         setLoc]         = useState('frigo')
-  const [showGallery, setShowGallery] = useState(false)
-  const [emojiMode,   setEmojiMode]   = useState(false)
-  const fileRef   = useRef()
-  const cameraRef = useRef()
+  const [step,   setStep]   = useState(1)
+  const [name,   setName]   = useState(initialName)
+  const [qty,    setQty]    = useState(1)
+  const [emoji,  setEmoji]  = useState(null)
+  const [image,  setImage]  = useState(null)
+  const [expiry, setExpiry] = useState('')
+  const [loc,    setLoc]    = useState('frigo')
 
-  const handleImage = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    compressImage(file, (dataUrl) => {
-      setImage(dataUrl)
-      saveToImageCache(dataUrl)
-    })
-  }
+  // Flux vocal : null | 'session' | 'review'
+  const [voiceStep,   setVoiceStep]   = useState(null)
+  const voiceSession = useVoiceSession()
 
-  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+  // Quand la session se termine, passer automatiquement à l'écran de revue
+  useEffect(() => {
+    if (voiceSession.status === 'done' && voiceStep === 'session') {
+      setVoiceStep('review')
+    }
+  }, [voiceSession.status, voiceStep])
 
   const handleConfirm = () => {
     onAdd({
-      name:     cap(name.trim()) || 'Produit',
+      name:       cap(name.trim()) || 'Produit',
       emoji,
       image,
       qty,
       expiryDate: loc === 'frigo' ? expiry || null : null,
-      location: loc,
+      location:   loc,
     })
     onClose()
   }
 
+  // Appelé par VoiceReviewScreen avec tous les items validés
+  const handleVoiceAddAll = (items) => {
+    items.forEach(item => onAdd(item))
+    onClose()
+  }
+
+  const startVoice = () => {
+    voiceSession.start()
+    setVoiceStep('session')
+  }
+
+  const cancelVoice = () => {
+    voiceSession.stop()
+    setVoiceStep(null)
+  }
+
   return (
-    <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto lg:bg-ink-primary/30 lg:flex lg:items-start lg:justify-center lg:pt-10 lg:overflow-y-auto">
-      <div className="max-w-[430px] mx-auto min-h-full flex flex-col lg:min-h-0 lg:max-h-[90vh] lg:overflow-y-auto lg:rounded-xl lg:border lg:border-ink-primary lg:shadow-lg lg:bg-canvas lg:w-full">
+    <>
+      <div className="fixed inset-0 z-40 bg-canvas overflow-y-auto lg:bg-ink-primary/30 lg:flex lg:items-start lg:justify-center lg:pt-10 lg:overflow-y-auto">
+        <div className="max-w-[430px] mx-auto min-h-full flex flex-col lg:min-h-0 lg:max-h-[90vh] lg:overflow-y-auto lg:rounded-xl lg:border lg:border-ink-primary lg:shadow-lg lg:bg-canvas lg:w-full">
 
-        {/* ── STEP 1 : Détails ── */}
-        {step === 1 && (
-          <>
-            <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
-              <div className="flex items-center py-3">
-                <button onClick={onClose} aria-label="Retour" className="text-ink-primary w-10 flex items-center"><ArrowLeft /></button>
-                <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
-                  Détails de l'article
-                </h1>
-                <div className="w-10" />
-              </div>
-            </header>
-
-            <div className="flex-1 px-4 pt-5 pb-10 flex flex-col gap-y-6">
-              {/* Hidden file inputs */}
-              <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImage} />
-              <input ref={fileRef}   type="file" accept="image/*" className="hidden" onChange={handleImage} />
-
-              {/* Image preview */}
-              {image && (
-                <div className="relative w-full h-36 rounded-xl overflow-hidden border border-ink-primary">
-                  <img src={image} alt="preview" className="w-full h-full object-cover" />
-                  <button
-                    onClick={() => setImage(null)}
-                    aria-label="Supprimer la photo"
-                    className="absolute top-2 right-2 w-7 h-7 bg-ink-primary/60 text-canvas rounded-full flex items-center justify-center font-bold text-[16px] leading-none"
-                  >
-                    ×
-                  </button>
+          {/* ── STEP 1 : Détails ── */}
+          {step === 1 && (
+            <>
+              <header className="sticky top-0 bg-canvas/90 backdrop-blur-md pt-10 px-4 pb-0 border-b border-ink-primary z-10">
+                <div className="flex items-center py-3">
+                  <button onClick={onClose} aria-label="Retour" className="text-ink-primary w-10 flex items-center"><ArrowLeft /></button>
+                  <h1 className="font-display font-bold text-[20px] text-ink-primary flex-1 text-center">
+                    Détails de l'article
+                  </h1>
+                  <div className="w-10" />
                 </div>
-              )}
+              </header>
 
-              {/* 2×2 source grid */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex-1 px-4 pt-5 pb-10 flex flex-col gap-y-6">
+
+                {/* Nom — en premier : le reste dépend du nom */}
+                <div>
+                  <label htmlFor="add-name" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Nom*</label>
+                  <input
+                    id="add-name"
+                    type="text"
+                    name="add-name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="ex. Framboises"
+                    className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
+                  />
+                  {/* Bouton vocal — chemin alternatif multi-produits */}
+                  {voiceSession.supported && (
+                    <button
+                      onClick={startVoice}
+                      aria-label="Dicter plusieurs articles d'un coup"
+                      className="mt-2 w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-ink-primary bg-brand text-ink-primary font-body font-semibold text-[15px] active:scale-[.98] transition-all"
+                    >
+                      🎤 Dicter plusieurs articles d'un coup
+                    </button>
+                  )}
+                </div>
+
+                {/* Quantité */}
+                <div>
+                  <p className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Quantité</p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setQty(q => Math.max(1, q - 1))}
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas border border-ink-primary text-ink-primary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
+                    >−</button>
+                    <input
+                      type="number"
+                      name="add-qty"
+                      min="1"
+                      step="1"
+                      value={qty}
+                      onChange={e => {
+                        const v = parseInt(e.target.value)
+                        if (!isNaN(v) && v >= 1) setQty(v)
+                      }}
+                      className="w-10 text-center font-body font-bold text-[18px] bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <button
+                      onClick={() => setQty(q => q + 1)}
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas border border-ink-primary text-ink-primary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
+                    >+</button>
+                  </div>
+                </div>
+
+                {/* Aperçu image */}
+                {image && (
+                  <div className="relative w-full h-36 rounded-xl overflow-hidden border border-ink-primary">
+                    <img src={image} alt="preview" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => setImage(null)}
+                      aria-label="Supprimer la photo"
+                      className="absolute top-2 right-2 w-7 h-7 bg-ink-primary/60 text-canvas rounded-full flex items-center justify-center font-bold text-[16px] leading-none"
+                    >×</button>
+                  </div>
+                )}
+
+                {/* Grille image — composant extrait */}
+                <ImagePickerGrid
+                  image={image}
+                  onImageChange={setImage}
+                  emoji={emoji}
+                  onEmojiChange={setEmoji}
+                />
+
+                {/* Date de péremption */}
+                <div>
+                  <p className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">Date de péremption</p>
+                  <div className="flex gap-2 mb-3">
+                    {PRESETS.map(p => {
+                      const val = dateInDays(p.days)
+                      return (
+                        <button
+                          key={p.label}
+                          onClick={() => setExpiry(val)}
+                          className={`flex-1 py-2 rounded-pill font-body font-semibold text-[14px] border transition-all ${
+                            expiry === val
+                              ? 'bg-brand text-ink-primary border-ink-primary'
+                              : 'bg-canvas text-ink-primary border-ink-primary'
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="add-expiry"
+                      value={expiry}
+                      min={todayStr()}
+                      onChange={e => setExpiry(e.target.value)}
+                      className="w-full px-4 py-6 bg-canvas border-2 border-ink-primary rounded-xl font-body text-[18px] font-semibold outline-none focus:border-forest transition-colors min-h-[64px]"
+                    />
+                  </div>
+                </div>
+
                 <button
-                  onClick={() => { setEmojiMode(false); cameraRef.current.click() }}
-                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas border border-ink-primary rounded-xl text-ink-primary hover:bg-brand active:scale-95 transition-all"
-                >
-                  <CameraIcon />
-                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Prendre une photo</span>
-                </button>
-                <button
-                  onClick={() => { setEmojiMode(false); fileRef.current.click() }}
-                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas border border-ink-primary rounded-xl text-ink-primary hover:bg-brand active:scale-95 transition-all"
-                >
-                  <ImageIcon />
-                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Ajouter une photo</span>
-                </button>
-                <button
-                  onClick={() => { setEmojiMode(false); setShowGallery(true) }}
-                  className="aspect-square flex flex-col items-center justify-center gap-2 bg-canvas border border-ink-primary rounded-xl text-ink-primary hover:bg-brand active:scale-95 transition-all"
-                >
-                  <GridIcon />
-                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Galerie</span>
-                </button>
-                <button
-                  onClick={() => { setImage(null); setEmojiMode(m => !m) }}
-                  className={`aspect-square flex flex-col items-center justify-center gap-2 border rounded-xl active:scale-95 transition-all ${
-                    emojiMode ? 'bg-brand border-ink-primary text-ink-primary' : 'bg-canvas border-ink-primary text-ink-primary hover:bg-brand'
+                  onClick={() => setStep(2)}
+                  disabled={!name.trim()}
+                  className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
+                    name.trim()
+                      ? 'bg-forest text-canvas active:scale-[.98]'
+                      : 'bg-ink-primary/20 border border-ink-primary text-ink-primary cursor-not-allowed'
                   }`}
                 >
-                  {emoji ? <span className="text-3xl leading-none">{emoji}</span> : <SmileIcon />}
-                  <span className="font-body text-[12px] font-semibold text-center leading-tight px-1">Emoji</span>
+                  Suivant
                 </button>
               </div>
+            </>
+          )}
 
-              {/* Champ emoji — visible uniquement si le carré Emoji est actif */}
-              <div className={emojiMode ? 'block' : 'hidden'}>
-                <label htmlFor="add-emoji" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Emoji</label>
-                <input
-                  id="add-emoji"
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus={emojiMode}
-                  type="text"
-                  value={emoji ?? ''}
-                  onChange={e => setEmoji(e.target.value || null)}
-                  placeholder="😊"
-                  className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[28px] text-center placeholder:text-ink-primary/40 outline-none focus:border-forest transition-colors"
-                />
-              </div>
+          {/* ── STEP 2 : Emplacement ── */}
+          {step === 2 && (
+            <div className="flex-1 px-5 pt-6 pb-10 flex flex-col gap-3">
+              <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-2" />
+              <button onClick={() => setStep(1)} aria-label="Retour" className="text-ink-primary w-10 mb-1 flex items-center"><ArrowLeft /></button>
+              <p className="font-display font-bold text-[20px] text-ink-primary mb-1">Où le ranger ?</p>
 
-              {/* Nom */}
-              <div>
-                <label htmlFor="add-name" className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Nom*</label>
-                <input
-                  id="add-name"
-                  type="text"
-                  name="add-name"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="ex. Framboises"
-                  className="w-full px-4 py-3 bg-canvas border border-ink-primary rounded-xl font-body text-[16px] placeholder:text-ink-primary/50 outline-none focus:border-forest transition-colors"
-                />
-              </div>
-
-              {/* Quantité */}
-              <div>
-                <p className="font-body font-semibold text-[16px] text-ink-primary mb-1.5 block">Quantité</p>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setQty(q => Math.max(1, q - 1))}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas border border-ink-primary text-ink-primary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
-                  >−</button>
-                  <input
-                    type="number"
-                    name="add-qty"
-                    min="1"
-                    step="1"
-                    value={qty}
-                    onChange={e => {
-                      const v = parseInt(e.target.value)
-                      if (!isNaN(v) && v >= 1) setQty(v)
-                    }}
-                    className="w-10 text-center font-body font-bold text-[18px] bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <button
-                    onClick={() => setQty(q => q + 1)}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-canvas border border-ink-primary text-ink-primary font-bold text-xl hover:bg-brand hover:text-ink-primary transition-colors active:scale-90"
-                  >+</button>
-                </div>
-              </div>
-
-              {/* Date de péremption */}
-              <div>
-                <p className="font-body font-semibold text-[16px] text-ink-primary mb-2 block">Date de péremption</p>
-                <div className="flex gap-2 mb-3">
-                  {PRESETS.map(p => {
-                    const val = dateInDays(p.days)
-                    return (
-                      <button
-                        key={p.label}
-                        onClick={() => setExpiry(val)}
-                        className={`flex-1 py-2 rounded-pill font-body font-semibold text-[14px] border transition-all ${
-                          expiry === val
-                            ? 'bg-brand text-ink-primary border-ink-primary'
-                            : 'bg-canvas text-ink-primary border-ink-primary'
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div className="relative">
-                  <input
-                    type="date"
-                    name="add-expiry"
-                    value={expiry}
-                    min={todayStr()}
-                    onChange={e => setExpiry(e.target.value)}
-                    className="w-full px-4 py-6 bg-canvas border-2 border-ink-primary rounded-xl font-body text-[18px] font-semibold outline-none focus:border-forest transition-colors min-h-[64px]"
-                  />
-                </div>
-              </div>
+              {LOCATIONS.map(l => (
+                <button
+                  key={l.id}
+                  onClick={() => setLoc(l.id)}
+                  className={`flex items-center gap-4 p-4 rounded-[10px] border border-ink-primary text-left font-body font-semibold text-[16px] transition-all ${
+                    loc === l.id
+                      ? 'bg-brand text-ink-primary'
+                      : 'bg-canvas-border text-ink-primary'
+                  }`}
+                >
+                  <l.Icon />
+                  <span>{l.label}</span>
+                </button>
+              ))}
 
               <button
-                onClick={() => setStep(2)}
-                disabled={!name.trim()}
-                className={`w-full py-3.5 rounded-xl font-body font-semibold text-[16px] transition-all ${
-                  name.trim()
-                    ? 'bg-forest text-canvas active:scale-[.98]'
-                    : 'bg-ink-primary/20 border border-ink-primary text-ink-primary cursor-not-allowed'
-                }`}
+                onClick={handleConfirm}
+                className="mt-2 w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
               >
-                Suivant
+                Ajouter
               </button>
             </div>
-          </>
-        )}
-
-        {/* In-app gallery sheet */}
-        {showGallery && (
-          <GallerySheet
-            onSelect={setImage}
-            onClose={() => setShowGallery(false)}
-          />
-        )}
-
-        {/* ── STEP 2 : Emplacement ── */}
-        {step === 2 && (
-          <div className="flex-1 px-5 pt-6 pb-10 flex flex-col gap-3">
-            <div className="w-9 h-1 bg-canvas-border rounded-full mx-auto mb-2" />
-            <button onClick={() => setStep(1)} aria-label="Retour" className="text-ink-primary w-10 mb-1 flex items-center"><ArrowLeft /></button>
-            <p className="font-display font-bold text-[20px] text-ink-primary mb-1">Où le ranger ?</p>
-
-            {LOCATIONS.map(l => (
-              <button
-                key={l.id}
-                onClick={() => setLoc(l.id)}
-                className={`flex items-center gap-4 p-4 rounded-[10px] border border-ink-primary text-left font-body font-semibold text-[16px] transition-all ${
-                  loc === l.id
-                    ? 'bg-brand text-ink-primary'
-                    : 'bg-canvas-border text-ink-primary'
-                }`}
-              >
-                <l.Icon />
-                <span>{l.label}</span>
-              </button>
-            ))}
-
-            <button
-              onClick={handleConfirm}
-              className="mt-2 w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all"
-            >
-              Ajouter
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* ── Flux vocal — par-dessus AddModal (z-50) ── */}
+      {voiceStep === 'session' && (
+        <VoiceSessionScreen
+          status={voiceSession.status}
+          interim={voiceSession.interim}
+          onStop={voiceSession.stop}
+          onClose={cancelVoice}
+        />
+      )}
+      {voiceStep === 'review' && (
+        <VoiceReviewScreen
+          utterances={voiceSession.utterances}
+          onAddAll={handleVoiceAddAll}
+          onBack={cancelVoice}
+        />
+      )}
+    </>
   )
 }
