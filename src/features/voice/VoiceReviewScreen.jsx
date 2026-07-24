@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { parseUtterance } from './parseUtterance'
 import VoiceReviewRow from './VoiceReviewRow'
 
@@ -16,11 +16,27 @@ const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 // onAddAll   : (items[]) => void  — appelé avec tous les items validés (AddModal itère et appelle onAdd + onClose)
 // onBack     : () => void         — retour à VoiceSessionScreen (ou fermeture)
 export default function VoiceReviewScreen({ utterances, onAddAll, onBack }) {
+  // Initialisation synchrone : sur desktop les utterances sont déjà là au montage.
+  // "Rien de reconnu" s'affiche immédiatement si utterances est vide.
   const [items, setItems] = useState(() =>
     utterances
       .flatMap(u => parseUtterance(u))
       .map((item, i) => ({ ...item, id: i, name: cap(item.name), emoji: null, image: null }))
   )
+
+  // iOS Safari uniquement : les finals arrivent après onend, donc après le montage.
+  // Si items était vide au montage mais que utterances arrive ensuite, on réinitialise.
+  // Le cas "l'utilisatrice a déjà édité des items" ne peut pas se produire ici
+  // (les finals iOS arrivent dans les ~100ms, avant tout tap possible).
+  useEffect(() => {
+    if (items.length === 0 && utterances.length > 0) {
+      setItems(
+        utterances
+          .flatMap(u => parseUtterance(u))
+          .map((item, i) => ({ ...item, id: i, name: cap(item.name), emoji: null, image: null }))
+      )
+    }
+  }, [utterances])
 
   const updateItem = (id, updated) =>
     setItems(prev => prev.map(it => it.id === id ? updated : it))
@@ -48,7 +64,9 @@ export default function VoiceReviewScreen({ utterances, onAddAll, onBack }) {
       </header>
 
       <div className="px-4 pt-5 pb-32">
-        {items.length === 0 ? (
+        {items === null ? (
+          <p className="font-body text-[16px] text-ink-primary text-center py-12">Traitement en cours…</p>
+        ) : items.length === 0 ? (
           <p className="font-body text-[16px] text-ink-primary text-center py-12">
             Rien de reconnu — reviens en arrière pour réessayer.
           </p>
@@ -70,7 +88,7 @@ export default function VoiceReviewScreen({ utterances, onAddAll, onBack }) {
       <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto px-4 pb-8 pt-3 bg-canvas border-t border-ink-primary">
         <button
           onClick={handleAddAll}
-          disabled={items.length === 0}
+          disabled={!items || items.length === 0}
           className="w-full py-3.5 bg-forest text-canvas rounded-xl font-body font-semibold text-[16px] active:scale-[.98] transition-all disabled:opacity-40"
         >
           {items.length > 0
